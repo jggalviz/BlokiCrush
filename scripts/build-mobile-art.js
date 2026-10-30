@@ -15,20 +15,27 @@
  *
  * Piezas:
  *   design/marco_movil.png   -> public/src/assets/marco_movil.webp   (1325 x 941)
- *   design/consola_movil.png -> public/src/assets/consola_movil.webp (1952 x 904)
+ *   design/consola_movil.png -> public/src/assets/consola_movil.webp (1783 x 693)
  *
- * Los dos maestros vigentes son la piel dulce del rebranding: el marco de
- * caramelo (toldo rosa, nube del logo a la izquierda, tres placas moradas del
- * HUD y ventana del tablero) y la consola rosa con corona (cinco discos, dos
- * pantallas arriba y cuatro placas de pie). Los nombres de destino NO cambian:
- * el CSS y el HTML siguen apuntando a `marco_movil.webp` y `consola_movil.webp`,
- * asi que el cambio de arte no toca el mapeo de los componentes.
+ * Los dos maestros vigentes son la piel de caramelo del rebranding: el marco
+ * (toldo rosa, nube del logo a la izquierda, tres placas moradas del HUD y
+ * ventana del tablero) y el panel de control de caramelo brillante —una sola
+ * barra dorada con cinco discos, la corona y los caramelos de palo encima del
+ * GIRAR y cuatro placas de pie—. Los nombres de destino NO cambian: el CSS y el
+ * HTML siguen apuntando a `marco_movil.webp` y `consola_movil.webp`, asi que el
+ * cambio de arte no toca el mapeo de los componentes.
  *
- * `design/marco_movil_estadio.png` y `design/consola_movil_estadio.png` son los
- * maestros de la piel deportiva de MeridianoBet que se publico antes: se
- * conservan como referencia, pero el dueño de cada pieza es siempre el archivo
- * sin sufijo (`design/marco_movil.png`, `design/consola_movil.png`), de modo que
- * el CSS y esta tabla hablan siempre de la misma pieza.
+ * El panel brillante es mas bajo que el rosa anterior (2,573:1 contra 2,159:1)
+ * y ya no trae las dos pantallas de la fila superior: la lectura de APUESTA se
+ * mueve a la mitad izquierda de la cuarta placa y el MAX se queda en su extremo
+ * derecho (ver la seccion 4 de `style.css`).
+ *
+ * Los maestros de las pieles que se publicaron antes se conservan como
+ * referencia: `marco_movil_estadio.png` y `consola_movil_estadio.png` (deporte,
+ * MeridianoBet) y `consola_movil_rosa.png` (candy rosa con dos pantallas). El
+ * dueño de cada pieza es siempre el archivo sin sufijo (`design/marco_movil.png`,
+ * `design/consola_movil.png`), de modo que el CSS y esta tabla hablan siempre de
+ * la misma pieza.
  *
  * El script, para cada pieza:
  *   1. mide el bbox de los pixeles con alfa visible;
@@ -53,13 +60,13 @@ const DEPLOY_DIR = path.join(ROOT, '.vercel', 'output', 'static', 'src', 'assets
  * `quality` sube en la consola porque sus degradados dorados hacen banding
  * visible muy por debajo de 92.
  *
- * Presupuesto (el arte nuevo trae mas detalle que el anterior):
- *   - el marco deportivo pesa 325 kB a q=90 y 304 kB a q=88; a q=86 se queda en
- *     290 kB y el tope de 300 kB del test sigue intacto;
- *   - el panel azul con corona es la pieza movil mas rica (1780x883, 28 % mas
- *     pixeles que la anterior) y a q=92 pesa 482 kB: su tope sube a 512 kB en
- *     vez de bajar la calidad y arriesgar banding en el azul y el dorado (d5 de
- *     escritorio ya viaja con 560 kB).
+ * Presupuesto:
+ *   - el marco de caramelo pesa 325 kB a q=90 y 304 kB a q=88; a q=86 se queda
+ *     en 290 kB y el tope de 300 kB del test sigue intacto;
+ *   - el panel brillante mide 1783 x 693 (1,24 Mpx, un 30 % menos que el rosa
+ *     anterior) y a q=92 pesa 274 kB: el tope de 512 kB se mantiene aunque ya
+ *     sobre -el dorado es la zona donde antes aparecia el banding, asi que no se
+ *     baja la calidad para ahorrar bytes que no hacen falta.
  */
 const PIECES = [
   {
@@ -70,7 +77,7 @@ const PIECES = [
   },
   {
     name: 'consola_movil',
-    canvas: { width: 1952, height: 904 },
+    canvas: { width: 1783, height: 693 },
     quality: 92,
     maxBytes: 512 * 1024
   }

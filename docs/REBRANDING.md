@@ -176,11 +176,19 @@ La barra del navegador movil usa la meta `theme-color`, ya en azul de marca:
 `<meta name="theme-color" content="#3a4fd8" />`.
 
 Piel movil vigente: la dulce (`design/marco_movil.png` 1325 x 941 y
-`design/consola_movil.png` 1952 x 904, publicados como `marco_movil.webp` y
-`consola_movil.webp`), con la avenida de caramelo como fondo. Los maestros de la
-piel deportiva anterior siguen en `design/marco_movil_estadio.png`,
-`design/consola_movil_estadio.png` y `design/avenida_estadio.png`: no se publican,
-pero dejan rastro de los recortes que midio el CSS movil antes del cambio.
+`design/consola_movil.png` 1783 x 693 —el recorte al alfa del maestro, que mide
+1914 x 822—), publicados por `npm run build:art` como `marco_movil.webp` (109 KB)
+y `consola_movil.webp` (274 KB), con la avenida de caramelo como fondo. El panel
+de control es el «caramelo brillante»: una sola barra dorada con los cinco discos
+(FEVER · AUTO · GIRAR · − · +), la corona y los caramelos de palo sobre el GIRAR
+y cuatro placas de pie. Al no traer las dos pantallas de la fila superior que
+tenia la piel rosa, la lectura de APUESTA baja a la mitad izquierda de la cuarta
+placa y el MAX se queda en su extremo derecho (geometria medida en la seccion 4
+de `style.css`). Los maestros de las pieles que se publicaron antes siguen en
+`design/marco_movil_estadio.png`, `design/consola_movil_estadio.png`,
+`design/avenida_estadio.png` y `design/consola_movil_rosa.png` (candy con dos
+pantallas): no se publican, pero dejan rastro de los recortes que midio el CSS
+movil antes del cambio.
 En escritorio el arte de marca (`d1`, `d3`, `d5`) ya es el candy del rebranding.
 
 Los simbolos del tablero (20 PNG en `public/src/assets/symbols/`) se mapean en

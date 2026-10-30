@@ -744,13 +744,13 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
   );
   // El ancho sale del alto libre menos la separacion, repartido entre la
   // relacion del marco (941 / 1325 = 0,7102, la del recorte sin estirar) y la
-  // de la consola (904 / 1952 = 0,4631): 1,1733 en total.
+  // de la consola (693 / 1783 = 0,3887): 1,0989 en total.
   // `cqw`/`cqh` en lugar de `%`: dentro de una custom property un `%` se
   // resuelve contra la propiedad que la usa, y el mismo token medía el ancho en
   // `width` y el alto en `height` (el HUD caía 12 px bajo sus placas).
   assert.match(
     machineGrid[0],
-    /--m-w:\s*min\(100cqw,\s*calc\(\(100cqh - clamp\(4px, 1\.2dvh, 10px\)\) \/ 1\.1733\)\);/,
+    /--m-w:\s*min\(100cqw,\s*calc\(\(100cqh - clamp\(4px, 1\.2dvh, 10px\)\) \/ 1\.0989\)\);/,
     'El ancho de la maquina descuenta marco + separacion + consola del alto libre'
   );
 
@@ -761,9 +761,9 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
   assert.match(frameRule[0], /width:\s*var\(--m-w\);/, 'El marco se mide con `--m-w`');
 
   const caseRule = css.match(
-    /\.machine__side \.controls\s*\{[^}]*aspect-ratio:\s*1952 \/ 904;[^}]*\}/
+    /\.machine__side \.controls\s*\{[^}]*aspect-ratio:\s*1783 \/ 693;[^}]*\}/
   );
-  assert.ok(caseRule, 'La consola debe declarar su relacion 1952/904');
+  assert.ok(caseRule, 'La consola debe declarar su relacion 1783/693');
   const rule = caseRule[0];
   assert.match(rule, /grid-area:\s*console;/, 'La consola vive en la fila `console`');
   assert.match(rule, /width:\s*var\(--m-w\);/, 'La consola comparte el ancho exacto del marco');
@@ -844,10 +844,10 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
   );
 
   // El sobrante de arriba no se da por hecho: se mide con el alto del escenario,
-  // el del marco, la separacion de la rejilla y el de la consola (904 / 1952).
+  // el del marco, la separacion de la rejilla y el de la consola (693 / 1783).
   assert.match(
     css,
-    /--slack: calc\(\s*\(100cqh - var\(--frame-h\) - var\(--row-gap\) - \(var\(--m-w\) \* 0\.4631\)\) \/ 2\s*\);/,
+    /--slack: calc\(\s*\(100cqh - var\(--frame-h\) - var\(--row-gap\) - \(var\(--m-w\) \* 0\.3887\)\) \/ 2\s*\);/,
     'El aire sobre el marco se deriva del escenario y del alto real de las dos piezas'
   );
 });
@@ -892,7 +892,7 @@ test('el arte de las dos maquinas se sirve con su lienzo exacto y los maestros q
   // hero + placas) y d3 (consola), a q=90 y con el mismo contrato de lienzo.
   const pieces = [
     { name: 'marco_movil', size: '1325x941', max: 300 * 1024, build: 'build-mobile-art.js' },
-    { name: 'consola_movil', size: '1952x904', max: 512 * 1024, build: 'build-mobile-art.js' },
+    { name: 'consola_movil', size: '1783x693', max: 512 * 1024, build: 'build-mobile-art.js' },
     { name: 'd1', size: '1017x819', max: 300 * 1024, build: 'build-desktop-art.js' },
     { name: 'd5', size: '1471x1042', max: 560 * 1024, build: 'build-desktop-art.js' },
     { name: 'd3', size: '599x468', max: 300 * 1024, build: 'build-desktop-art.js' }
@@ -1124,20 +1124,21 @@ test('el pulsador se hunde en 80 ms al tocarlo y vuelve con la misma curva', () 
 test('la caja tactil de cada pulsador es su bbox del arte y el velo se recorta con --disc', () => {
   const css = read(STYLE_PATH);
 
-  // Medido sobre `consola_movil.webp` (1780 x 883) con el analisis de alfa y
-  // color: discos x 3,26-18,37 / 19,04-34,04 / 65,00-80,11 / 80,96-96,07 % · y
-  // 40,77-70,60 %, aro del GIRAR x 35,8-63,4 % · y 20,4-76,2 % (la caja tactil se
-  // queda con el cuadrado que cabe entero sobre el disco y encima de la placa
-  // GIRAR: x 37,7-61,4 % · y 21,4-69,2 %) y el tramo MAX de la placa APUESTA
-  // x 85,6-92,0 % · y 74,9-81,3 %. La caja tactil es exactamente ese recuadro,
-  // asi que el dedo siempre cae sobre el dibujo.
+  // Medido sobre `consola_movil.webp` (1783 x 693) con el analisis de alfa y
+  // color: cristales de los discos x 4,49-16,32 / 20,86-32,87 / 67,13-79,14 /
+  // 84,02-95,57 % · y 44,3-74,2 % y el del GIRAR x 38,47-61,02 % · y
+  // 24,39-79,80 % (la caja tactil se queda con el cuadrado de 384 px que cabe
+  // entero sobre ese cristal y encima de la placa GIRAR: x 38,98-60,52 % · y
+  // 24,39-79,80 %) y el tramo MAX de la placa APUESTA x 85,2-94,5 % · y
+  // 81,6-93,3 %. La caja tactil es exactamente ese recuadro, asi que el dedo
+  // siempre cae sobre el dibujo.
   const boxes = [
-    [/\.machine__side \.controls #btn-feature\.gbtn \{([^}]*)\}/, ['left: 3.89%;', 'top: 36.06%;', 'width: 12.81%;', 'height: 26.66%;']],
-    [/\.machine__side \.controls #btn-auto\.gbtn \{([^}]*)\}/, ['left: 20.54%;', 'top: 35.84%;', 'width: 12.76%;', 'height: 26.66%;']],
-    [/\.machine__side \.controls \.btn--spin\.gbtn \{([^}]*)\}/, ['left: 37.96%;', 'top: 17.92%;', 'width: 24.28%;', 'height: 48.12%;']],
-    [/\.machine__side \.controls__bet #btn-bet-down \{([^}]*)\}/, ['left: 66.70%;', 'top: 36.06%;']],
-    [/\.machine__side \.controls__bet #btn-bet-up \{([^}]*)\}/, ['left: 83.20%;', 'top: 35.84%;']],
-    [/\.machine__side \.controls__bet #btn-bet-max \{([^}]*)\}/, ['left: 75.3%;', 'top: 68.9%;', 'width: 11.7%;', 'height: 8.2%;']]
+    [/\.machine__side \.controls #btn-feature\.gbtn \{([^}]*)\}/, ['left: 4.49%;', 'top: 44.59%;', 'width: 11.83%;', 'height: 29.58%;']],
+    [/\.machine__side \.controls #btn-auto\.gbtn \{([^}]*)\}/, ['left: 20.86%;', 'top: 44.30%;', 'width: 12.01%;', 'height: 29.87%;']],
+    [/\.machine__side \.controls \.btn--spin\.gbtn \{([^}]*)\}/, ['left: 38.98%;', 'top: 24.39%;', 'width: 21.54%;', 'height: 55.41%;']],
+    [/\.machine__side \.controls__bet #btn-bet-down \{([^}]*)\}/, ['left: 67.13%;', 'top: 44.73%;']],
+    [/\.machine__side \.controls__bet #btn-bet-up \{([^}]*)\}/, ['left: 83.80%;', 'top: 44.59%;']],
+    [/\.machine__side \.controls__bet #btn-bet-max \{([^}]*)\}/, ['left: 85.2%;', 'top: 81.6%;', 'width: 9.3%;', 'height: 11.7%;']]
   ];
   for (const [pattern, declarations] of boxes) {
     // Las reglas de `--disc` no llevan geometria: se busca la que la declare
@@ -1155,8 +1156,8 @@ test('la caja tactil de cada pulsador es su bbox del arte y el velo se recorta c
     /\.machine__side \.controls__bet #btn-bet-down,\s*\n\s*\.machine__side \.controls__bet #btn-bet-up \{([^}]*)\}/
   );
   assert.ok(discPair, 'Los discos − y + comparten su regla base');
-  assert.ok(discPair[1].includes('width: 12.81%;'), 'Los dos discos minus/plus miden 12,81 % de ancho');
-  assert.ok(discPair[1].includes('height: 26.66%;'), 'Los dos discos minus/plus miden 26,66 % de alto');
+  assert.ok(discPair[1].includes('width: 12.00%;'), 'Los dos discos minus/plus miden 12,00 % de ancho');
+  assert.ok(discPair[1].includes('height: 29.44%;'), 'Los dos discos minus/plus miden 29,44 % de alto');
 
   // `--disc` (top right bottom left, en % de la caja tactil) recorta el velo del
   // hundimiento. Con la caja ceñida al bbox del arte el recorte no necesita
