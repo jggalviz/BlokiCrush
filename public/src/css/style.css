@@ -4864,6 +4864,15 @@ body.is-demo .machine__side .controls .balance::after {
        miden con `--frame-h`, porque el alto no es proporcional a `--m-w` en
        ninguna otra propiedad. */
     --frame-h: calc(var(--m-w) * 0.7102);
+    /* Aire libre que la rejilla deja por encima del marco: las dos filas (marco
+       y consola) se centran en la celda del escenario, asi que el sobrante se
+       reparte a partes iguales arriba y abajo. La consola mide 904 / 1952 =
+       0,4631 del ancho de la maquina. Lo consulta la pegatina del logo para
+       crecer hacia arriba sin salirse nunca del escenario, que recorta
+       (`.stage` lleva `overflow: hidden`). */
+    --slack: calc(
+      (100cqh - var(--frame-h) - var(--row-gap) - (var(--m-w) * 0.4631)) / 2
+    );
     /* Chrome del tablero (padding 4+4 + filo 2+2): lo consulta la regla base
        de escritorio al calcular el ancho con `cqh`. */
     --board-overhead: 12px;
@@ -4892,22 +4901,43 @@ body.is-demo .machine__side .controls .balance::after {
        alto del recorte (medido sobre `marco_movil.webp`). Por dentro, el borde
        dorado deja un ovalo libre de 87 x 41 px con el viewport en 390 px. El
        lockup ya es cuadrado (mascota + "BLOKI CRUSH"), asi que la caja es un
-       cuadrado atado al alto del marco: 0,24 son 65 px en un 390, o sea que la
-       pegatina desborda el ovalo por abajo y se apoya sobre la nube y el toldo,
-       pero su filo de arriba se queda dentro del marco (0,4 % del alto, ~1 px) y
-       no llega a la topbar. */
-    --logo-w: calc(var(--frame-h) * 0.24);
+       cuadrado atado al alto del marco: 0,32 son 86 px en un 390 -el doble de la
+       chapa original (0,149)-, de modo que la pegatina desborda el ovalo por los
+       cuatro lados y se apoya sobre la nube y el toldo.
+       Pero por arriba no hay marco que la sostenga: el filo superior del dibujo
+       es el filo del escenario. Por eso el tamano se queda con el MENOR entre
+       esos 0,32 y el alto que deja libre el cielo del escenario por encima del
+       marco (la base, 0,244, mas el aire disponible `--slack`). En paisaje de
+       movil o en pantallas de poco alto la pegatina se encoge sola hasta caber y
+       ninguna ventana la corta.
+       `--logo-peak` es el margen que se descuenta de ese cielo: 4 px del salto de
+       la animacion mas 1,1 % del marco, lo que crece la caja en el pico del
+       balanceo (`translateY(-4px)` y `rotate(-2deg)` sobre un origen al 70 %).
+       No se puede recortar: el arte empieza a tener tinta en la fila 3 de 320, o
+       sea que un recorte de 4 px ya se comeria la punta de la cola. */
+    --logo-peak: calc(4px + var(--frame-h) * 0.011);
+    --logo-w: min(
+      calc(var(--frame-h) * 0.32),
+      calc(var(--frame-h) * 0.244 + var(--slack) - var(--logo-peak))
+    );
     --logo-h: var(--logo-w);
     width: var(--logo-w);
     height: var(--logo-h);
-    /* Centrado en la nube: el ovalo va del 5,6 % al 30,2 % del ancho del marco,
-       o sea que su centro cae en 18,5 %; con una caja del 17,1 % de ancho, el
-       borde izquierdo arranca en 9,97 % y deja el mismo aire a los dos lados. */
-    left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.0997);
-    /* Base a 24,4 % del alto del marco desde arriba: la pegatina se apoya en el
-       filo de la ventana del tablero (26,3 %) con ~5 px de aire, y lo que crezca
-       con el balanceo va hacia arriba, nunca sobre las piezas. */
-    bottom: calc(var(--frame-h) * 0.756);
+    /* Corrida a la izquierda del ovalo (0,05 del ancho del marco, ~19 px a 390):
+       la pegatina deja ~19 px de aire hasta el interior de la placa de SALDO
+       (32,75 %) y no la roza ni cuando el balanceo la inclina. */
+    left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.05);
+    /* Subida: 0,054 del marco (~15 px a 390) sobre la base que se apoya en el
+       filo de la ventana del tablero (0,756). La pegatina arranca asi en 0,81 -
+       0,32 = 49 % del alto del marco, o sea que sobresale por encima del toldo y
+       del aro dorado. La subida se recorta al aire que quede arriba: en el peor
+       caso vale 0 y `bottom` vuelve a 0,756, con la base a 5 px de la ventana del
+       tablero y el filo dentro del marco, como antes de agrandarla. */
+    --logo-lift: min(
+      calc(var(--frame-h) * 0.054),
+      calc(var(--slack) - var(--logo-peak) - var(--logo-w) + var(--frame-h) * 0.244)
+    );
+    bottom: calc(var(--frame-h) * 0.756 + var(--logo-lift));
     margin: 0;
     padding: 0;
     overflow: visible;
@@ -5158,8 +5188,8 @@ body.is-demo .machine__side .controls .balance::after {
    Anchos intermedios (600-899 px) · ya no hay cielo que reservarle a la marca
    --------------------------------------------------------------------------
    Con el marco de caramelo el logo vive DENTRO de la nube del dibujo: su caja
-   sale del alto del marco (`--logo-w: calc(var(--frame-h) * 0.30)`), asi que
-   la chapa escala con el arte en todos los tramos y no necesita altura propia.
+   sale del alto del marco (`--logo-w`, atada a `--frame-h`), asi que la chapa
+   escala con el arte en todos los tramos y no necesita altura propia.
    El antiguo `--logo-air` (10 % del alto del escenario, tope 104 px) existia
    solo para que la chapa tuviera cielo sobre las placas del marco deportivo;
    se retira, y este hueco queda documentado para no reintroducirlo.

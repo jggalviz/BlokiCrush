@@ -813,16 +813,25 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
   // La marca se pega sobre la nube de caramelo del marco (x 2,64-32,30 % y
   // 0,00-17,85 % del recorte), y por dentro el aro dorado deja un ovalo de 87 x
   // 41 px a 390. El lockup es 1:1, asi que la caja se ata al ALTO del marco:
-  // 0,24 da 65 px, desborda el ovalo por abajo como una pegatina y aun deja el
-  // filo de arriba dentro del marco y ~5 px de aire sobre la ventana del tablero.
-  const logoAt = css.indexOf('--logo-w: calc(var(--frame-h) * 0.24);');
+  // 0,32 da 86 px, desborda el ovalo por los cuatro lados y sube hasta
+  // sobresalir por encima del toldo y del aro, pero nunca mas alla del cielo que
+  // el escenario deja libre (`.stage` recorta) ni sobre la ventana del tablero.
+  const logoAt = css.indexOf('--logo-w: min(');
   assert.notEqual(logoAt, -1, 'La marca debe declarar su caja dentro de la nube del marco');
-  const heroBlock = css.slice(Math.max(0, logoAt - 200), logoAt + 900);
+  // El bloque se compara sin saltos de linea: las tres formulas van partidas en
+  // varias lineas para que se lean.
+  const heroBlock = css
+    .slice(Math.max(0, logoAt - 400), logoAt + 1600)
+    .replace(/\s+/g, ' ');
   for (const declaration of [
-    '--logo-w: calc(var(--frame-h) * 0.24);',
+    '--logo-peak: calc(4px + var(--frame-h) * 0.011);',
+    '--logo-w: min( calc(var(--frame-h) * 0.32), ' +
+      'calc(var(--frame-h) * 0.244 + var(--slack) - var(--logo-peak)) );',
     '--logo-h: var(--logo-w);',
-    'left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.0997);',
-    'bottom: calc(var(--frame-h) * 0.756);'
+    'left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.05);',
+    '--logo-lift: min( calc(var(--frame-h) * 0.054), ' +
+      'calc(var(--slack) - var(--logo-peak) - var(--logo-w) + var(--frame-h) * 0.244) );',
+    'bottom: calc(var(--frame-h) * 0.756 + var(--logo-lift));'
   ]) {
     assert.ok(
       heroBlock.includes(declaration),
@@ -833,14 +842,23 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
     !heroBlock.includes('--logo-sky'),
     'La chapa ya no depende de un cielo derivado'
   );
+
+  // El sobrante de arriba no se da por hecho: se mide con el alto del escenario,
+  // el del marco, la separacion de la rejilla y el de la consola (904 / 1952).
+  assert.match(
+    css,
+    /--slack: calc\(\s*\(100cqh - var\(--frame-h\) - var\(--row-gap\) - \(var\(--m-w\) \* 0\.4631\)\) \/ 2\s*\);/,
+    'El aire sobre el marco se deriva del escenario y del alto real de las dos piezas'
+  );
 });
 
 test('la chapa del logo escala con el arte en todo el rango movil y sin aire reservado', () => {
   const css = read(STYLE_PATH);
 
-  // Con el marco de caramelo el logo vive DENTRO de la nube del dibujo: su caja
-  // sale del alto del marco (`--logo-w: var(--frame-h) * 0.24`), asi que escala
-  // con el arte en todos los tramos y no necesita altura reservada.
+  // Con el marco de caramelo el logo vive sobre la nube del dibujo: su caja
+  // sale del alto del marco (`--logo-w: var(--frame-h) * 0.32`, recortado al
+  // cielo que deja el escenario), asi que escala con el arte en todos los tramos
+  // y no necesita altura reservada.
   assert.ok(!css.includes('--logo-air:'), 'El aire reservado para la marca ya no existe');
   assert.ok(!css.includes('--logo-sky:'), 'La chapa se mide con el alto del marco, no con un cielo');
   assert.equal(

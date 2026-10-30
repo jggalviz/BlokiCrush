@@ -145,14 +145,26 @@ en bucle infinito en los que la mascota lame el chupachus.
    dentro de la caja.
 
 En movil (320-899 px) la caja se ata al **alto del marco** (`--logo-w:
-calc(var(--frame-h) * 0.24)`, con `--logo-h: var(--logo-w)` para el 1:1) y se
-centra en el hueco rosa que dibuja el propio marco: por dentro del aro dorado
-quedan 87 x 41 px a 390 x 844 y el centro cae en el 18,5 % del ancho. A 390 x 844
-el logo mide 65 px, asi que desborda el aro por abajo y se apoya sobre la nube y
-el toldo como una pegatina, con el filo de arriba dentro del marco (~1 px) y ~5 px
-de aire sobre la ventana del tablero; escala con el arte en todo el rango, sin aire
-reservado ni tramo intermedio. El balanceo de la pegatina baja a 2-4 px y 1,4-2
-grados para no tocar ni la topbar ni las piezas.
+min(calc(var(--frame-h) * 0.32), calc(var(--frame-h) * 0.244 + var(--slack) -
+var(--logo-peak)))`, con `--logo-h: var(--logo-w)` para el 1:1) y se pega al
+hueco rosa que dibuja el propio marco, corrida a la izquierda (`left` al 0,05 del
+ancho) para dejar aire hasta la placa de SALDO. Por dentro del aro dorado quedan
+87 x 41 px a 390 x 844. A 390 x 844 el logo mide 86 px -el doble de la chapa
+original (0,149)-, desborda el aro por los cuatro lados, se apoya sobre la nube y
+el toldo, y sube por encima del aro y del toldo (`bottom` 0,756 + `--logo-lift`,
+hasta 0,81 del alto del marco) para quedar como una pegatina que sobresale del
+dibujo; deja ~20 px de aire sobre la ventana del tablero y ~19 px hasta la primera
+placa del HUD.
+
+Ese sobrante no se da por hecho: el filo superior del marco es el filo del
+escenario y `.stage` recorta (`overflow: hidden`), asi que el CSS mide el cielo
+libre que la rejilla deja arriba (`--slack`, con el alto del escenario, el del
+marco, la separacion de filas y el de la consola) y recorta a la vez el tamano y
+la subida, descontando `--logo-peak` (4 px del salto de la animacion mas 1,1 % del
+marco, lo que crece la caja en el pico del balanceo). En paisaje de movil o en
+ventanas de poco alto la pegatina se encoge sola hasta caber -a 844 x 390 mide
+42 px y el filo se queda dentro del marco- en vez de quedar cortada. El balanceo
+baja a 2-4 px y 1,4-2 grados para no tocar ni la topbar ni las piezas.
 
 En escritorio (>=900 px) el logo vive sobre la nube de `d5.webp` y ahora manda el
 alto (`height: 75%` de `--hero-h`, centro en 34,5 %): a 1440 x 900 mide 250 px,
