@@ -30,14 +30,20 @@ const ROOT = path.join(__dirname, '..');
 const GRACE_MS = 2000;
 
 /**
- * Cada pieza declara sus maestros y el script que la publica. El logo entra con
- * dos maestros porque `build:logo` puede rasterizar el PNG desde el SVG: si el
- * vector es mas nuevo que el PNG, el WebP tambien esta desactualizado.
+ * Cada pieza declara sus maestros y el script que la publica. El logo entro con
+ * dos maestros cuando `build:logo` rasterizaba el PNG desde el SVG; ahora el
+ * maestro es el GIF animado (`--estatico` conserva aquella ruta, pero no es la
+ * que se publica), asi que solo vigila ese archivo.
  */
 const PIECES = [
   {
     target: 'BLOKICRUSH-LOGO.webp',
-    masters: ['BLOKICRUSH-LOGO.svg', 'BlokiCrush Logo.png'],
+    masters: ['BROKI_crush_animacion-logo-LENTO.gif'],
+    script: 'build:logo'
+  },
+  {
+    target: 'BLOKICRUSH-LOGO-quieto.webp',
+    masters: ['BROKI_crush_animacion-logo-LENTO.gif'],
     script: 'build:logo'
   },
   {

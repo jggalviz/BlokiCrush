@@ -68,8 +68,8 @@ El tema BlokiCrush **ya esta activo**: `public/index.html` abre con
 3. Para volver al look candy, quita el atributo `data-theme` de `<html>` y
    reconstruye el HTML: `theme.css` queda inerte y el juego se ve como antes.
 4. Sustituye marcos y simbolos segun la guia `docs/REBRANDING.md`; el
-   logotipo ya es el de BlokiCrush (`design/BLOKICRUSH-LOGO.svg` → `npm run
-   build:logo`).
+   logotipo ya es el de BlokiCrush, animado y cuadrado
+   (`design/BROKI_crush_animacion-logo-LENTO.gif` → `npm run build:logo`).
 
 La capa de marca repinta lo que dibuja el CSS (barra superior, boton de fichas,
 modal, marco interior del tablero y casillas). Las carcasas de la maquina, el

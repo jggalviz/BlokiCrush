@@ -371,7 +371,7 @@ No es necesario para un despliegue normal: los WebP/WOFF2/PNG ya están versiona
 | `npm run build:art` | `marco_movil.png`, `consola_movil.png` | `marco_movil.webp`, `consola_movil.webp` |
 | `npm run build:desktop-art` | `d1.png`, `d3.png`, `d5.png` | `d1.webp`, `d3.webp`, `d5.webp` |
 | `npm run build:bg` | `reino_de_caramelos_y_arcoiris.png`, `avenida_fantastica_reino_caramelos.png` | `reino_de_caramelos_y_arcoiris.webp`, `avenida_fantastica_reino_caramelos.webp` |
-| `npm run build:logo` | `BlokiCrush Logo.png` (rasterizado desde `BLOKICRUSH-LOGO.svg`) | `BLOKICRUSH-LOGO.webp` |
+| `npm run build:logo` | `BROKI_crush_animacion-logo-LENTO.gif` (`--estatico`: `BlokiCrush Logo.png`, rasterizado desde `BLOKICRUSH-LOGO.svg`) | `BLOKICRUSH-LOGO.webp`, `BLOKICRUSH-LOGO-quieto.webp` |
 | `npm run build:win` | `victoria_dulce.png` | `victoria_dulce.webp` |
 | `npm run check:art` | — (solo compara mtime) | avisa si un maestro es más nuevo que su WebP |
 

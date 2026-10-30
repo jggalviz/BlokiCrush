@@ -70,8 +70,12 @@
           <!-- Bloque 1 · Logo principal (flotacion continua via CSS) -->
           <div class="machine__hero">
             <span class="machine__spark machine__spark--left" aria-hidden="true">✦</span>
-            <img class="machine__logo" src="/src/assets/BLOKICRUSH-LOGO.webp"
-                 alt="BlokiCrush" width="240" height="240" fetchpriority="high" />
+            <picture>
+              <source srcset="/src/assets/BLOKICRUSH-LOGO-quieto.webp" type="image/webp"
+                      media="(prefers-reduced-motion: reduce)" />
+              <img class="machine__logo" src="/src/assets/BLOKICRUSH-LOGO.webp"
+                   alt="BlokiCrush" width="320" height="320" fetchpriority="high" />
+            </picture>
             <span class="machine__spark machine__spark--right" aria-hidden="true">✦</span>
           </div>
 

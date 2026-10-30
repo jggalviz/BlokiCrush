@@ -107,11 +107,19 @@
              Bloque 1: logo · Bloque 2: indicadores · Bloque 3: saldo y controles
              ================================================================== -->
         <div class="machine__side">
-          <!-- Bloque 1 · Logo principal (flotacion continua via CSS) -->
+          <!-- Bloque 1 · Logo principal (flotacion continua via CSS). El WebP es
+               animado (5 fotogramas de 500 ms) y cuadrado, 320 x 320: reservar
+               ese mismo cuadro evita el salto al decodificar el primer fotograma.
+               Con `prefers-reduced-motion` el <source> sirve el primer fotograma
+               quieto, asi que el logo se ve igual pero sin movimiento. -->
           <div class="machine__hero">
             <span class="machine__spark machine__spark--left" aria-hidden="true">✦</span>
-            <img class="machine__logo" src="/src/assets/BLOKICRUSH-LOGO.webp"
-                 alt="BlokiCrush" width="480" height="240" fetchpriority="high" />
+            <picture>
+              <source srcset="/src/assets/BLOKICRUSH-LOGO-quieto.webp" type="image/webp"
+                      media="(prefers-reduced-motion: reduce)" />
+              <img class="machine__logo" src="/src/assets/BLOKICRUSH-LOGO.webp"
+                   alt="BlokiCrush" width="320" height="320" fetchpriority="high" />
+            </picture>
             <span class="machine__spark machine__spark--right" aria-hidden="true">✦</span>
           </div>
 

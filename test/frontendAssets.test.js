@@ -20,7 +20,8 @@ const FORMAT_PATH = path.join(PUBLIC_DIR, 'ui', 'lib', 'format.js');
 const STYLE_PATH = path.join(PUBLIC_DIR, 'src', 'css', 'style.css');
 const INDEX_PATH = path.join(PUBLIC_DIR, 'index.html');
 const LOGO_PATH = path.join(PUBLIC_DIR, 'src', 'assets', 'BLOKICRUSH-LOGO.webp');
-const LOGO_MASTER_PATH = path.join(ROOT_DIR, 'design', 'BlokiCrush Logo.png');
+const LOGO_STILL_PATH = path.join(PUBLIC_DIR, 'src', 'assets', 'BLOKICRUSH-LOGO-quieto.webp');
+const LOGO_MASTER_PATH = path.join(ROOT_DIR, 'design', 'BROKI_crush_animacion-logo-LENTO.gif');
 const WIN_ART_PATH = path.join(PUBLIC_DIR, 'src', 'assets', 'victoria_dulce.webp');
 const WIN_MASTER_PATH = path.join(ROOT_DIR, 'design', 'victoria_dulce.png');
 const WIN_SOUND_PATH = path.join(PUBLIC_DIR, 'src', 'assets', 'AUDIO-WIN-2.MP3');
@@ -65,14 +66,15 @@ test('los 11 simbolos del motor apuntan a imagenes existentes', () => {
   }
 });
 
-test('el logotipo de BlokiCrush se sirve ligero y con su proporcion 2:1', () => {
+test('el logotipo animado de BlokiCrush se sirve ligero, cuadrado y en bucle', () => {
   const html = read(INDEX_PATH);
 
   assert.ok(fs.existsSync(LOGO_PATH), 'Falta public/src/assets/BLOKICRUSH-LOGO.webp');
 
-  // El peso es parte del contrato: el maestro PNG (2:1, 1620 x 810) queda fuera
-  // de public/ y el WebP servido pesa menos de 200 KB. Es un WebP estatico
-  // (VP8X + ALPH + VP8): el logotipo es un lockup fijo, no una animacion.
+  // El peso es parte del contrato: el maestro (GIF de 493 x 509, cinco
+  // fotogramas, ~568 KB) queda fuera de public/ y el WebP servido pesa menos de
+  // 200 KB. Es un WebP ANIMADO: VP8X con los bits de animacion (0x02) y alfa
+  // (0x10), bloque ANIM y un ANMF por fotograma.
   const binary = fs.readFileSync(LOGO_PATH);
   assert.equal(binary.toString('ascii', 0, 4), 'RIFF', 'El logo debe ser un contenedor RIFF/WebP');
   assert.equal(binary.toString('ascii', 8, 12), 'WEBP', 'El logo debe ser un contenedor RIFF/WebP');
@@ -81,25 +83,34 @@ test('el logotipo de BlokiCrush se sirve ligero y con su proporcion 2:1', () => 
   assert.equal(chunks[0].fourCC, 'VP8X', 'El logo debe declarar caracteristicas extendidas (VP8X)');
 
   const flags = binary.readUInt8(chunks[0].offset + 8);
-  assert.equal((flags & 0x02) === 0, true, 'El logo no debe declarar animacion (bloque ANIM)');
+  assert.equal((flags & 0x02) !== 0, true, 'El logo debe declarar animacion (bit 0x02 de VP8X)');
   assert.equal((flags & 0x10) !== 0, true, 'El logo debe declarar canal alfa');
-  assert.ok(
-    chunks.some((chunk) => chunk.fourCC === 'ALPH'),
-    'El logo debe traer el plano alfa como bloque ALPH'
-  );
-  assert.equal(
-    chunks.some((chunk) => chunk.fourCC === 'ANMF'),
-    false,
-    'El logo estatico no debe traer fotogramas ANMF'
-  );
 
-  // Lienzo: 900 x 450, la misma proporcion 2:1 del maestro. Se sirve a 240 px de
-  // ancho como maximo, asi que 900 cubre pantallas de alta densidad sin reescalar
-  // en el navegador y sin publicar el PNG completo.
+  // ANIM = color de fondo (4 bytes) + numero de repeticiones (2 bytes); 0 es
+  // bucle infinito, que es como se ve la mascota lamiendo el chupachus.
+  const anim = chunks.find((chunk) => chunk.fourCC === 'ANIM');
+  assert.ok(anim, 'El logo debe traer el bloque ANIM');
+  assert.equal(binary.readUInt16LE(anim.offset + 8 + 4), 0, 'El logo debe repetirse en bucle infinito');
+
+  // ANMF: x (3) y (3) ancho-1 (3) alto-1 (3) duracion (3) flags (1), asi que la
+  // duracion arranca 20 bytes despues del fourCC.
+  const frames = chunks.filter((chunk) => chunk.fourCC === 'ANMF');
+  assert.equal(frames.length, 5, 'El logo debe traer los cinco fotogramas del maestro');
+  for (const frame of frames) {
+    assert.equal(
+      binary.readUIntLE(frame.offset + 20, 3),
+      500,
+      'Cada fotograma del logo dura los 500 ms del maestro'
+    );
+  }
+
+  // Lienzo cuadrado: el lockup (mascota + "BLOKI CRUSH") es 1:1, no el wordmark
+  // 2:1 anterior. Se sirve a 320 px, casi el doble del mayor tamano en pantalla
+  // (166 px en escritorio), para no reescalar en pantallas de alta densidad.
   const width = binary.readUIntLE(chunks[0].offset + 12, 3) + 1;
   const height = binary.readUIntLE(chunks[0].offset + 15, 3) + 1;
-  assert.equal(width, 900, 'El logo debe servirse a 900 px de ancho');
-  assert.equal(height, 450, 'El logo debe conservar la proporcion 2:1 (900 x 450)');
+  assert.equal(width, 320, 'El logo debe servirse a 320 px de ancho');
+  assert.equal(height, 320, 'El logo debe conservar la proporcion 1:1 del lockup (320 x 320)');
 
   assert.ok(
     binary.length < 200 * 1024,
@@ -109,26 +120,51 @@ test('el logotipo de BlokiCrush se sirve ligero y con su proporcion 2:1', () => 
   assert.match(html, /<div class="machine__hero">/);
   assert.match(html, /src="\/src\/assets\/BLOKICRUSH-LOGO\.webp"/);
   assert.match(html, /alt="BlokiCrush"/);
-  // La caja reserva la proporcion del archivo: si el HTML dice 1:1 el navegador
-  // aparta el doble de alto del que ocupa el dibujo y el tablero salta al cargar.
-  assert.match(html, /width="480" height="240"/, 'El logo debe reservar 480x240 px (2:1)');
+  // La caja reserva la proporcion del archivo: si el HTML declarase 2:1 el
+  // navegador apartaria el doble de ancho en el hueco de la nube y el HUD
+  // saltaria al decodificar el primer fotograma.
+  assert.match(html, /width="320" height="320"/, 'El logo debe reservar 320x320 px (1:1)');
+
+  // Respeto a `prefers-reduced-motion`: el <picture> cambia la animacion por su
+  // primer fotograma, un WebP estatico del mismo lienzo (sin bloque ANIM).
+  assert.match(
+    html,
+    /<picture>[\s\S]*BLOKICRUSH-LOGO-quieto\.webp[\s\S]*media="\(prefers-reduced-motion: reduce\)"[\s\S]*<\/picture>/,
+    'El logo debe servir un fotograma quieto cuando se pide movimiento reducido'
+  );
+  assert.ok(fs.existsSync(LOGO_STILL_PATH), 'Falta public/src/assets/BLOKICRUSH-LOGO-quieto.webp');
+  const still = fs.readFileSync(LOGO_STILL_PATH);
+  const stillChunks = webpChunks(still);
+  assert.equal(stillChunks[0].fourCC, 'VP8X', 'El fotograma quieto debe declarar VP8X');
+  assert.equal(
+    (still.readUInt8(stillChunks[0].offset + 8) & 0x02) === 0,
+    true,
+    'El fotograma quieto no debe declarar animacion'
+  );
+  assert.equal(
+    stillChunks.some((chunk) => chunk.fourCC === 'ANIM'),
+    false,
+    'El fotograma quieto no debe traer bloque ANIM'
+  );
+  assert.equal(still.readUIntLE(stillChunks[0].offset + 12, 3) + 1, 320, 'El fotograma quieto mide 320 de ancho');
+  assert.equal(still.readUIntLE(stillChunks[0].offset + 15, 3) + 1, 320, 'El fotograma quieto mide 320 de alto');
+  assert.ok(
+    still.length < 80 * 1024,
+    `El fotograma quieto debe pesar menos de 80 KB (pesa ${(still.length / 1024).toFixed(1)} KB)`
+  );
 });
 
 test('el maestro del logo vive fuera de public/ y no viaja al CDN', () => {
-  // El PNG pesa ~212 KB: si se queda en `public/src`, se publica en cada deploy
+  // El GIF pesa ~568 KB: si se queda en `public/src`, se publica en cada deploy
   // y el directorio deja de ser solo lo que consume el cliente.
   assert.ok(
     fs.existsSync(LOGO_MASTER_PATH),
-    'Falta el maestro design/BlokiCrush Logo.png'
+    'Falta el maestro design/BROKI_crush_animacion-logo-LENTO.gif'
   );
   assert.ok(fs.statSync(LOGO_MASTER_PATH).size > 0, 'El maestro del logo esta vacio');
 
-  const signature = fs.readFileSync(LOGO_MASTER_PATH).subarray(0, 8);
-  assert.deepEqual(
-    [...signature],
-    [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
-    'El maestro del logo debe seguir siendo un PNG'
-  );
+  const signature = fs.readFileSync(LOGO_MASTER_PATH).subarray(0, 6).toString('ascii');
+  assert.equal(signature, 'GIF89a', 'El maestro del logo debe seguir siendo el GIF animado');
 
   const media = /\.(gif|png|jpe?g|webp|avif|psd|tiff?|mp4|mov|webm)$/i;
   const strays = fs
@@ -775,15 +811,16 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
   );
 
   // La marca se pega dentro de la nube de caramelo del marco (x 2,64-32,30 % y
-  // 0,00-17,85 % del recorte). La caja se ata al ALTO del marco y no al ancho:
-  // 0,30 da 21,3 % del ancho, asi que entra entera en la nube a cualquier ancho.
-  const logoAt = css.indexOf('--logo-w: calc(var(--frame-h) * 0.30);');
+  // 0,00-17,85 % del recorte), y por dentro el aro dorado deja un ovalo de 87 x
+  // 41 px a 390. El lockup es 1:1, asi que la caja se ata al ALTO del marco:
+  // 0,149 da 40 px y entra entera en el ovalo a cualquier ancho.
+  const logoAt = css.indexOf('--logo-w: calc(var(--frame-h) * 0.149);');
   assert.notEqual(logoAt, -1, 'La marca debe declarar su caja dentro de la nube del marco');
   const heroBlock = css.slice(Math.max(0, logoAt - 200), logoAt + 900);
   for (const declaration of [
-    '--logo-w: calc(var(--frame-h) * 0.30);',
-    '--logo-h: calc(var(--logo-w) / 2);',
-    'left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.068);',
+    '--logo-w: calc(var(--frame-h) * 0.149);',
+    '--logo-h: var(--logo-w);',
+    'left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.132);',
     'bottom: calc(var(--frame-h) * 0.83);'
   ]) {
     assert.ok(
@@ -801,7 +838,7 @@ test('la chapa del logo escala con el arte en todo el rango movil y sin aire res
   const css = read(STYLE_PATH);
 
   // Con el marco de caramelo el logo vive DENTRO de la nube del dibujo: su caja
-  // sale del alto del marco (`--logo-w: var(--frame-h) * 0.30`), asi que escala
+  // sale del alto del marco (`--logo-w: var(--frame-h) * 0.149`), asi que escala
   // con el arte en todos los tramos y no necesita altura reservada.
   assert.ok(!css.includes('--logo-air:'), 'El aire reservado para la marca ya no existe');
   assert.ok(!css.includes('--logo-sky:'), 'La chapa se mide con el alto del marco, no con un cielo');
@@ -809,6 +846,14 @@ test('la chapa del logo escala con el arte en todo el rango movil y sin aire res
     (css.match(/^ {4}--logo-w:/gm) || []).length,
     1,
     'El tamano de la chapa se declara en una sola regla, comun a todo el rango movil'
+  );
+
+  // El <picture> que elige entre la version animada y la quieta no crea caja:
+  // si la creara, el logo dejaria de ser el elemento posicionado en el hueco.
+  assert.match(
+    css,
+    /\.machine__hero picture \{\s*display: contents;\s*\}/,
+    'El <picture> del logo no debe crear caja'
   );
 
   // El horizontal bajo sigue teniendo su modo compacto de cabecera.
@@ -968,19 +1013,19 @@ test('el arte de las dos maquinas se sirve con su lienzo exacto y los maestros q
 
   const logoBodies = bodies('\\.machine__side \\.machine__logo');
   assert.ok(logoBodies.length, 'El logo debe declarar su caja sobre la nube');
-  for (const declaration of ['left: 50.82%;', 'top: 36%;', 'width: 68%;', 'aspect-ratio: 2 / 1;']) {
+  for (const declaration of ['left: 50.82%;', 'top: 36%;', 'height: 49%;', 'aspect-ratio: 1 / 1;']) {
     assert.ok(
       logoBodies.some((body) => body.includes(declaration)),
       `El logo se apoya en el hueco de d5 con \`${declaration}\``
     );
   }
   assert.ok(
-    logoBodies.some((body) => body.includes('top: 36%;') && body.includes('width: 68%;')),
+    logoBodies.some((body) => body.includes('top: 36%;') && body.includes('height: 49%;')),
     'El logo ocupa el hueco de la nube de d5'
   );
   assert.ok(
-    logoBodies.some((body) => body.includes('width: 60%;') && body.includes('top: 34%;')),
-    'En ventanas bajas el logo mantiene la base con un 60 % de ancho'
+    logoBodies.some((body) => body.includes('height: 40%;') && body.includes('top: 34%;')),
+    'En ventanas bajas el logo mantiene la base con un 40 % del alto del hero'
   );
   // El case de escritorio responde como un pulsador de arcade: se hunde un 5 %
   // (y con el, su trozo de dibujo) y suelta un destello especular al pasar el
