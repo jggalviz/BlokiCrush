@@ -1,0 +1,384 @@
+/* ==========================================================================
+   BLOKICRUSH · capa de tema (solo presentacion)
+
+   Se carga DESPUES de `style.css` y no la sustituye: reasigna tokens y repinta
+   las superficies que el CSS dibuja. La maqueta (rejillas, medidas, animaciones)
+   y el arte siguen siendo los de la base.
+
+   Como se activa
+   --------------
+   Todo el tema vive bajo `html[data-theme="blokicrush"]`. Basta con poner el
+   atributo en la etiqueta <html> de `public/index.html`:
+
+     <html lang="es" data-theme="blokicrush">
+
+   Sin ese atributo la hoja queda inerte y el juego se ve igual que antes, asi
+   que sirve para comparar los dos temas con el mismo binario. Se revierte
+   quitando el atributo.
+
+   Que cubre esta hoja
+   -------------------
+   - Paleta de marca: `--brand-*` (rojo y oro) y el azul de la consola
+     (`--brand-blue*`), tomado de los pulsadores azules del case.
+   - Acentos magenta del juego -> rojo. El oro NO se toca: es el color del
+     premio (saldo, S9, "MAX") y mantiene su lectura. El azul tampoco compite con
+     el premio: viste las superficies de la interfaz (barra y casillas).
+   - Barra superior (vidrio azul), boton "Fichas de Prueba", modal y anillo de
+     foco.
+   - Ventana de juego: marco interior del tablero y las 30 casillas, que si
+     se pintan con gradientes (`.board`, `.tile`) y no con imagen.
+
+   Que NO cubre (requiere reexportar arte, ver `docs/REBRANDING.md`)
+   ----------------------------------------------------------------
+   - Escenario de fondo (`fondo_desktop` / `fondo_movil`).
+   - Marco del tablero y carcasa de controles: `d1.webp` (marco escritorio),
+     `marco_movil.webp`, `consola_movil.webp`, y en escritorio `d5.webp`
+     (nube del logo) y `d3.webp` (los siete pulsadores). Los botones de
+     escritorio son RECORTES de `d3.webp` colocados por porcentajes medidos
+     sobre el dibujo: no hay gradiente que repintar ahi.
+   - Los 20 simbolos de las casillas (`assets/symbols/*`).
+
+   Reglas de mantenimiento
+   -----------------------
+   - Sin `!important`: los selectores llevan prefijo del tema y ganan por
+     especificidad a las reglas base.
+   - Solo color, fondo, borde, sombra y tipografia: ni medidas ni rejillas
+     (lo comprueba `test/frontendAssets.test.js`).
+   - `public/src/**` se sirve con `Cache-Control: no-cache`, asi que los
+     cambios se ven al recargar.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Tokens de marca (inertes hasta activar el tema)
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* Rojos de BlokiCrush */
+  --brand-red: #c8102e;
+  --brand-red-dark: #8f0a1f;
+  --brand-red-soft: #e04a5f;
+  --brand-red-tint: #fdeaec;
+
+  /* Oro del logotipo: el "CRUSH" y la ficha del boton de prueba. */
+  --brand-gold: #ffc21a;
+
+  /* Azul de la consola: los mismos tonos que los pulsadores azules del case
+     (`--gbtn-blue-*` en `style.css`), con el aclarado `#8caaff` como cabeza del
+     vidrio. La barra superior y las casillas giran sobre esta gama para que la
+     interfaz hable un solo idioma. */
+  --brand-blue: #5a72f4;
+  --brand-blue-deep: #2e36bc;
+  /* Tinta oscura del azul: sirve de contorno y de base de las sombras. */
+  --brand-blue-ink: #101a4d;
+
+  /* Blancos y grafito */
+  --brand-white: #ffffff;
+  --brand-grey-50: #f7f8fa;
+  --brand-grey-100: #eef0f4;
+  --brand-grey-200: #dcdfe6;
+  --brand-grey-400: #9aa1ad;
+  --brand-grey-700: #4a505b;
+  --brand-grey-800: #2e3238;
+  --brand-grey-900: #23262c;
+  --brand-ink: #1b1e23;
+
+  /* Tipografia de marca: mismos stacks locales (Fredoka / Lilita One).
+     Cambiar de familia = editar estas dos variables (los `@font-face` de
+     `style.css` siguen valiendo). */
+  --brand-font: 'Fredoka', 'Lilita One', 'Trebuchet MS', 'Segoe UI', system-ui,
+    -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --brand-font-display: 'Lilita One', 'Fredoka', 'Trebuchet MS', 'Segoe UI',
+    system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   2. Tema BlokiCrush (<html data-theme="blokicrush">)
+   -------------------------------------------------------------------------- */
+
+html[data-theme="blokicrush"] {
+  /* Acentos: el magenta del tema base pasa a rojo corporativo. */
+  --mint: var(--brand-red);
+  --coral: var(--brand-red-dark);
+  --mango: var(--brand-red-soft);
+
+  --shadow: 0 14px 32px rgba(27, 30, 35, 0.14);
+
+  --font: var(--brand-font);
+  --font-display: var(--brand-font-display);
+}
+
+/* --------------------------------------------------------------------------
+   3. Ventana de juego: marco interior del tablero y casillas
+   Estas dos piezas SI se pintan con gradientes en `style.css`, asi que el tema
+   puede repintarlas sin tocar el arte del marco (`d1.webp`) ni la rejilla.
+   Se mantienen las cinco capas del fondo base y solo cambian los colores:
+   brillo superior, luz inferior, cuerpo azul palido y filo con cierre azul.
+   -------------------------------------------------------------------------- */
+
+html[data-theme="blokicrush"] .board {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.95), transparent 30%) padding-box,
+    radial-gradient(circle at 84% 24%, rgba(255, 255, 255, 0.75), transparent 26%) padding-box,
+    radial-gradient(circle at 50% 105%, rgba(46, 54, 188, 0.22), transparent 56%) padding-box,
+    linear-gradient(145deg, #f8faff 0%, #e8edff 38%, #d7dffb 72%, #c5cff4 100%) padding-box,
+    linear-gradient(135deg, #ffffff 0%, #d7dffb 36%, var(--brand-blue) 74%, var(--brand-blue-deep) 100%) border-box;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.72),
+    0 0 34px rgba(46, 54, 188, 0.30),
+    inset 0 0 38px rgba(255, 255, 255, 0.55),
+    inset 0 -10px 26px rgba(46, 54, 188, 0.14),
+    0 24px 52px rgba(10, 12, 16, 0.34);
+}
+
+/* Reticula del fondo: pasa de trama rosa a trama azul tinta muy tenue. */
+html[data-theme="blokicrush"] .board::after {
+  background:
+    repeating-linear-gradient(90deg, rgba(16, 26, 77, 0.055) 0 1px, transparent 1px 13.5%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.6), transparent 55%);
+  mix-blend-mode: normal;
+  opacity: 0.9;
+}
+
+/* Casillas normales y comodines (`S*`): vidrio azul translucido sobre el
+   interior palido del tablero. El alfa deja ver la reticula y el degradado del
+   marco, y el filo blanco translucido mantiene separadas las 30 celdas cuando
+   el fondo de detras tambien es azul. */
+html[data-theme="blokicrush"] .tile,
+html[data-theme="blokicrush"] .tile[data-sym^="S"] {
+  border-color: rgba(255, 255, 255, 0.62);
+  background: linear-gradient(
+    180deg,
+    rgba(168, 196, 255, 0.62) 0%,
+    rgba(122, 152, 246, 0.46) 58%,
+    rgba(74, 96, 214, 0.42) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    inset 0 -8px 16px rgba(16, 26, 77, 0.16),
+    0 4px 12px rgba(16, 26, 77, 0.22);
+}
+
+/* S9 se queda dorado: es el simbolo de premio alto. */
+html[data-theme="blokicrush"] .tile[data-sym="S9"] {
+  border-color: rgba(214, 160, 20, 0.75);
+  background: linear-gradient(180deg, #fffdf0, #fff1c4 62%, #ffe39a);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 0 18px rgba(255, 199, 61, 0.4);
+}
+
+/* Dispersion: celda blanca con doble halo (oro + rojo). */
+html[data-theme="blokicrush"] .tile[data-sym="SC"] {
+  border-color: rgba(200, 16, 46, 0.55);
+  background: radial-gradient(circle at 50% 40%, var(--brand-white) 0%, #fff4f6 48%, #ffe0e5 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 0 24px rgba(200, 16, 46, 0.30),
+    0 0 44px rgba(255, 199, 61, 0.26);
+}
+
+/* Bomba multiplicadora: tinte rojo de marca. */
+html[data-theme="blokicrush"] .tile[data-sym="MX"] {
+  border-color: rgba(200, 16, 46, 0.70);
+  background: radial-gradient(circle at 50% 40%, var(--brand-white) 0%, var(--brand-red-tint) 52%, #f7c9d0 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 0 24px rgba(200, 16, 46, 0.42);
+}
+
+/* Victoria y dispersion: el filo y el halo tienen que ganar tambien a las
+   casillas comodin, que se pintan con `.tile[data-sym^="S"]` (mas especifica por
+   el atributo). Por eso la regla se ata a `.tile[data-sym].tile--win`, con la
+   misma especificidad y mas abajo en la hoja. */
+html[data-theme="blokicrush"] .tile.tile--win,
+html[data-theme="blokicrush"] .tile[data-sym].tile--win {
+  border-color: rgba(255, 214, 92, 0.95);
+  box-shadow:
+    0 0 26px rgba(255, 199, 61, 0.85),
+    0 0 52px rgba(200, 16, 46, 0.4);
+}
+
+html[data-theme="blokicrush"] .tile.tile--scatter,
+html[data-theme="blokicrush"] .tile[data-sym].tile--scatter {
+  border-color: var(--brand-red);
+}
+
+/* Etiqueta de valor de la bomba: de caramelo a pastilla de marca. */
+html[data-theme="blokicrush"] .tile__bomb-value {
+  border-color: rgba(255, 255, 255, 0.85);
+  color: var(--brand-white);
+  background: linear-gradient(180deg, var(--brand-red-soft), var(--brand-red) 60%, var(--brand-red-dark));
+  box-shadow: 0 3px 8px rgba(80, 0, 14, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+
+
+/* --------------------------------------------------------------------------
+   4. Barra superior y firma de marca
+   La barra es DOM con fondo CSS: aqui si cambia de caramelo a vidrio azul (el
+   azul de la consola, translucido). El color de los bloques y de la ficha sale
+   de estos tokens; el dibujo vive en el HTML (`.brand__block`) y su geometria
+   en `style.css`.
+   -------------------------------------------------------------------------- */
+
+html[data-theme="blokicrush"] .topbar {
+  /* Vidrio azul: el mismo azul de la consola, con alfa y `backdrop-filter`
+     para que el estadio se lea por detras sin perder el texto. El filo claro
+     superior da el canto de cristal y sustituye al acento rojo, que sobre azul
+     se apagaba. */
+  border-color: rgba(255, 255, 255, 0.26);
+  border-top-color: rgba(255, 255, 255, 0.55);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(140, 170, 255, 0.88) 0%,
+      rgba(90, 114, 244, 0.86) 50%,
+      rgba(46, 54, 188, 0.84) 100%
+    );
+  box-shadow:
+    0 12px 28px rgba(16, 26, 77, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(16, 26, 77, 0.2);
+  backdrop-filter: blur(14px) saturate(1.25);
+}
+
+/* El brillo diagonal de caramelo no forma parte de la identidad. */
+html[data-theme="blokicrush"] .topbar::after {
+  background: none;
+}
+
+/* Insignia: cuadro blanco con anillo rojo y los bloques del logotipo. */
+html[data-theme="blokicrush"] .brand__mark {
+  color: var(--brand-red);
+  border-color: var(--brand-red);
+  background: radial-gradient(circle at 34% 26%, var(--brand-white) 0%, #fff8f6 46%, var(--brand-red-tint) 100%);
+  box-shadow:
+    0 6px 14px rgba(16, 26, 77, 0.34),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+}
+
+/* El marco es dibujo de linea: sin `fill` el SVG lo rellenaria de negro. */
+html[data-theme="blokicrush"] .brand__block-shell {
+  fill: none;
+  stroke: var(--brand-red);
+  stroke-width: 2.1;
+}
+
+html[data-theme="blokicrush"] .brand__block-tile {
+  fill: var(--brand-red);
+}
+
+/* El bloque inferior derecho se enciende en oro, como el "Crush" del lockup. */
+html[data-theme="blokicrush"] .brand__block-tile--hot {
+  fill: var(--brand-gold);
+}
+
+/* Titulo: "Bloki" en blanco y "Crush" en el oro del logotipo. Sobre el
+   vidrio azul el contorno pasa del rojo del arte al azul tinta: el rojo a 1 px
+   sobre azul vibra, y el tinta mantiene el oro legible sin competir con el. */
+html[data-theme="blokicrush"] .brand__title {
+  color: var(--brand-white);
+  -webkit-text-stroke: 0;
+  text-shadow: 0 1px 2px rgba(16, 26, 77, 0.45);
+}
+
+html[data-theme="blokicrush"] .brand__title .brand__crush {
+  color: var(--brand-gold);
+  -webkit-text-stroke: 1.1px var(--brand-blue-ink);
+  paint-order: stroke fill;
+  text-shadow: 0 2px 0 rgba(16, 26, 77, 0.45);
+}
+
+/* La etiqueta 6x5 es el unico bloque solido: rojo con cifras blancas. El filo
+   azul tinta la separa del vidrio de la barra. */
+html[data-theme="blokicrush"] .brand__title .brand__grid {
+  color: var(--brand-white);
+  -webkit-text-stroke: 0;
+  background: var(--brand-red);
+  box-shadow: 0 1px 0 var(--brand-blue-ink);
+}
+
+html[data-theme="blokicrush"] .brand__sub {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+/* --------------------------------------------------------------------------
+   5. Controles de la barra: ficha del boton de prueba y capsula de audio
+   -------------------------------------------------------------------------- */
+
+html[data-theme="blokicrush"] .topbar .btn--demo {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: linear-gradient(180deg, var(--brand-red-soft), var(--brand-red) 62%, var(--brand-red-dark));
+  box-shadow:
+    0 8px 18px rgba(16, 26, 77, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+html[data-theme="blokicrush"] .topbar .btn--demo .btn__title {
+  color: var(--brand-white);
+  /* El trazo negro del caramelo ensucia el texto a 10 px: aqui no hace falta. */
+  -webkit-text-stroke: 0;
+  text-shadow: 0 1px 0 rgba(143, 10, 31, 0.45);
+}
+
+html[data-theme="blokicrush"] .topbar .btn--demo .btn__sub {
+  color: var(--brand-gold);
+}
+
+html[data-theme="blokicrush"] .topbar .btn--demo[aria-pressed="true"] {
+  border-color: var(--brand-gold);
+  box-shadow:
+    0 0 0 2px rgba(255, 194, 26, 0.34),
+    0 10px 22px rgba(143, 10, 31, 0.32);
+}
+
+/* Capsula de audio: vidrio claro translucido sobre la barra azul. El alfa alto
+   mantiene el area tactil legible y deja pasar el tono de la barra por detras. */
+html[data-theme="blokicrush"] .topbar__audio {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(238, 242, 255, 0.72));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 2px 6px rgba(16, 26, 77, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+/* Las capas de caramelo pintan cada icono como una teja ciruela. Aqui el fondo
+   lo pone la pastilla, asi que el boton va plano y a tinta azul marino, que es
+   el tono oscuro del cristal de la barra. */
+html[data-theme="blokicrush"] .topbar .topbar__audio .icon-btn {
+  color: var(--brand-blue-ink);
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+}
+
+html[data-theme="blokicrush"] .topbar .topbar__audio .icon-btn:hover {
+  color: var(--brand-blue-deep);
+  background: rgba(90, 114, 244, 0.16);
+}
+
+/* Silenciado: el icono se apaga y el boton baja a un velo blanco dentro de la
+   capsula; el estado real lo lleva `aria-pressed`, no una clase aparte. */
+html[data-theme="blokicrush"] .topbar .topbar__audio .icon-btn[aria-pressed="false"] {
+  color: rgba(16, 26, 77, 0.42);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+/* --------------------------------------------------------------------------
+   6. Modal de reglas y anillo de foco
+   -------------------------------------------------------------------------- */
+
+html[data-theme="blokicrush"] .modal__backdrop {
+  background: rgba(20, 23, 28, 0.66);
+}
+
+html[data-theme="blokicrush"] .modal__card {
+  border-color: var(--brand-grey-200);
+  background: linear-gradient(165deg, var(--brand-white), var(--brand-grey-100));
+  box-shadow: 0 30px 70px rgba(10, 12, 16, 0.45);
+}
+
+html[data-theme="blokicrush"] :focus-visible {
+  outline: 2px solid var(--brand-red);
+}

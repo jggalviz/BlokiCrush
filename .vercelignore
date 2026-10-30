@@ -1,0 +1,11 @@
+# Archivos que nunca deben subirse al build de Vercel.
+# (El bundle de la funcion ademas los excluye via vercel.json > functions.excludeFiles)
+.env
+.env.*
+.vercel
+.sim
+.diag*
+*.log
+
+# Captura de referencia de la maqueta: no forma parte del juego publicado.
+public/src/ejemplo.png
