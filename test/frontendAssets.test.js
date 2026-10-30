@@ -810,18 +810,19 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
     'La franja cae sobre sus placas y no sobre la ventana'
   );
 
-  // La marca se pega dentro de la nube de caramelo del marco (x 2,64-32,30 % y
+  // La marca se pega sobre la nube de caramelo del marco (x 2,64-32,30 % y
   // 0,00-17,85 % del recorte), y por dentro el aro dorado deja un ovalo de 87 x
   // 41 px a 390. El lockup es 1:1, asi que la caja se ata al ALTO del marco:
-  // 0,149 da 40 px y entra entera en el ovalo a cualquier ancho.
-  const logoAt = css.indexOf('--logo-w: calc(var(--frame-h) * 0.149);');
+  // 0,24 da 65 px, desborda el ovalo por abajo como una pegatina y aun deja el
+  // filo de arriba dentro del marco y ~5 px de aire sobre la ventana del tablero.
+  const logoAt = css.indexOf('--logo-w: calc(var(--frame-h) * 0.24);');
   assert.notEqual(logoAt, -1, 'La marca debe declarar su caja dentro de la nube del marco');
   const heroBlock = css.slice(Math.max(0, logoAt - 200), logoAt + 900);
   for (const declaration of [
-    '--logo-w: calc(var(--frame-h) * 0.149);',
+    '--logo-w: calc(var(--frame-h) * 0.24);',
     '--logo-h: var(--logo-w);',
-    'left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.132);',
-    'bottom: calc(var(--frame-h) * 0.83);'
+    'left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.0997);',
+    'bottom: calc(var(--frame-h) * 0.756);'
   ]) {
     assert.ok(
       heroBlock.includes(declaration),
@@ -838,7 +839,7 @@ test('la chapa del logo escala con el arte en todo el rango movil y sin aire res
   const css = read(STYLE_PATH);
 
   // Con el marco de caramelo el logo vive DENTRO de la nube del dibujo: su caja
-  // sale del alto del marco (`--logo-w: var(--frame-h) * 0.149`), asi que escala
+  // sale del alto del marco (`--logo-w: var(--frame-h) * 0.24`), asi que escala
   // con el arte en todos los tramos y no necesita altura reservada.
   assert.ok(!css.includes('--logo-air:'), 'El aire reservado para la marca ya no existe');
   assert.ok(!css.includes('--logo-sky:'), 'La chapa se mide con el alto del marco, no con un cielo');
@@ -1013,19 +1014,19 @@ test('el arte de las dos maquinas se sirve con su lienzo exacto y los maestros q
 
   const logoBodies = bodies('\\.machine__side \\.machine__logo');
   assert.ok(logoBodies.length, 'El logo debe declarar su caja sobre la nube');
-  for (const declaration of ['left: 50.82%;', 'top: 36%;', 'height: 49%;', 'aspect-ratio: 1 / 1;']) {
+  for (const declaration of ['left: 50.82%;', 'top: 34.5%;', 'height: 75%;', 'aspect-ratio: 1 / 1;']) {
     assert.ok(
       logoBodies.some((body) => body.includes(declaration)),
       `El logo se apoya en el hueco de d5 con \`${declaration}\``
     );
   }
   assert.ok(
-    logoBodies.some((body) => body.includes('top: 36%;') && body.includes('height: 49%;')),
-    'El logo ocupa el hueco de la nube de d5'
+    logoBodies.some((body) => body.includes('top: 34.5%;') && body.includes('height: 75%;')),
+    'El logo llena la ventana de la nube de d5 sin tocar las placas'
   );
   assert.ok(
-    logoBodies.some((body) => body.includes('height: 40%;') && body.includes('top: 34%;')),
-    'En ventanas bajas el logo mantiene la base con un 40 % del alto del hero'
+    logoBodies.some((body) => body.includes('height: 62%;') && body.includes('top: 34%;')),
+    'En ventanas bajas el logo mantiene la base con un 62 % del alto del hero'
   );
   // El case de escritorio responde como un pulsador de arcade: se hunde un 5 %
   // (y con el, su trozo de dibujo) y suelta un destello especular al pasar el

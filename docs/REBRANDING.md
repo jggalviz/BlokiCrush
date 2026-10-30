@@ -145,17 +145,20 @@ en bucle infinito en los que la mascota lame el chupachus.
    dentro de la caja.
 
 En movil (320-899 px) la caja se ata al **alto del marco** (`--logo-w:
-calc(var(--frame-h) * 0.149)`, con `--logo-h: var(--logo-w)` para el 1:1) y se
+calc(var(--frame-h) * 0.24)`, con `--logo-h: var(--logo-w)` para el 1:1) y se
 centra en el hueco rosa que dibuja el propio marco: por dentro del aro dorado
 quedan 87 x 41 px a 390 x 844 y el centro cae en el 18,5 % del ancho. A 390 x 844
-el logo mide 40 px y entra entero en el aro con ~2 px de aire por lado; escala
-con el arte en todo el rango, sin aire reservado ni tramo intermedio. El balanceo
-de la pegatina baja a 2-4 px y 1,4-2 grados para no salir del hueco.
+el logo mide 65 px, asi que desborda el aro por abajo y se apoya sobre la nube y
+el toldo como una pegatina, con el filo de arriba dentro del marco (~1 px) y ~5 px
+de aire sobre la ventana del tablero; escala con el arte en todo el rango, sin aire
+reservado ni tramo intermedio. El balanceo de la pegatina baja a 2-4 px y 1,4-2
+grados para no tocar ni la topbar ni las piezas.
 
 En escritorio (>=900 px) el logo vive sobre la nube de `d5.webp` y ahora manda el
-alto (`height: 49%` de `--hero-h`, centro en 36 %): a 1440 x 900 mide 172 px, el
-mismo alto que tenia el wordmark 2:1, y deja 50 px de aire sobre las placas del
-HUD. En ventanas de menos de 660 px de alto baja a un 40 %.
+alto (`height: 75%` de `--hero-h`, centro en 34,5 %): a 1440 x 900 mide 250 px,
+1,5 veces el wordmark 2:1 anterior, llena la ventana de la nube y desborda sobre
+el caramelo, y aun deja 13 px de aire sobre las placas del HUD. En ventanas de
+menos de 660 px de alto baja a un 62 % con el centro en 34 %.
 
 La barra del navegador movil usa la meta `theme-color`, ya en azul de marca:
 `<meta name="theme-color" content="#3a4fd8" />`.

@@ -4892,19 +4892,22 @@ body.is-demo .machine__side .controls .balance::after {
        alto del recorte (medido sobre `marco_movil.webp`). Por dentro, el borde
        dorado deja un ovalo libre de 87 x 41 px con el viewport en 390 px. El
        lockup ya es cuadrado (mascota + "BLOKI CRUSH"), asi que la caja es un
-       cuadrado atado al alto del marco: 0,149 son 40 px en un 390 y entra
-       entero en el ovalo con ~2 px de aire por lado en todo el rango movil. */
-    --logo-w: calc(var(--frame-h) * 0.149);
+       cuadrado atado al alto del marco: 0,24 son 65 px en un 390, o sea que la
+       pegatina desborda el ovalo por abajo y se apoya sobre la nube y el toldo,
+       pero su filo de arriba se queda dentro del marco (0,4 % del alto, ~1 px) y
+       no llega a la topbar. */
+    --logo-w: calc(var(--frame-h) * 0.24);
     --logo-h: var(--logo-w);
     width: var(--logo-w);
     height: var(--logo-h);
-    /* Centrado en el ovalo: va del 5,6 % al 30,2 % del ancho del marco, o sea
-       que su centro cae en 18,5 %; con una caja del 10,6 % de ancho, el borde
-       izquierdo arranca en 13,2 % y deja el mismo aire a los dos lados. */
-    left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.132);
-    /* Base dentro de la nube (17,0 % del alto del marco desde arriba): lo que
-       crezca con el balanceo va hacia arriba, nunca sobre el toldo. */
-    bottom: calc(var(--frame-h) * 0.83);
+    /* Centrado en la nube: el ovalo va del 5,6 % al 30,2 % del ancho del marco,
+       o sea que su centro cae en 18,5 %; con una caja del 17,1 % de ancho, el
+       borde izquierdo arranca en 9,97 % y deja el mismo aire a los dos lados. */
+    left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.0997);
+    /* Base a 24,4 % del alto del marco desde arriba: la pegatina se apoya en el
+       filo de la ventana del tablero (26,3 %) con ~5 px de aire, y lo que crezca
+       con el balanceo va hacia arriba, nunca sobre las piezas. */
+    bottom: calc(var(--frame-h) * 0.756);
     margin: 0;
     padding: 0;
     overflow: visible;
@@ -6353,18 +6356,20 @@ body.is-demo .machine__side .controls .balance::after {
      Medidas sobre d5.webp: el hueco transparente de la nube (por el que se ve
      el fondo) se abre entre x 30,9 y 70,5 % en su punto mas ancho (y 57,4 %) y
      cierra en y 68,5 %, mientras que las placas arrancan en 75,8 %. El lockup
-     es 1:1 (mascota + "BLOKI CRUSH"), asi que ahora manda el alto: un 49 % de
-     --hero-h da 165 px en un 1440x900 (el mismo alto que tenia el wordmark
-     2:1), centrado en 36 % apoya su base en 60 % (16 % de aire sobre las
-     placas) y deja el balon a la altura del hueco de la nube. Es el tope que
-     deja el `overflow: hidden` de `.machine`: la animacion sube la caja 7 px y
-     la escala un 3 %, asi que con ese aire el filo del logo nunca se recorta. */
+     es 1:1 (mascota + "BLOKI CRUSH"), asi que manda el alto: un 75 % de
+     --hero-h da 250 px en un 1440x900 (1,5 veces el wordmark 2:1), asi que la
+     pegatina llena la ventana de la nube y desborda por arriba y por los lados
+     sobre el caramelo. Centrada en 34,5 % apoya su base en 72 % (3,8 % de aire,
+     ~13 px, sobre las placas). El filo de arriba sobresale 3 % del hero, que cae
+     dentro del aire que `.machine` centra sobre la columna (>=50 px en todo el
+     rango de escritorio); la animacion sube la caja 7 px y la escala un 3 %, asi
+     que ni siquiera entonces el filo se recorta contra `overflow: hidden`. */
   .machine__side .machine__logo {
     position: absolute;
     left: 50.82%;
-    top: 36%;
+    top: 34.5%;
     z-index: 6;
-    height: 49%;
+    height: 75%;
     width: auto;
     aspect-ratio: 1 / 1;
     max-width: none;
@@ -7079,10 +7084,10 @@ body.is-demo .machine__side .controls .balance::after {
 @media (min-width: 900px) and (max-height: 660px) {
   .machine__side .machine__hero { display: block; }
   /* Un poco mas pequeño que en el caso general para no asomar tanto cuando no
-     hay alto: el lockup es 1:1, asi que un 40 % de --hero-h deja el alto en 40 %
-     del hero y su centro cae en 34 % (la base queda muy por encima de las
-     placas). */
-  .machine__side .machine__logo { height: 40%; top: 34%; }
+     hay alto: el lockup es 1:1, asi que un 62 % de --hero-h (1,5 veces el 40 %
+     anterior) deja su base en 65 % del hero, con 11 % de aire sobre las placas,
+     y el filo de arriba dentro del hero (3 %, sin desbordar). */
+  .machine__side .machine__logo { height: 62%; top: 34%; }
 }
 
 /* Ventanas de menos de 470 px de alto: la placa del hero mide ~50 px y el
