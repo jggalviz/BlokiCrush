@@ -4897,13 +4897,13 @@ body.is-demo .machine__side .controls .balance::after {
       (100cqh - (var(--frame-h) + var(--row-gap) + var(--m-w) * 0.4961)) / 2
       + var(--frame-h) * 0.1987
     );
-    /* El arte es un lockup horizontal 2:1 (900 x 450, sin aire en el PNG), asi
+    /* El arte es un lockup horizontal 2:1 (900 x 450, recortado al alfa), asi
        que la caja toma su misma proporcion: el ancho manda y el alto es su
        mitad. Antes la caja era casi cuadrada (proporcion del PNG vertical
        anterior) y la imagen `contain` dejaba 31 px de cielo DENTRO de su propia
        caja: eso era lo que hacia flotar el logo y dejaba el hueco bajo la barra.
        Con la caja 2:1 la tinta llega al borde inferior y la pegatina se apoya de
-       verdad en el marco. Su borde derecho cae en el 80 % del marco, por encima
+       verdad en el marco. Su borde derecho cae en el 86 % del marco, por encima
        de la franja del HUD (22,96-31,90 % del alto), asi que no tapa ni una
        cifra.
 
@@ -4916,22 +4916,22 @@ body.is-demo .machine__side .controls .balance::after {
        sobre el cielo del escenario) se queda con aire bajo la barra superior
        incluso en el fotograma mas alto del balanceo.
 
-       En los telefonos altos manda el 78 % del ancho; en los bajos (320 x 568)
+       En los telefonos altos manda el 84 % del ancho; en los bajos (320 x 568)
        manda el tope y el logo se queda con el aire justo. En las tablets
        verticales (600-899 px) ese unico cielo se queda corto, asi que el tramo
        intermedio reserva aire propio para la marca (ver «Anchos intermedios» mas
-       abajo): ahi la chapa pasa del 27 al 36 % del marco sin mover su base. */
+       abajo): ahi la chapa pasa del 27,5 al 40 % del marco sin mover su base. */
     --logo-w: min(
-      calc(var(--m-w) * 0.78),
+      calc(var(--m-w) * 0.84),
       max(0px, (var(--logo-sky) - 14px) * 2 / 1.05)
     );
     --logo-h: calc(var(--logo-w) / 2);
     width: var(--logo-w);
     height: var(--logo-h);
     /* Desplazado a la derecha y apoyado en el marco: el 2 % lo separa del filo
-       izquierdo (el PNG no trae aire, su tinta arranca en el borde de la caja) y
-       deja el 20 % del ancho a la derecha, donde asoman las banderas, las monedas
-       y la pantalla LED del marco. */
+       izquierdo (el PNG recorta el aire del lienzo, su tinta arranca cerca del
+       borde de la caja) y deja el 14 % del ancho a la derecha, donde asoman las
+       banderas, las monedas y la pantalla LED del marco. */
     left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.02);
     /* Anclado por abajo y 4 % mas bajo que el borde superior de las placas del
        HUD (0,8013 = 1 - 0,1987): la base del logo se monta sobre la franja de
@@ -4950,7 +4950,7 @@ body.is-demo .machine__side .controls .balance::after {
 
   .machine__side .machine__hero::before { display: none; }
 
-  /* El logo manda sobre el cielo: 78 % del ancho del marco y el alto sale de la
+  /* El logo manda sobre el cielo: 84 % del ancho del marco y el alto sale de la
      proporción del PNG, 900 x 450. La caja ya es 2:1, así que la imagen la
      rellena entera (`height: 100%`) sin el aire que dejaba `height: auto` dentro
      de una caja casi cuadrada. El balanceo de `bloki-logo-sticker` (más
@@ -5195,30 +5195,30 @@ body.is-demo .machine__side .controls .balance::after {
    por arriba y `overflow: hidden` lo cortaba contra la barra superior. Con el
    tope comun (`--logo-sky`) dejo de cortarse, pero en tablet vertical el marco
    se estira hasta tocar la barra superior, asi que su unico cielo es el 19,87 %
-   del arte que queda sobre las placas del HUD: a 768 x 1024 la chapa se queda
-   en 192 px, el 27,5 % del marco, MENOS que en un telefono de 390 px (295 px) y
-   por debajo del 32 % que ocupa en escritorio a partir de 900 px. Ese es el
-   tramo que se veia pequeno.
+   del arte que queda sobre las placas del HUD: a 768 x 1024 la chapa se quedaba
+   en 253 px de caja (196 px de tinta), el 27,5 % del marco, MENOS que en un
+   telefono de 390 px (295 px) y por debajo del 37 % que ocupa en escritorio a
+   partir de 900 px. Ese es el tramo que se veia pequeno.
 
    La correccion no toca la geometria del marco ni la del HUD: se le reserva a
    la maquina un aire vertical (`--logo-air`) que el `min()` de `--m-w` descuenta
    del alto libre. La rejilla esta centrada, asi que el aire se reparte a partes
    iguales arriba y abajo; la mitad de arriba entra en `--logo-sky` y la chapa
-   crece con ella. Con el 8 % del alto del escenario (78 px como maximo):
+   crece con ella. Con el 10 % del alto del escenario (104 px como maximo):
 
-     · 768 x 1024 · 953 px de escenario → 76 px de aire → maquina 678 px (−8 %),
-       logo 247 x 124 px = 36,5 % del marco;
-     · 899 x 1200 · 1129 px → 78 px → maquina 812 px (−7 %), logo 289 x 145 px =
-       35,6 % del marco.
+     · 768 x 1024 · 953 px de escenario → 95 px de aire → maquina 662 px (−2,2 %),
+       logo 266 x 133 px = 40,3 % del marco;
+     · 899 x 1200 · 1129 px → 104 px (tope) → maquina 792 px (−2,5 %), logo
+       315 x 157 px = 39,7 % del marco.
 
-   Es decir, la chapa se queda entre el 35 y el 37 % del marco en todo el tramo
-   (lo mismo que ya lucia en 600 x 900, 37,6 %, donde manda el ancho) y a la
+   Es decir, la chapa se queda en el ~40 % del marco en todo el tramo (lo mismo
+   que ya lucia en 390 x 844, 85,8 % del ancho, donde manda el ancho) y a la
    altura del logo del telefono alto y del escritorio. Donde el ancho manda
    (600 x 900, 640 x 960, cualquier telefono) el `min()` se queda con `100cqw` y
    no cambia nada; en las tablets muy altas (768 x 1366) el sobrante real ya
    supera al aire reservado y el logo pasa del 60 % del marco sin tocar el tope.
    La base del logo no se mueve (`0.8013` del marco): la holgura sobre las
-   placas del HUD y bajo la barra superior se mantiene igual.
+   placas del HUD (15-18 px) y bajo la barra superior (19 px) se mantiene igual.
 
    Queda fuera el horizontal bajo (`min-height: 521px`): ahi manda la regla de
    `max-height: 520px`, que comprime la cabecera justo para devolverle alto al
@@ -5229,10 +5229,10 @@ body.is-demo .machine__side .controls .balance::after {
 
 @media (min-width: 600px) and (max-width: 899px) and (min-height: 521px) {
   .machine {
-    /* 8 % del alto del escenario, con 78 px de techo: suficiente para que la
+    /* 10 % del alto del escenario, con 104 px de techo: suficiente para que la
        chapa recupere la presencia del resto de los tramos y lo bastante corto
-       para que el tablero no pierda mas del 8 % de su ancho. */
-    --logo-air: clamp(0px, calc(100cqh * 0.08), 78px);
+       para que el tablero no pierda mas del 10 % de su ancho. */
+    --logo-air: clamp(0px, calc(100cqh * 0.10), 104px);
     --m-w: min(
       100cqw,
       calc((100cqh - var(--row-gap) - var(--logo-air)) / 1.2813)
@@ -6427,8 +6427,8 @@ body.is-demo .machine__side .controls .balance::after {
      el fondo) se abre entre x 30,9 y 70,5 % en su punto mas ancho (y 57,4 %) y
      cierra en y 68,5 %, mientras que las placas arrancan en 75,8 %. El lockup
      de BlokiCrush es 2:1 (no la pegatina cuadrada del tema anterior), asi que
-     un 58 % de ancho da 41 % de alto en unidades de --hero-h: centrado en 36 %
-     apoya su base en 56,5 % (19 % de aire sobre las placas) y deja el balon a
+     un 68 % de ancho da 48 % de alto en unidades de --hero-h: centrado en 36 %
+     apoya su base en 60 % (16 % de aire sobre las placas) y deja el balon a
      la altura del hueco de la nube. Es el tope que deja el `overflow: hidden`
      de `.machine`: la animacion sube la caja 7 px y la escala un 3 %, asi que
      con ese aire el filo del logo nunca se recorta. */
@@ -6437,7 +6437,7 @@ body.is-demo .machine__side .controls .balance::after {
     left: 50.82%;
     top: 36%;
     z-index: 6;
-    width: 58%;
+    width: 68%;
     height: auto;
     aspect-ratio: 2 / 1;
     max-width: none;
@@ -7152,10 +7152,10 @@ body.is-demo .machine__side .controls .balance::after {
 @media (min-width: 900px) and (max-height: 660px) {
   .machine__side .machine__hero { display: block; }
   /* Un poco mas pequeño que en el caso general para no asomar tanto cuando no
-     hay alto: el lockup es 2:1, asi que un 50 % de ancho deja el alto en 35 %
+     hay alto: el lockup es 2:1, asi que un 60 % de ancho deja el alto en 42 %
      del hero y su centro cae en 34 % (la base queda muy por encima de las
      placas). */
-  .machine__side .machine__logo { width: 50%; top: 34%; }
+  .machine__side .machine__logo { width: 60%; top: 34%; }
 }
 
 /* Ventanas de menos de 470 px de alto: la placa del hero mide ~50 px y el

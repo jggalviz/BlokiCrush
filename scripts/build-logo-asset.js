@@ -6,7 +6,7 @@
  *
  *   npm run build:logo
  *
- * El vector editable vive en `design/BLOKICRUSH-LOGO.svg` (1774 x 887 px,
+ * El vector editable vive en `design/BLOKICRUSH-LOGO.svg` (1620 x 810 px,
  * proporcion 2:1). El maestro rasterizado es `design/BlokiCrush Logo.png`: se
  * regenera desde el SVG cuando el vector es mas nuevo (`--from-svg` fuerza el
  * proceso) y de ahi sale el WebP servido. Igual que el arte del case, el
@@ -18,9 +18,9 @@
  * el contrato de `test/frontendAssets.test.js`:
  *   - WebP estatico con alfa real (VP8X + bloque ALPH) y sin bloque ANIM;
  *   - 900 x 450 px, la misma proporcion 2:1 del maestro. El CSS lo pinta a
- *     ~330 px de ancho en un telefono de 430 px (78 % del marco) y hasta ~505 px
- *     en una tablet alta (768 x 1366), asi que 900 cubre 3x en el caso normal y
- *     ~1,8x en el mas grande, sin reescalar de forma visible;
+ *     ~318 px de ancho en un telefono de 390 px (84 % del marco) y hasta ~321 px
+ *     en una tablet alta (899 x 1200), asi que 900 cubre ~2,8x en ambos casos
+ *     sin reescalar de forma visible;
  *   - menos de 200 KB;
  *   - alfa exacta: `alphaQuality: 100` comprime el canal alfa sin perdida, asi
  *     que cada pixel conserva la transparencia del maestro redimensionado.
@@ -52,8 +52,8 @@ const DEPLOY = path.join(
   'BLOKICRUSH-LOGO.webp'
 );
 
-// Contrato del logo: lienzo 2:1 (1774 / 887) y un ancho servido acotado.
-const ASPECT = 1774 / 887;
+// Contrato del logo: lienzo 2:1 (1620 / 810) y un ancho servido acotado.
+const ASPECT = 1620 / 810;
 const WIDTH = Number(process.env.LOGO_WIDTH || 900);
 const MAX_BYTES = 200 * 1024;
 
@@ -63,7 +63,7 @@ const QUALITY = Number(process.env.LOGO_QUALITY || 84);
 
 /**
  * Rasteriza el maestro PNG desde el SVG cuando el vector es mas nuevo (o cuando
- * se pide con `--from-svg`). El SVG declara 1774 x 887, asi que a densidad 72
+ * se pide con `--from-svg`). El SVG declara 1620 x 810, asi que a densidad 72
  * sharp produce exactamente el maestro del contrato.
  */
 async function ensureMaster() {

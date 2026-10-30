@@ -105,10 +105,14 @@ el propio origen.
 ## Logotipo
 
 1. Edita el vector en `design/` (fuera de `public/`, no viaja al CDN):
-   `BLOKICRUSH-LOGO.svg`, lienzo 1774 x 887 (2:1).
+   `BLOKICRUSH-LOGO.svg`, lienzo 1620 x 810 (2:1). El lienzo ya viene recortado
+   al alfa real del lockup (la tinta ocupa el ~87 % del ancho), asi que el aire
+   transparente no se paga en tamano percibido.
 2. `npm run build:logo` rasteriza el maestro `design/BlokiCrush Logo.png`
    cuando el SVG es mas nuevo y publica
    `public/src/assets/BLOKICRUSH-LOGO.webp` (900 x 450, alfa real, < 200 KB).
+   `npm run build:logo -- --from-svg` fuerza las dos etapas (SVG -> PNG maestro
+   -> WebP) cuando se cambia el arte.
 3. El HTML reserva la caja con la proporcion del arte:
 
 ```html
@@ -117,27 +121,30 @@ el propio origen.
 ```
 
    El tamano reservado (`width`/`height`) evita saltos de layout y declara la
-   proporcion real del arte, **2:1** (1774 x 887 en el maestro, 900 x 450 en el
+   proporcion real del arte, **2:1** (1620 x 810 en el maestro, 900 x 450 en el
    WebP servido). En movil la caja del logo (`--logo-w` / `--logo-h` en
    `style.css`) usa esa misma
    proporcion y la imagen la rellena entera; si se cambia el arte por otro de
    distinta relacion hay que actualizar ambos sitios o el `object-fit: contain`
    devolvera el aire dentro de la caja.
-   La caja movil apunta al **78 % del ancho del marco** con un tope por el cielo
-   real (`--logo-sky`): en telefonos altos manda el 78 % y el logo se apoya sobre
-   la franja de monedas y banderines del marco, justo encima del HUD; en 320 px
-   manda el tope y la pegatina se queda con el aire justo, sin tocar la barra
-   superior ni generar scroll horizontal.
+   La caja movil apunta al **84 % del ancho del marco** con un tope por el cielo
+   real (`--logo-sky`, que descuenta los 10 px del balanceo mas 4 px de colchon):
+   en telefonos altos manda el 84 % (325 px a 390 x 844, 358 px a 430 x 932) y el
+   logo se apoya sobre la franja de monedas y banderines del marco, justo encima
+   del HUD; en 320 px y en 360 px manda el tope (167 px y 198 px) y la pegatina se
+   queda con 16 px bajo la barra superior, sin tocarla y sin generar scroll
+   horizontal.
    Entre **600 y 899 px** (tablets verticales y escritorios pequenos con alto de
    sobra, `min-height: 521px`) el marco se estira hasta la barra superior y su
    unico cielo es ese 19,87 % del arte, asi que la chapa se quedaba en el 27 % del
-   marco. Ese tramo reserva un aire vertical propio (`--logo-air`: 8 % del alto
-   del escenario, 78 px de techo) que se descuenta del alto libre de la maquina
-   via `--m-w`; la mitad de arriba entra en `--logo-sky` y el logo sube al 36 %
-   del marco (247 px a 768 x 1024, 289 px a 899 x 1200) manteniendo su base, la
-   holgura sobre el HUD y el aire bajo la barra superior. El tablero pierde como
-   mucho un 8 % de ancho en ese tramo; por debajo de 600 px y por encima de
-   900 px no cambia nada.
+   marco. Ese tramo reserva un aire vertical propio (`--logo-air`: 10 % del alto
+   del escenario, 104 px de techo) que se descuenta del alto libre de la maquina
+   via `--m-w`; la mitad de arriba entra en `--logo-sky` y el logo sube al ~40 %
+   del marco (266 px a 768 x 1024, 314 px a 899 x 1200) manteniendo su base, la
+   holgura sobre el HUD (16-18 px) y el aire bajo la barra superior (18-19 px).
+   El tablero pierde como mucho un 3 % de ancho en ese tramo; por debajo de 600 px
+   y por encima de 900 px no cambia nada. En escritorio el logo ocupa el 37 % del
+   marco (297 px a 1366 x 768, 406 px a 1920 x 1080).
    La barra del navegador movil usa la meta `theme-color`, ya en azul de marca:
    `<meta name="theme-color" content="#3a4fd8" />`.
 

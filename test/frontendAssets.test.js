@@ -70,7 +70,7 @@ test('el logotipo de BlokiCrush se sirve ligero y con su proporcion 2:1', () => 
 
   assert.ok(fs.existsSync(LOGO_PATH), 'Falta public/src/assets/BLOKICRUSH-LOGO.webp');
 
-  // El peso es parte del contrato: el maestro PNG (2:1, 1774 x 887) queda fuera
+  // El peso es parte del contrato: el maestro PNG (2:1, 1620 x 810) queda fuera
   // de public/ y el WebP servido pesa menos de 200 KB. Es un WebP estatico
   // (VP8X + ALPH + VP8): el logotipo es un lockup fijo, no una animacion.
   const binary = fs.readFileSync(LOGO_PATH);
@@ -787,14 +787,14 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
     'La base del logo se apoya sobre la franja de banderines, por encima del HUD'
   );
 
-  // 5) La chapa del logo: 78 % del ancho del marco y la caja con la proporcion
+  // 5) La chapa del logo: 84 % del ancho del marco y la caja con la proporcion
   //    real del arte (2:1). `--logo-sky` es lo que hay entre el filo superior de
   //    `.machine` y la base del logo: la mitad del sobrante vertical de la
   //    rejilla (alto del escenario menos marco, separacion y consola) mas el
   //    19,87 % del marco que queda por encima de la base. De ahi se descuentan
   //    14 px (10 del balanceo + 4 de colchon), el resto se divide por 1,05 —lo
   //    que trepa la esquina alta del PNG al girar -3° y crecer un 3 %— y se
-  //    duplica porque el ancho es el doble del alto. Sin ese tope el 78 % se
+  //    duplica porque el ancho es el doble del alto. Sin ese tope el 84 % se
   //    corta contra el filo en tablet vertical y en 320 px.
   assert.match(
     heroRule[0],
@@ -803,8 +803,8 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
   );
   assert.match(
     heroRule[0],
-    /--logo-w:\s*min\(\s*calc\(var\(--m-w\) \* 0\.78\),\s*max\(0px, \(var\(--logo-sky\) - 14px\) \* 2 \/ 1\.05\)\s*\);/,
-    'El logo apunta al 78 % del ancho del marco y nunca rebasa el filo superior'
+    /--logo-w:\s*min\(\s*calc\(var\(--m-w\) \* 0\.84\),\s*max\(0px, \(var\(--logo-sky\) - 14px\) \* 2 \/ 1\.05\)\s*\);/,
+    'El logo apunta al 84 % del ancho del marco y nunca rebasa el filo superior'
   );
   assert.match(
     heroRule[0],
@@ -824,10 +824,10 @@ test('el logo recupera presencia en tablets con aire reservado y sin mover su ba
 
   // En tablet vertical (600-899 px, alto de sobra) el marco se estira hasta la
   // barra superior, asi que el unico cielo del logo es el 19,87 % del arte que
-  // queda sobre las placas del HUD: a 768 x 1024 la chapa medía 192 px, el 27,5 %
-  // del marco, menos que en un telefono de 390 px. Ese tramo reserva un aire
-  // vertical propio que `--m-w` descuenta del alto libre; como la rejilla esta
-  // centrada, la mitad de ese aire sube por encima del marco y entra en
+  // queda sobre las placas del HUD: a 768 x 1024 la chapa medía 195 px de tinta,
+  // el 27,5 % del marco, menos que en un telefono de 390 px. Ese tramo reserva un
+  // aire vertical propio que `--m-w` descuenta del alto libre; como la rejilla
+  // esta centrada, la mitad de ese aire sube por encima del marco y entra en
   // `--logo-sky`, que es quien gobierna el tope de la chapa.
   const midStart = css.indexOf(
     '@media (min-width: 600px) and (max-width: 899px) and (min-height: 521px)'
@@ -837,14 +837,14 @@ test('el logo recupera presencia en tablets con aire reservado y sin mover su ba
 
   assert.match(
     midBlock,
-    /--logo-air:\s*clamp\(0px,\s*calc\(100cqh \* 0\.08\),\s*78px\);/,
+    /--logo-air:\s*clamp\(0px,\s*calc\(100cqh \* 0\.10\),\s*104px\);/,
     'El aire de la marca se mide con el alto del escenario y lleva techo'
   );
   const airRule = midBlock.match(/--logo-air:\s*clamp\(0px,\s*[^,]+,\s*(\d+)px\);/);
   assert.ok(airRule, 'El aire debe estar acotado por arriba');
   assert.ok(
-    Number(airRule[1]) <= 96,
-    'El techo del aire no puede comerse el tablero (<= 96 px)'
+    Number(airRule[1]) <= 112,
+    'El techo del aire no puede comerse el tablero (<= 112 px, ~3 % de su ancho)'
   );
 
   assert.match(
@@ -1024,19 +1024,19 @@ test('el arte de las dos maquinas se sirve con su lienzo exacto y los maestros q
 
   const logoBodies = bodies('\\.machine__side \\.machine__logo');
   assert.ok(logoBodies.length, 'El logo debe declarar su caja sobre la nube');
-  for (const declaration of ['left: 50.82%;', 'top: 36%;', 'width: 58%;', 'aspect-ratio: 2 / 1;']) {
+  for (const declaration of ['left: 50.82%;', 'top: 36%;', 'width: 68%;', 'aspect-ratio: 2 / 1;']) {
     assert.ok(
       logoBodies.some((body) => body.includes(declaration)),
       `El logo se apoya en el hueco de d5 con \`${declaration}\``
     );
   }
   assert.ok(
-    logoBodies.some((body) => body.includes('top: 36%;') && body.includes('width: 58%;')),
+    logoBodies.some((body) => body.includes('top: 36%;') && body.includes('width: 68%;')),
     'El logo ocupa el hueco de la nube de d5'
   );
   assert.ok(
-    logoBodies.some((body) => body.includes('width: 50%;') && body.includes('top: 34%;')),
-    'En ventanas bajas el logo mantiene la base con un 50 % de ancho'
+    logoBodies.some((body) => body.includes('width: 60%;') && body.includes('top: 34%;')),
+    'En ventanas bajas el logo mantiene la base con un 60 % de ancho'
   );
   // El case de escritorio responde como un pulsador de arcade: se hunde un 5 %
   // (y con el, su trozo de dibujo) y suelta un destello especular al pasar el
