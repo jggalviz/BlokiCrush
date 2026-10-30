@@ -13,7 +13,7 @@ Supabase ni motores externos, con la identidad **BlokiCrush** ya aplicada.
 
 ```bash
 npm install
-npm start           # prestart compila config, ui y el HTML generado
+npm start           # prestart compila config, ui y el HTML, y avisa si el arte no esta publicado
 # http://localhost:3000
 ```
 
@@ -50,7 +50,7 @@ Para volver al camino estandar (Supabase + motor externo) pon
 ## Scripts
 
 ```bash
-npm start        # servidor (compila antes con prestart)
+npm start        # servidor (compila antes con prestart: config, ui, HTML y check:art)
 npm run dev      # servidor con --watch
 npm test         # suite completa
 npm run simulate # simulacion del motor

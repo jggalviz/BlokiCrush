@@ -359,7 +359,7 @@ Notas:
 - **Ejecuta `npm run build:index` antes de `npm test`** si tocaste `public/index.html`. El test `server/generated/indexHtml.js refleja public/index.html` falla a propósito cuando el HTML generado está desactualizado.
 - **Ejecuta `npm run build:config` antes de `npm test`** si tocaste `config/gameConfig.js`. El cliente consume el espejo ESM generado `ui/config/gameConfig.js`.
 - **Ejecuta `npm run build:ui` antes de `npm test`** si tocaste `ui/**`; `test/uiArchitecture.test.js` falla si `public/ui/**` queda desincronizado.
-- `npm start` y `npm run dev` también ejecutan `prestart`/`predev`, que regeneran la configuración, el espejo de UI y `server/generated/indexHtml.js` automáticamente.
+- `npm start` y `npm run dev` también ejecutan `prestart`/`predev`, que regeneran la configuración, el espejo de UI y `server/generated/indexHtml.js` automáticamente, y terminan con `npm run check:art` (aviso si hay arte de `design/` sin publicar).
 
 ### 3.3 Compilación de assets (solo si cambia el arte)
 
@@ -367,14 +367,22 @@ No es necesario para un despliegue normal: los WebP/WOFF2/PNG ya están versiona
 
 | Script | Maestros de entrada (`design/`) | Salida en `public/src/assets/` |
 | --- | --- | --- |
+| `npm run build:assets` | todos los maestros | todos los WebP (ejecuta los cinco scripts siguientes) |
 | `npm run build:art` | `marco_movil.png`, `consola_movil.png` | `marco_movil.webp`, `consola_movil.webp` |
 | `npm run build:desktop-art` | `d1.png`, `d3.png`, `d5.png` | `d1.webp`, `d3.webp`, `d5.webp` |
 | `npm run build:bg` | `reino_de_caramelos_y_arcoiris.png`, `avenida_fantastica_reino_caramelos.png` | `reino_de_caramelos_y_arcoiris.webp`, `avenida_fantastica_reino_caramelos.webp` |
 | `npm run build:logo` | `BlokiCrush Logo.png` (rasterizado desde `BLOKICRUSH-LOGO.svg`) | `BLOKICRUSH-LOGO.webp` |
 | `npm run build:win` | `victoria_dulce.png` | `victoria_dulce.webp` |
+| `npm run check:art` | — (solo compara mtime) | avisa si un maestro es más nuevo que su WebP |
 
 - Requieren `sharp` (ya está en `devDependencies`) y son **idempotentes**.
 - Los PNG maestros de `design/` **no se publican**.
+- **`npm start` / `npm run dev` NO compilan arte**: `prestart`/`predev` regeneran
+  config, espejo de UI y HTML, y al final ejecutan `npm run check:art`. Si has
+  reemplazado un maestro, verás el aviso `[check:art] Hay arte en design/ mas
+  nuevo que el WebP que sirve la app` con el comando exacto (`npm run build:art`
+  o `npm run build:assets`). Mientras el WebP no exista, el navegador recibe la
+  imagen anterior: eso es lo que parece un "logo/imagen que no se actualiza".
 - Si regeneras arte, **haz commit de los WebP resultantes** y planifica la invalidación/renombrado correspondiente en CloudFront (§4.7).
 
 ### 3.4 Generación de la build final estática
@@ -1313,6 +1321,8 @@ La apuesta válida está en la escalera del motor: `0.10, 0.20, 0.50, 1, 2, 5, 1
 | `npm run build:config` | Regenera `ui/config/gameConfig.js` desde `config/gameConfig.js` y refresca `public/ui/**` |
 | `npm run build:ui` | Copia `ui/**/*.js` al espejo publicado `public/ui/**` |
 | `npm run build:index` | Regenera `server/generated/indexHtml.js` desde `public/index.html` |
+| `npm run build:assets` | Publica en `public/src/assets/**` todo el arte de `design/` (bg, marco/consola, escritorio, victoria y logo) |
+| `npm run check:art` | Avisa si un maestro de `design/` es más nuevo que su WebP publicado (`-- --strict` falla con código 1) |
 | `npm test` | Suite completa (161 tests) |
 | `npm start` | Servidor local/standalone en `http://localhost:3000` |
 | `npm run dev` | Servidor con recarga (`node --watch`) |

@@ -180,11 +180,23 @@ backend).
 - `public/ui/**` es un espejo generado desde `ui/`: tras editar `ui/` ejecuta
   `npm run build:ui` (o `npm start`, que lo hace en `prestart`). El test
   `uiArchitecture.test.js` falla si el espejo queda desactualizado.
-- Ningun asset lleva hash en el nombre: Express sirve `public/**` con
-  `Cache-Control: no-cache` y `vercel.json` revalida `/src/(.*)` y `/ui/(.*)`.
-  Un cambio de CSS o JS se ve al recargar; no hay que tocar versiones.
+- Ningun asset lleva hash en el nombre: se revalida en cada visita. Express envia
+  `Cache-Control: no-cache` para HTML/JS/CSS (una copia vieja rompe la app: es el
+  sintoma clasico de "el logo no cambia") y `public, max-age=0, must-revalidate`
+  para imagenes, audio y fuentes. El navegador revalida siempre y el servidor
+  responde `304` cuando el archivo no cambio; `vercel.json` aplica la misma
+  politica a `/src/(.*)` y `/ui/(.*)`. `no-cache` **no** se usa en imagenes a
+  proposito: con esa cabecera el modulo `fresh()` de Express desactiva el atajo
+  condicional y cada recarga reenviaria el arte completo (~1 MB en movil).
 - `theme.css` vive en `public/src/css/`, cubierto por la regla `/src/(.*)` de
   `vercel.json`, asi que hereda la misma politica sin cambios de configuracion.
+- El arte **no** se compila en `npm start`: los WebP de `public/src/assets/**`
+  solo cambian al ejecutar `npm run build:assets` (o el script de la pieza:
+  `build:art`, `build:bg`, `build:desktop-art`, `build:win`, `build:logo`).
+  `prestart` ejecuta `npm run check:art`, que avisa cuando un maestro de
+  `design/` es mas nuevo que su WebP y nombra el comando exacto; sin ese aviso
+  es facil reiniciar y creer que el arte nuevo "no se actualiza" cuando en
+  realidad nunca se publico.
 
 ## Checklist al terminar el rebranding
 

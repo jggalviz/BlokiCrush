@@ -156,13 +156,23 @@ function createApp(options = {}) {
         index: 'index.html',
         dotfiles: 'ignore',
         /* Los assets no llevan hash en el nombre: se revalida siempre (304 si no
-           cambian) para que un despliegue nuevo no quede oculto tras la cache. */
+           cambian) para que un despliegue nuevo no quede oculto tras la cache.
+           Dos politicas, por coste:
+             - HTML/JS/CSS: `no-cache`. Son pequenos y una copia vieja rompe la
+               app (el sintoma clasico es "el logo no cambia").
+             - Imagenes, audio y fuentes: `max-age=0, must-revalidate`. Es igual
+               de fresco (el navegador debe revalidar) pero CONSERVA el 304: con
+               `no-cache` el modulo `fresh()` de Express desactiva el atajo
+               condicional y cada recarga reenviaria el arte completo (~1 MB en
+               movil) aunque el archivo no haya cambiado. */
         maxAge: 0,
         setHeaders(res, filePath) {
           const ext = path.extname(filePath).toLowerCase();
-          if (ext === '.html' || ext === '.js' || ext === '.css') {
-            res.setHeader('Cache-Control', 'no-cache');
-          }
+          const isText = ext === '.html' || ext === '.js' || ext === '.css';
+          res.setHeader(
+            'Cache-Control',
+            isText ? 'no-cache' : 'public, max-age=0, must-revalidate'
+          );
         }
       })
     );
