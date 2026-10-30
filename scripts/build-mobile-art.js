@@ -14,19 +14,21 @@
  * descentraria el dibujo y desalinearia las areas tactiles.
  *
  * Piezas:
- *   design/marco_movil.png   -> public/src/assets/marco_movil.webp   (1392 x 1093)
- *   design/consola_movil.png -> public/src/assets/consola_movil.webp (1780 x 883)
+ *   design/marco_movil.png   -> public/src/assets/marco_movil.webp   (1325 x 941)
+ *   design/consola_movil.png -> public/src/assets/consola_movil.webp (1952 x 904)
  *
- * Los dos maestros vigentes son el marco deportivo (focos, banderines y monedas
- * alrededor de las tres placas del HUD) y el panel azul con corona dorada (cinco
- * discos y cuatro placas de pie). Los nombres de destino NO cambian: el CSS y el
- * HTML siguen apuntando a `marco_movil.webp` y `consola_movil.webp`, asi que el
- * cambio de arte no toca el mapeo de los componentes.
+ * Los dos maestros vigentes son la piel dulce del rebranding: el marco de
+ * caramelo (toldo rosa, nube del logo a la izquierda, tres placas moradas del
+ * HUD y ventana del tablero) y la consola rosa con corona (cinco discos, dos
+ * pantallas arriba y cuatro placas de pie). Los nombres de destino NO cambian:
+ * el CSS y el HTML siguen apuntando a `marco_movil.webp` y `consola_movil.webp`,
+ * asi que el cambio de arte no toca el mapeo de los componentes.
  *
- * `design/marco_movil_v1.png` es el maestro anterior (toldo con la nube rosa a
- * la izquierda, 1325 x 941 tras el recorte). Se conserva como referencia: el
- * dueño del marco vigente es siempre `design/marco_movil.png`, de modo que el
- * CSS y esta tabla hablan siempre de la misma pieza.
+ * `design/marco_movil_estadio.png` y `design/consola_movil_estadio.png` son los
+ * maestros de la piel deportiva de MeridianoBet que se publico antes: se
+ * conservan como referencia, pero el dueño de cada pieza es siempre el archivo
+ * sin sufijo (`design/marco_movil.png`, `design/consola_movil.png`), de modo que
+ * el CSS y esta tabla hablan siempre de la misma pieza.
  *
  * El script, para cada pieza:
  *   1. mide el bbox de los pixeles con alfa visible;
@@ -62,13 +64,13 @@ const DEPLOY_DIR = path.join(ROOT, '.vercel', 'output', 'static', 'src', 'assets
 const PIECES = [
   {
     name: 'marco_movil',
-    canvas: { width: 1392, height: 1093 },
+    canvas: { width: 1325, height: 941 },
     quality: 86,
     maxBytes: 300 * 1024
   },
   {
     name: 'consola_movil',
-    canvas: { width: 1780, height: 883 },
+    canvas: { width: 1952, height: 904 },
     quality: 92,
     maxBytes: 512 * 1024
   }

@@ -127,32 +127,24 @@ el propio origen.
    proporcion y la imagen la rellena entera; si se cambia el arte por otro de
    distinta relacion hay que actualizar ambos sitios o el `object-fit: contain`
    devolvera el aire dentro de la caja.
-   La caja movil apunta al **84 % del ancho del marco** con un tope por el cielo
-   real (`--logo-sky`, que descuenta los 10 px del balanceo mas 4 px de colchon):
-   en telefonos altos manda el 84 % (325 px a 390 x 844, 358 px a 430 x 932) y el
-   logo se apoya sobre la franja de monedas y banderines del marco, justo encima
-   del HUD; en 320 px y en 360 px manda el tope (167 px y 198 px) y la pegatina se
-   queda con 16 px bajo la barra superior, sin tocarla y sin generar scroll
-   horizontal.
-   Entre **600 y 899 px** (tablets verticales y escritorios pequenos con alto de
-   sobra, `min-height: 521px`) el marco se estira hasta la barra superior y su
-   unico cielo es ese 19,87 % del arte, asi que la chapa se quedaba en el 27 % del
-   marco. Ese tramo reserva un aire vertical propio (`--logo-air`: 10 % del alto
-   del escenario, 104 px de techo) que se descuenta del alto libre de la maquina
-   via `--m-w`; la mitad de arriba entra en `--logo-sky` y el logo sube al ~40 %
-   del marco (266 px a 768 x 1024, 314 px a 899 x 1200) manteniendo su base, la
-   holgura sobre el HUD (16-18 px) y el aire bajo la barra superior (18-19 px).
-   El tablero pierde como mucho un 3 % de ancho en ese tramo; por debajo de 600 px
-   y por encima de 900 px no cambia nada. En escritorio el logo ocupa el 37 % del
-   marco (297 px a 1366 x 768, 406 px a 1920 x 1080).
+   En movil la caja se ata al **alto del marco** (`--logo-w: calc(var(--frame-h) *
+   0.30)`, con `--logo-h` a la mitad para conservar el 2:1) y se pega dentro de la
+   nube de caramelo que dibuja el propio marco (x 2,64-32,30 % y 0,00-17,85 % del
+   recorte): la chapa escala con el arte en todo el rango 320-899 px, sin aire
+   reservado ni tramo intermedio, y a 390 x 844 mide 81 px de ancho (21,3 % del
+   marco). El balanceo de la pegatina baja a 2-4 px y 1,4-2 grados para no salir
+   de la nube. En escritorio el logo ocupa el 37 % del marco (297 px a 1366 x 768,
+   406 px a 1920 x 1080).
    La barra del navegador movil usa la meta `theme-color`, ya en azul de marca:
    `<meta name="theme-color" content="#3a4fd8" />`.
 
-Pendiente de arte (ver la tabla de alcance): el marco del tablero (`d1.webp`),
-la nube del logo (`d5.webp`), la consola (`d3.webp`), las carcasas moviles
-(`marco_movil.webp`, `consola_movil.webp`) y el fondo de escenario. El logotipo
-ya es el nuevo; mientras el resto siga siendo el original, el juego se lee como
-"interfaz de marca dentro del marco base".
+Piel movil vigente: la dulce (`design/marco_movil.png` 1325 x 941 y
+`design/consola_movil.png` 1952 x 904, publicados como `marco_movil.webp` y
+`consola_movil.webp`), con la avenida de caramelo como fondo. Los maestros de la
+piel deportiva anterior siguen en `design/marco_movil_estadio.png`,
+`design/consola_movil_estadio.png` y `design/avenida_estadio.png`: no se publican,
+pero dejan rastro de los recortes que midio el CSS movil antes del cambio.
+En escritorio el arte de marca (`d1`, `d3`, `d5`) ya es el candy del rebranding.
 
 Los simbolos del tablero (20 PNG en `public/src/assets/symbols/`) se mapean en
 `ui/lib/format.js` (`SYMBOL_IMAGE_PATH`). Si se sustituyen por iconografia de
