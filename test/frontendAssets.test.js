@@ -178,7 +178,7 @@ test('el maestro del logo vive fuera de public/ y no viaja al CDN', () => {
   );
 });
 
-test('la barra superior firma BlokiCrush y conserva los ganchos del juego', () => {
+test('la firma de marca flota sin barra y el dock conserva los ganchos del juego', () => {
   const html = read(INDEX_PATH);
   const css = read(STYLE_PATH);
   const theme = read(path.join(PUBLIC_DIR, 'src', 'css', 'theme.css'));
@@ -201,29 +201,56 @@ test('la barra superior firma BlokiCrush y conserva los ganchos del juego', () =
   assert.match(html, /<rect class="brand__block-tile brand__block-tile--hot"/);
   assert.match(html, /<p class="brand__sub">Blocks Grid Pays/);
 
-  // El contrato con el JS no cambia: el controlador busca estos ids y pinta el
-  // silencio con `aria-pressed`, no con el texto del boton.
-  assert.match(html, /class="icon-btn icon-btn--sound" id="btn-sound" type="button" aria-pressed="true"/);
-  assert.match(html, /class="icon-btn icon-btn--help" id="btn-help" type="button"/);
+  // La barra azul alargada ya no existe: ni el contenedor `.topbar` ni la
+  // capsula de audio. La firma y los tres controles son capas flotantes
+  // independientes, cada una con su propia placa.
+  assert.doesNotMatch(html, /class="[^"]*\btopbar\b/, 'La barra superior azul ya no se usa');
+  assert.doesNotMatch(css, /\.topbar\b/, 'style.css no debe conservar reglas de la barra');
+  assert.doesNotMatch(theme, /\.topbar\b/, 'theme.css no debe conservar reglas de la barra');
+  assert.match(html, /<header class="masthead">/);
   assert.match(
     html,
-    /<div class="topbar__audio" role="group" aria-label="Audio y ayuda">/,
-    'Sonido y ayuda comparten la capsula de audio'
+    /<div class="dock" role="group" aria-label="Controles del juego">/,
+    'Los tres controles se agrupan en el dock flotante'
+  );
+
+  // El contrato con el JS no cambia: el controlador busca estos ids y pinta el
+  // silencio con `aria-pressed`, no con el texto del boton.
+  assert.match(html, /class="dock__btn dock__btn--wallet" id="btn-demo"/);
+  assert.match(html, /class="[^"]*\bdock__btn--sound\b[^"]*" id="btn-sound"[\s\S]{0,90}?aria-pressed="true"/);
+  assert.match(html, /class="[^"]*\bdock__btn--help\b[^"]*"[\s\S]{0,40}?id="btn-help"/);
+  assert.match(
+    html,
+    /<span class="dock__label">Ayuda<\/span>/,
+    'La ayuda lleva rotulo visible, no solo el interrogante'
   );
   assert.match(
     css,
-    /\.icon-btn\[aria-pressed="false"\] \.icon-btn__mute \{ display: inline; \}/,
+    /\.dock__btn\[aria-pressed="false"\] \.icon-btn__mute \{ display: inline; \}/,
     'El icono de silencio se pinta por CSS desde `aria-pressed`'
   );
 
-  // La capa de marca pinta la firma; la maqueta (geometria) vive en style.css.
-  for (const selector of ['.topbar', '.brand__mark', '.topbar__audio', '.brand__title .brand__crush']) {
+  // Los tres botones comparten el relieve de caramelo (marco + brillo) y se
+  // hunden al pulsarlos; el dock flota, asi que no le roba alto al tablero.
+  assert.match(css, /\.dock \{[\s\S]{0,700}?position: fixed;/, 'El dock flota sobre el arte');
+  assert.match(css, /\.dock__btn \{[\s\S]{0,600}?border: 3px solid transparent;/);
+  assert.match(css, /\.dock__btn:active:not\(:disabled\) \{ transform: translateY\(3px\); filter: brightness\(0\.94\); \}/);
+  assert.match(css, /\.dock__btn--wallet \{[\s\S]{0,200}?var\(--dock-rim-gold\) border-box;/);
+  assert.match(css, /\.dock__btn--glass \{[\s\S]{0,260}?var\(--dock-rim-glass\) border-box;/);
+
+  // La capa de marca pinta la firma y el material de las placas; la maqueta
+  // (geometria) vive en style.css.
+  for (const selector of ['.brand__mark', '.brand__title .brand__crush', '.dock__btn--wallet', '.dock__btn--glass']) {
     assert.ok(
       theme.includes(`html[data-theme="blokicrush"] ${selector}`),
       `theme.css debe pintar \`${selector}\``
     );
   }
-  assert.doesNotMatch(html, /[\u{1F507}-\u{1F50A}]/u, 'La barra usa SVG, no emojis de altavoz');
+  assert.doesNotMatch(html, /[\u{1F507}-\u{1F50A}]/u, 'El dock usa SVG, no emojis de altavoz');
+
+  // En movil manda el dock: la firma se oculta porque el lockup del juego ya
+  // esta dibujado en la maquina y el alto es oro.
+  assert.match(css, /\.masthead \.brand \{ display: none; \}/, 'En movil la firma deja el ancho al dock');
 });
 
 test('el cartel de victoria se sirve en WebP con alfa y el maestro queda fuera de public/', () => {
@@ -1386,7 +1413,7 @@ test('la capa de marca se sirve y se carga despues de style.css', () => {
   assert.equal(nested, false, 'theme.css debe ser CSS plano: hay bloques anidados');
   assert.equal(depth, 0, 'theme.css tiene llaves desbalanceadas');
   assert.equal(
-    /(^|\n)\s*(html\[data-theme="blokicrush"\]\s*)?\.(machine|topbar|modal__card)\s*\{[^}]*(width|height|display|position)\s*:/.test(
+    /(^|\n)\s*(html\[data-theme="blokicrush"\]\s*)?\.(machine|modal__card|dock__btn--wallet|dock__btn--glass)\s*\{[^}]*(width|height|display|position)\s*:/.test(
       withoutComments
     ),
     false,

@@ -39,7 +39,12 @@
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
+    <!-- Firma de marca y controles. La barra azul que agrupaba ambos ya no
+         existe: la marca flota arriba a la izquierda y los tres controles
+         viven en el dock de la esquina superior derecha, cada uno con su
+         propia placa de caramelo. Ni la marca ni el dock entran en el flujo
+         (`position: fixed`), asi el tablero se queda con toda la pantalla. -->
+    <header class="masthead">
       <div class="brand">
         <!-- Insignia de marca: cuatro bloques glossy dentro de un marco. El
              color lo pone `theme.css`; el dibujo escala con la caja del icono. -->
@@ -59,8 +64,8 @@
         </div>
       </div>
 
-      <div class="topbar__right">
-        <button class="btn btn--demo" id="btn-demo" type="button" aria-pressed="false"
+      <div class="dock" role="group" aria-label="Controles del juego">
+        <button class="dock__btn dock__btn--wallet" id="btn-demo" type="button" aria-pressed="false"
                 title="Jugar gratis con fichas virtuales, sin dinero real">
           <span class="btn__coin" aria-hidden="true">
             <svg viewBox="0 0 24 24" focusable="false">
@@ -71,32 +76,36 @@
                     fill="none" stroke="#8f0a1f" stroke-width="1.6" stroke-linecap="round" />
             </svg>
           </span>
-          <span class="btn__title">Fichas de Prueba</span>
-          <span class="btn__sub" id="demo-sub">1.000,00 VES</span>
+          <span class="dock__text">
+            <span class="btn__title">Fichas de Prueba</span>
+            <span class="btn__sub" id="demo-sub">1.000,00 VES</span>
+          </span>
         </button>
 
-        <!-- Controles de audio: una sola capsula para los dos iconos. El estado
-             de silencio lo pinta `style.css` leyendo `aria-pressed`; el SVG
-             cambia de ondas a cruz sin que el JS toque su contenido. -->
-        <div class="topbar__audio" role="group" aria-label="Audio y ayuda">
-          <button class="icon-btn icon-btn--sound" id="btn-sound" type="button" aria-pressed="true"
-                  title="Silenciar sonido" aria-label="Activar o desactivar sonido">
-            <svg class="icon-btn__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path class="icon-btn__speaker" d="M4 9.2h3.2L12.4 5.6v12.8L7.2 14.8H4z" />
-              <path class="icon-btn__wave" d="M15.6 9.2a4 4 0 0 1 0 5.6" />
-              <path class="icon-btn__wave icon-btn__wave--far" d="M18.2 6.6a7.8 7.8 0 0 1 0 10.8" />
-              <path class="icon-btn__mute" d="M15.8 9.8l4.6 4.4M20.4 9.8l-4.6 4.4" />
-            </svg>
-          </button>
-          <button class="icon-btn icon-btn--help" id="btn-help" type="button"
-                  title="Reglas y tabla de pagos" aria-label="Reglas y tabla de pagos">
-            <svg class="icon-btn__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M9.3 9.2a2.9 2.9 0 0 1 5.5 1c0 1.9-2.6 2.1-2.6 4.1" />
-              <circle class="icon-btn__dot" cx="12" cy="17.4" r="1.2" />
-            </svg>
-          </button>
-        </div>
+        <!-- Sonido y ayuda: dos placas de cristal independientes. El estado de
+             silencio lo pinta `style.css` leyendo `aria-pressed`; el SVG cambia
+             de ondas a cruz sin que el JS toque su contenido. La ayuda lleva
+             rotulo visible ("Ayuda") para que no sea solo un interrogante. -->
+        <button class="dock__btn dock__btn--sound dock__btn--glass" id="btn-sound"
+                type="button" aria-pressed="true"
+                title="Silenciar sonido" aria-label="Activar o desactivar sonido">
+          <svg class="icon-btn__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="icon-btn__speaker" d="M4 9.2h3.2L12.4 5.6v12.8L7.2 14.8H4z" />
+            <path class="icon-btn__wave" d="M15.6 9.2a4 4 0 0 1 0 5.6" />
+            <path class="icon-btn__wave icon-btn__wave--far" d="M18.2 6.6a7.8 7.8 0 0 1 0 10.8" />
+            <path class="icon-btn__mute" d="M15.8 9.8l4.6 4.4M20.4 9.8l-4.6 4.4" />
+          </svg>
+        </button>
+        <button class="dock__btn dock__btn--help dock__btn--glass"
+                id="btn-help" type="button"
+                title="Reglas y tabla de pagos" aria-label="Ayuda · reglas y tabla de pagos">
+          <svg class="icon-btn__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9.3 9.2a2.9 2.9 0 0 1 5.5 1c0 1.9-2.6 2.1-2.6 4.1" />
+            <circle class="icon-btn__dot" cx="12" cy="17.4" r="1.2" />
+          </svg>
+          <span class="dock__label">Ayuda</span>
+        </button>
       </div>
     </header>
 

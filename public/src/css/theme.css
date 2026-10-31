@@ -22,9 +22,9 @@
      (`--brand-blue*`), tomado de los pulsadores azules del case.
    - Acentos magenta del juego -> rojo. El oro NO se toca: es el color del
      premio (saldo, S9, "MAX") y mantiene su lectura. El azul tampoco compite con
-     el premio: viste las superficies de la interfaz (barra y casillas).
-   - Barra superior (vidrio azul), boton "Fichas de Prueba", modal y anillo de
-     foco.
+     el premio: es la tinta del dock flotante y el vidrio de las casillas.
+   - Firma de marca flotante, dock de controles (fichas de prueba, sonido y
+     ayuda), modal y anillo de foco.
    - Ventana de juego: marco interior del tablero y las 30 casillas, que si
      se pintan con gradientes (`.board`, `.tile`) y no con imagen.
 
@@ -64,7 +64,7 @@
 
   /* Azul de la consola: los mismos tonos que los pulsadores azules del case
      (`--gbtn-blue-*` en `style.css`), con el aclarado `#8caaff` como cabeza del
-     vidrio. La barra superior y las casillas giran sobre esta gama para que la
+     vidrio. Las casillas y la tinta del dock giran sobre esta gama para que la
      interfaz hable un solo idioma. */
   --brand-blue: #5a72f4;
   --brand-blue-deep: #2e36bc;
@@ -214,38 +214,12 @@ html[data-theme="blokicrush"] .tile__bomb-value {
 
 
 /* --------------------------------------------------------------------------
-   4. Barra superior y firma de marca
-   La barra es DOM con fondo CSS: aqui si cambia de caramelo a vidrio azul (el
-   azul de la consola, translucido). El color de los bloques y de la ficha sale
-   de estos tokens; el dibujo vive en el HTML (`.brand__block`) y su geometria
-   en `style.css`.
+   4. Firma de marca flotante
+   La barra ya no existe: la firma se apoya directamente sobre el arte del
+   juego, sin placa. El color de los bloques y de la ficha sale de estos
+   tokens; el dibujo vive en el HTML (`.brand__block`) y su geometria en
+   `style.css`.
    -------------------------------------------------------------------------- */
-
-html[data-theme="blokicrush"] .topbar {
-  /* Vidrio azul: el mismo azul de la consola, con alfa y `backdrop-filter`
-     para que el estadio se lea por detras sin perder el texto. El filo claro
-     superior da el canto de cristal y sustituye al acento rojo, que sobre azul
-     se apagaba. */
-  border-color: rgba(255, 255, 255, 0.26);
-  border-top-color: rgba(255, 255, 255, 0.55);
-  background:
-    linear-gradient(
-      180deg,
-      rgba(140, 170, 255, 0.88) 0%,
-      rgba(90, 114, 244, 0.86) 50%,
-      rgba(46, 54, 188, 0.84) 100%
-    );
-  box-shadow:
-    0 12px 28px rgba(16, 26, 77, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -1px 0 rgba(16, 26, 77, 0.2);
-  backdrop-filter: blur(14px) saturate(1.25);
-}
-
-/* El brillo diagonal de caramelo no forma parte de la identidad. */
-html[data-theme="blokicrush"] .topbar::after {
-  background: none;
-}
 
 /* Insignia: cuadro blanco con anillo rojo y los bloques del logotipo. */
 html[data-theme="blokicrush"] .brand__mark {
@@ -303,66 +277,66 @@ html[data-theme="blokicrush"] .brand__sub {
 }
 
 /* --------------------------------------------------------------------------
-   5. Controles de la barra: ficha del boton de prueba y capsula de audio
+   5. Controles flotantes: fichas de prueba, sonido y ayuda
+   El material (cara + marco + relieve) lo define `style.css`; aqui solo se
+   cambian los colores a la paleta de marca: granate con marco de oro para la
+   ficha, cristal para sonido y ayuda.
    -------------------------------------------------------------------------- */
 
-html[data-theme="blokicrush"] .topbar .btn--demo {
-  border-color: rgba(255, 255, 255, 0.55);
-  background: linear-gradient(180deg, var(--brand-red-soft), var(--brand-red) 62%, var(--brand-red-dark));
+html[data-theme="blokicrush"] .dock__btn--wallet {
+  background:
+    linear-gradient(180deg, var(--brand-red-soft), var(--brand-red) 60%, var(--brand-red-dark)) padding-box,
+    linear-gradient(180deg, #fff3b8, var(--brand-gold) 52%, #a86a06) border-box;
   box-shadow:
-    0 8px 18px rgba(16, 26, 77, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    inset 0 2px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -3px 0 rgba(58, 8, 44, 0.34),
+    0 10px 24px rgba(16, 26, 77, 0.42);
 }
 
-html[data-theme="blokicrush"] .topbar .btn--demo .btn__title {
+html[data-theme="blokicrush"] .dock__btn--wallet .btn__title {
   color: var(--brand-white);
-  /* El trazo negro del caramelo ensucia el texto a 10 px: aqui no hace falta. */
+  /* El trazo negro del caramelo ensucia el texto a 11 px: aqui no hace falta. */
   -webkit-text-stroke: 0;
-  text-shadow: 0 1px 0 rgba(143, 10, 31, 0.45);
+  text-shadow: 0 1px 0 rgba(143, 10, 31, 0.5);
 }
 
-html[data-theme="blokicrush"] .topbar .btn--demo .btn__sub {
+html[data-theme="blokicrush"] .dock__btn--wallet .btn__sub {
   color: var(--brand-gold);
+  text-shadow: 0 1px 0 rgba(58, 8, 44, 0.5);
 }
 
-html[data-theme="blokicrush"] .topbar .btn--demo[aria-pressed="true"] {
-  border-color: var(--brand-gold);
+html[data-theme="blokicrush"] .dock__btn--wallet[aria-pressed="true"] {
   box-shadow:
-    0 0 0 2px rgba(255, 194, 26, 0.34),
-    0 10px 22px rgba(143, 10, 31, 0.32);
+    inset 0 2px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -3px 0 rgba(58, 8, 44, 0.34),
+    0 0 0 2px rgba(255, 194, 26, 0.4),
+    0 10px 24px rgba(16, 26, 77, 0.42);
 }
 
-/* Capsula de audio: vidrio claro translucido sobre la barra azul. El alfa alto
-   mantiene el area tactil legible y deja pasar el tono de la barra por detras. */
-html[data-theme="blokicrush"] .topbar__audio {
-  border-color: rgba(255, 255, 255, 0.5);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(238, 242, 255, 0.72));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 2px 6px rgba(16, 26, 77, 0.18);
-  backdrop-filter: blur(6px);
-}
-
-/* Las capas de caramelo pintan cada icono como una teja ciruela. Aqui el fondo
-   lo pone la pastilla, asi que el boton va plano y a tinta azul marino, que es
-   el tono oscuro del cristal de la barra. */
-html[data-theme="blokicrush"] .topbar .topbar__audio .icon-btn {
+/* Sonido y ayuda: cristal claro con el mismo marco dorado. El icono va a tinta
+   azul marino, el tono oscuro de la consola. */
+html[data-theme="blokicrush"] .dock__btn--glass {
   color: var(--brand-blue-ink);
-  border-color: transparent;
-  background: none;
-  box-shadow: none;
+  background:
+    linear-gradient(180deg, var(--brand-white), #eef2ff) padding-box,
+    linear-gradient(180deg, #fff3b8, var(--brand-gold) 52%, #a86a06) border-box;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 0 rgba(16, 26, 77, 0.18),
+    0 10px 20px rgba(16, 26, 77, 0.34);
 }
 
-html[data-theme="blokicrush"] .topbar .topbar__audio .icon-btn:hover {
+html[data-theme="blokicrush"] .dock__btn--glass:hover:not(:disabled) {
   color: var(--brand-blue-deep);
-  background: rgba(90, 114, 244, 0.16);
 }
 
-/* Silenciado: el icono se apaga y el boton baja a un velo blanco dentro de la
-   capsula; el estado real lo lleva `aria-pressed`, no una clase aparte. */
-html[data-theme="blokicrush"] .topbar .topbar__audio .icon-btn[aria-pressed="false"] {
+/* Silenciado: el icono se apaga y el cristal baja a un velo gris azulado; el
+   estado real lo lleva `aria-pressed`, no una clase aparte. */
+html[data-theme="blokicrush"] .dock__btn--glass[aria-pressed="false"] {
   color: rgba(16, 26, 77, 0.42);
-  background: rgba(255, 255, 255, 0.55);
+  background:
+    linear-gradient(180deg, #f4f6fb, var(--brand-grey-100)) padding-box,
+    linear-gradient(180deg, #ffe9a8, #e8b310 52%, #a86a06) border-box;
 }
 
 /* --------------------------------------------------------------------------

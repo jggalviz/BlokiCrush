@@ -150,17 +150,178 @@ button:disabled { cursor: not-allowed; }
   gap: 16px;
 }
 
-.topbar {
+/* Firma de marca y dock de controles.
+   La barra azul que agrupaba marca y controles ya no existe: la firma flota
+   arriba a la izquierda y los tres controles (fichas, sonido, ayuda) viven en
+   un dock aparte, cada uno con su propia placa. Ninguno de los dos ocupa
+   espacio en la maqueta (`position: fixed`), asi el tablero se queda con la
+   pantalla entera. `pointer-events: none` en los contenedores deja pasar el
+   gesto al juego por el hueco entre boton y boton. */
+.masthead {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(10px, env(safe-area-inset-left));
+  z-index: 40;
+  display: flex;
+  pointer-events: none;
+}
+
+.dock {
+  /* Bisel de caramelo: cara y borde en dos degradados, el mismo idioma que la
+     botonera del juego (`.gbtn`). Variables locales para que las tres placas
+     compartan material sin repetir los degradados. */
+  --dock-rim-gold: linear-gradient(180deg, #fff6c8, #ffc21a 52%, #a86a06);
+  --dock-rim-glass: linear-gradient(180deg, #fff8dc, #ffd05e 56%, #b07f10);
+  --dock-wallet-face: linear-gradient(180deg, #ff6a7d, #d0112f 56%, #8f0a1f);
+  --dock-glass-face: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(226, 234, 255, 0.92));
+  --dock-lift: inset 0 2px 0 rgba(255, 255, 255, 0.72), inset 0 -3px 0 rgba(58, 8, 44, 0.28);
+
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 40;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 18px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.12));
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
+  gap: 8px;
+  pointer-events: none;
+}
+
+.dock > * { pointer-events: auto; }
+
+/* Placa base: relieve de caramelo (cara + marco + brillo + hundimiento). */
+.dock__btn {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 5px 14px 6px;
+  border: 3px solid transparent;
+  border-radius: 15px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-weight: 800;
+  color: #fff;
+  transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* `GameView` oculta el boton con `hidden` si el servidor desactiva las fichas:
+   sin esta regla el `display: flex` de arriba ganaria al atributo. */
+.dock__btn[hidden] { display: none; }
+
+/* Brillo de cristal superior; la mascara lo apaga antes de tocar los laterales
+   para que no se vea el rectangulo del degradado dentro de la placa. */
+.dock__btn::before {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 5%;
+  height: 46%;
+  border-radius: 50% 50% 46% 46% / 100% 100% 44% 44%;
+  background: radial-gradient(120% 130% at 50% -10%,
+      rgba(255, 255, 255, 0.62) 0%,
+      rgba(255, 255, 255, 0.3) 38%,
+      rgba(255, 255, 255, 0.08) 66%,
+      rgba(255, 255, 255, 0) 84%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.8) 56%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.8) 56%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* El contenido siempre por encima del brillo. */
+.dock__btn > * { position: relative; z-index: 2; }
+
+.dock__btn:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+.dock__btn:active:not(:disabled) { transform: translateY(3px); filter: brightness(0.94); }
+.dock__btn:disabled { cursor: not-allowed; filter: grayscale(0.5) brightness(0.88); }
+.dock__btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* --- Fichas de prueba: granate, marco dorado y brillo --------------------- */
+
+.dock__btn--wallet {
+  background: var(--dock-wallet-face) padding-box, var(--dock-rim-gold) border-box;
+  box-shadow: var(--dock-lift), 0 10px 22px rgba(46, 8, 30, 0.42);
+}
+
+/* Modo activo: el marco se enciende en oro, sin cambiar el tamano. */
+.dock__btn--wallet[aria-pressed="true"] {
+  box-shadow:
+    var(--dock-lift),
+    0 0 0 2px rgba(255, 194, 26, 0.55),
+    0 10px 22px rgba(46, 8, 30, 0.42);
+}
+
+.dock__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  line-height: 1.05;
+  text-align: left;
+}
+
+.dock__btn--wallet .btn__title {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(58, 2, 14, 0.55), 0 0 8px rgba(255, 255, 255, 0.25);
+}
+
+.dock__btn--wallet .btn__sub {
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: #ffe9a6;
+  text-shadow: 0 1px 0 rgba(58, 2, 14, 0.5);
+}
+
+/* --- Sonido y ayuda: cristal con el mismo bisel dorado -------------------- */
+
+.dock__btn--glass {
+  color: var(--brand-blue-ink, #26305c);
+  background: var(--dock-glass-face) padding-box, var(--dock-rim-glass) border-box;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 0 rgba(122, 138, 200, 0.4),
+    0 10px 20px rgba(23, 20, 60, 0.32);
+}
+
+/* Silenciado: el cristal baja de contraste pero sigue leyendose como un
+   control. El estado real lo lleva `aria-pressed`, no una clase aparte. */
+.dock__btn--glass[aria-pressed="false"] {
+  color: rgba(38, 48, 92, 0.52);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(214, 222, 246, 0.8)) padding-box,
+    var(--dock-rim-glass) border-box;
+}
+
+/* Sonido: placa cuadrada (solo icono). Ayuda: placa con rotulo. */
+.dock__btn--sound {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+}
+
+.dock__btn--help {
+  gap: 7px;
+  padding: 0 13px;
+}
+
+.dock__label {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: currentColor;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
@@ -215,31 +376,6 @@ button:disabled { cursor: not-allowed; }
   color: var(--ink-dim);
 }
 
-.topbar__right { display: flex; align-items: center; gap: 10px; }
-
-/* Capsula de audio: sonido y ayuda comparten una sola pastilla. Los botones
-   pierden borde y fondo propios (los pone la capsula) pero conservan el area
-   tactil de siempre: el conjunto mide lo mismo que los dos iconos sueltos. */
-.topbar__audio {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px;
-  border: 1px solid transparent;
-  border-radius: 14px;
-}
-
-.topbar__audio .icon-btn {
-  width: 38px;
-  height: 38px;
-  border: 0;
-  border-radius: 11px;
-  background: none;
-  box-shadow: none;
-}
-
-.topbar__audio .icon-btn:active { transform: translateY(1px); }
-
 /* Iconos de linea: un solo trazo de 1,9 px y `currentColor`, asi el estado de
    silencio solo cambia el color del boton (lo hace `theme.css`). */
 .icon-btn__icon {
@@ -259,8 +395,10 @@ button:disabled { cursor: not-allowed; }
 /* Silenciado: la cruz sustituye a las ondas. `aria-pressed` lo mantiene
    `GameController`, el mismo estado que lee el lector de pantalla. */
 .icon-btn__mute { display: none; }
-.icon-btn[aria-pressed="false"] .icon-btn__mute { display: inline; }
-.icon-btn[aria-pressed="false"] .icon-btn__wave { display: none; }
+.icon-btn[aria-pressed="false"] .icon-btn__mute,
+.dock__btn[aria-pressed="false"] .icon-btn__mute { display: inline; }
+.icon-btn[aria-pressed="false"] .icon-btn__wave,
+.dock__btn[aria-pressed="false"] .icon-btn__wave { display: none; }
 
 /* Ficha dorada del boton de prueba: puro adorno de marca, por eso va en un
    contenedor propio y no como emoji. */
@@ -1051,7 +1189,6 @@ body.is-demo .balance__label::after { content: " · demo"; color: var(--mango); 
 
 @media (max-width: 720px) {
   .app { padding: 10px 8px 26px; }
-  .topbar { flex-wrap: wrap; gap: 10px; }
   .brand__sub { display: none; }
   .btn--demo { padding: 6px 10px; }
   .btn--demo .btn__title { font-size: 11px; }
@@ -1218,29 +1355,12 @@ body::after {
   gap: 16px;
 }
 
-.topbar {
-  position: relative;
-  overflow: hidden;
-  padding: 12px 18px;
-  border: 2px solid rgba(255, 255, 255, 0.46);
-  border-radius: 22px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.10));
-  box-shadow: 0 16px 38px rgba(74, 4, 72, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(16px);
-}
-
-.topbar::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.24) 48%, transparent 66%);
-}
-
-.brand,
-.topbar__right {
+.brand {
   position: relative;
   z-index: 1;
+  /* Sin placa detras, la firma se apoya en su propia sombra para leerse sobre
+     el cielo del arte. */
+  filter: drop-shadow(0 3px 6px rgba(46, 12, 70, 0.45));
 }
 
 .brand__mark {
@@ -1269,22 +1389,7 @@ body::after {
 .brand__sub {
   color: rgba(255, 246, 255, 0.82);
   font-weight: 700;
-}
-
-.topbar .icon-btn {
-  width: 42px;
-  height: 42px;
-  border-width: 2px;
-  border-radius: 14px;
-  border-color: rgba(255, 255, 255, 0.38);
-  background: rgba(78, 8, 86, 0.38);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
-  font-size: 16px;
-}
-
-.topbar .icon-btn:hover {
-  border-color: rgba(255, 255, 255, 0.72);
-  background: rgba(125, 19, 127, 0.56);
+  text-shadow: 0 1px 3px rgba(46, 12, 70, 0.55);
 }
 
 .stage {
@@ -1798,23 +1903,6 @@ body::after {
 .controls .btn--auto[aria-pressed="true"] .btn__title,
 .controls .btn--auto[aria-pressed="true"] .btn__sub { color: #5d1631; }
 
-.topbar .btn--demo {
-  min-height: 42px;
-  border: 2px solid rgba(255, 255, 255, 0.46);
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(255, 215, 111, 0.96), rgba(255, 142, 86, 0.96));
-  color: #5b1838;
-  box-shadow: 0 8px 18px rgba(128, 18, 90, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.55);
-}
-
-.topbar .btn--demo .btn__title { color: #5b1838; }
-.topbar .btn--demo .btn__sub { color: rgba(91, 24, 56, 0.78); }
-
-.topbar .btn--demo[aria-pressed="true"] {
-  border-color: #fff7b7;
-  box-shadow: 0 0 0 3px rgba(255, 246, 165, 0.28), 0 10px 22px rgba(128, 18, 90, 0.32);
-}
-
 body.is-demo .controls__wallet .balance {
   border-color: rgba(255, 226, 111, 0.78);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 20px rgba(255, 226, 111, 0.2);
@@ -1976,17 +2064,6 @@ body.is-demo .balance__label::after { color: #fff3a8; }
 @media (max-width: 760px) {
   .app { padding: 10px 8px 28px; }
 
-  .topbar {
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 10px 12px;
-  }
-
-  .topbar__right {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
   .machine {
     padding: 10px;
     border-radius: 28px;
@@ -2075,11 +2152,6 @@ body.is-demo .balance__label::after { color: #fff3a8; }
   }
 
   .brand__title { font-size: 15px; }
-  .topbar__right { gap: 6px; }
-  .topbar .btn--demo { min-height: 38px; padding: 5px 9px; }
-  .topbar .btn--demo .btn__title { font-size: 10px; }
-  .topbar .btn--demo .btn__sub { display: none; }
-  .topbar .icon-btn { width: 36px; height: 36px; border-radius: 11px; }
 
   .machine { padding: 8px; border-radius: 24px; }
   .machine__hero { min-height: 0; }
@@ -2152,13 +2224,6 @@ body {
   overflow: hidden;
 }
 
-.topbar {
-  flex: 0 0 auto;
-  width: 100%;
-  gap: 10px;
-  padding: clamp(6px, 0.8vh, 10px) clamp(10px, 1.2vw, 16px);
-}
-
 .brand__mark {
   width: 40px;
   height: 40px;
@@ -2168,17 +2233,6 @@ body {
 
 .brand__title { font-size: clamp(16px, 1.5vw, 21px); }
 .brand__sub { font-size: 10.5px; }
-
-.topbar .icon-btn {
-  width: 38px;
-  height: 38px;
-  font-size: 15px;
-}
-
-.topbar .btn--demo {
-  min-height: 38px;
-  padding: 4px 11px;
-}
 
 .stage {
   flex: 1 1 auto;
@@ -2200,7 +2254,7 @@ body {
   scrollbar-width: thin;
 }
 
-/* El alto reservado al "chrome" de la maquina (topbar, logo, HUD y controles)
+/* El alto reservado al "chrome" de la maquina (logo, HUD y controles)
    se descuenta del viewport para que la cuadricula nunca lo rebase. Cada modo
    (movil, lado a lado, horizontal) redefine el presupuesto. `--board-gutter`
    es el ancho que no puede usar el tablero (paddings y columna de auditoria). */
@@ -2378,11 +2432,6 @@ body {
     gap: 6px;
   }
 
-  .topbar {
-    gap: 8px;
-    padding: 7px 9px;
-  }
-
   .brand__mark {
     width: 34px;
     height: 34px;
@@ -2393,19 +2442,10 @@ body {
   .brand__title { font-size: 15px; }
   .brand__sub { display: none; }
 
-  .topbar .icon-btn {
-    width: 36px;
-    height: 36px;
-  }
-
-  .topbar .btn--demo {
-    min-height: 36px;
-    padding: 3px 9px;
-  }
-
   .machine {
-    /* Presupuesto fijo del chrome movil (topbar + HUD + controles + estado). */
-    --board-chrome: 330px;
+    /* Presupuesto del chrome movil (HUD + controles + estado). La cabecera ya
+       no gasta alto: marca y controles flotan sobre el arte. */
+    --board-chrome: 292px;
     padding: 6px;
     gap: 5px;
     border-radius: 24px;
@@ -2535,7 +2575,7 @@ body {
   .panel { display: none; }
 
   .machine {
-    /* El tablero ocupa el alto completo; solo se descuenta la barra superior. */
+    /* El tablero ocupa el alto completo; solo se descuenta el chrome de la maquina. */
     --board-chrome: 120px;
     display: grid;
     grid-template-columns: minmax(0, 1fr) clamp(264px, 23vw, 320px);
@@ -2641,32 +2681,15 @@ body {
     gap: 4px;
   }
 
-  .topbar {
-    gap: 6px;
-    padding: 5px 7px;
-  }
+  .dock { top: max(4px, env(safe-area-inset-top)); right: max(4px, env(safe-area-inset-right)); gap: 5px; }
 
-  .brand__mark {
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
-    border-radius: 9px;
-  }
+  .dock__btn { min-height: 34px; padding: 2px 9px 3px; }
 
-  .brand__title { font-size: 13px; }
+  .dock__btn--sound { width: 34px; height: 34px; padding: 0; }
 
-  .topbar .icon-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 13px;
-  }
+  .dock__btn--help { padding: 0 9px; }
 
-  .topbar .btn--demo {
-    min-height: 32px;
-    padding: 2px 7px;
-  }
-
-  .topbar .btn--demo .btn__title { font-size: 9px; }
+  .icon-btn__icon { width: 17px; height: 17px; }
 
   .machine {
     padding: 6px;
@@ -2783,7 +2806,7 @@ body {
 
 .machine {
   --side-width: minmax(268px, 33%);
-  /* Alto reservado al "chrome" (barra superior, paddings y marco) cuando el
+  /* Alto reservado al "chrome" (paddings y marco) cuando el
      navegador no soporta unidades de contenedor (ver `100cqh` mas abajo). */
   --board-chrome: clamp(140px, 17dvh, 210px);
   /* Padding + borde del marco del tablero: se descuenta del alto util. */
@@ -3955,8 +3978,8 @@ body,
   text-transform: uppercase;
 }
 
-/* El boton de fichas de prueba de la topbar sigue el mismo idioma. */
-.topbar .btn--demo .btn__title {
+/* El boton de fichas de prueba del dock sigue el mismo idioma. */
+.dock__btn--wallet .btn__title {
   font-family: var(--font);
   font-weight: 900;
   letter-spacing: 0.03em;
@@ -3966,10 +3989,15 @@ body,
   text-shadow: 0 2px 0 rgba(91, 14, 65, 0.45), 0 0 6px rgba(255, 255, 255, 0.4);
 }
 
-.topbar .btn--demo .btn__sub {
+.dock__btn--wallet .btn__sub {
   font-family: var(--font);
   font-weight: 700;
   letter-spacing: 0.05em;
+}
+
+.dock__label {
+  font-family: var(--font);
+  font-weight: 900;
 }
 
 /* --------------------------------------------------------------------------
@@ -3979,7 +4007,6 @@ body,
 .machine__side .hud__value,
 .machine__side .balance__value,
 .machine__side .bet-readout__value,
-.topbar .balance__value,
 .banner__amount,
 .tile__bomb-value {
   font-family: var(--font);
@@ -3990,8 +4017,7 @@ body,
 
 /* GANANCIA manda: oro caliente con volumen extruido (y el saldo lo secunda). */
 .machine__side .hud__cell--win .hud__value,
-.machine__side .balance__value,
-.topbar .balance__value {
+.machine__side .balance__value {
   color: var(--candy-gold);
   -webkit-text-stroke: 1px rgba(122, 62, 0, 0.42);
   paint-order: stroke fill;
@@ -4018,14 +4044,12 @@ body,
 }
 
 /* El feedback de subida/bajada del saldo se mantiene por encima del dorado. */
-.machine__side .balance__value.is-up,
-.topbar .balance__value.is-up {
+.machine__side .balance__value.is-up {
   color: #b6ff7d;
   text-shadow: 0 2px 0 #2f7a12, 0 0 12px rgba(150, 255, 120, 0.55);
 }
 
-.machine__side .balance__value.is-down,
-.topbar .balance__value.is-down {
+.machine__side .balance__value.is-down {
   color: #ff9db4;
   text-shadow: 0 2px 0 #8a1436, 0 0 12px rgba(255, 120, 150, 0.5);
 }
@@ -4819,7 +4843,7 @@ body.is-demo .machine__side .controls .balance::after {
      el ancho de la máquina, así que el conjunto nunca hace scroll.
      ------------------------------------------------------------------------ */
   /* El escenario es el que conoce el alto real disponible para la máquina: con
-     `container-type: size` el `100cqh` de `--m-w` descuenta topbar y paddings
+     `container-type: size` el `100cqh` de `--m-w` descuenta los paddings
      sin repetir presupuestos a mano. */
   .stage { container-type: size; }
 
@@ -5422,7 +5446,7 @@ body.is-demo .machine__side .controls .balance::after {
   }
 
   /* La divisa no cabe junto al saldo en una placa de ~45 px: el dato manda y
-     la moneda ya la declara el boton de fichas de prueba de la cabecera. */
+     la moneda ya la declara el boton de fichas de prueba del dock. */
   .machine__side .controls .balance__currency {
     display: none;
   }
@@ -6130,96 +6154,47 @@ body.is-demo .machine__side .controls .balance::after {
     overflow: hidden;
   }
 
-  .topbar {
-    flex-wrap: nowrap;
+  /* En movil la firma de marca sobra: el lockup del juego ya esta dibujado en
+     la maquina y el alto es oro. El dock se queda solo, compacto, sobre el
+     cielo del arte. */
+  .masthead .brand { display: none; }
+
+  .dock {
+    top: max(6px, env(safe-area-inset-top));
+    right: max(6px, env(safe-area-inset-right));
     gap: 6px;
-    min-height: 0;
-    padding: 4px 8px;
-    border-radius: 14px;
   }
 
-  .brand {
-    flex: 1 1 auto;
-    gap: 6px;
-    min-width: 0;
-  }
-
-  .brand__mark {
-    flex: 0 0 auto;
-    filter: drop-shadow(0 2px 6px rgba(27, 30, 35, 0.18));
-  }
-
-  .brand__text {
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  /* Sin elipsis: el titulo cae en dos lineas ("BLOKI" / "CRUSH 6x5")
-     cuando el ancho no da, y la insignia de bloques fija el alto de la barra. */
-  .brand__title {
-    font-size: clamp(10px, 2.9vw, 13.5px);
-    letter-spacing: 0.04em;
-    line-height: 1.08;
-    white-space: normal;
-    overflow-wrap: break-word;
-  }
-
-  .brand__grid { font-size: 0.7em; }
-
-  .brand__sub { display: none; }
-
-  .topbar__right {
-    flex: 0 0 auto;
-    width: auto;
-    flex-wrap: nowrap;
+  .dock__btn {
     gap: 5px;
+    min-height: 36px;
+    padding: 3px 10px 4px;
+    border-width: 2px;
+    border-radius: 13px;
   }
 
-  /* La capsula conserva el alto de los iconos sueltos: 1 px de aire por lado. */
-  .topbar__audio {
-    gap: 1px;
-    padding: 1px;
-    border-radius: 12px;
+  .dock__btn--sound {
+    width: 36px;
+    height: 36px;
+    padding: 0;
   }
 
-  .topbar__audio .icon-btn,
-  .topbar .icon-btn {
-    width: clamp(27px, 7.6vw, 33px);
-    height: clamp(27px, 7.6vw, 33px);
-    border-radius: 10px;
-  }
+  .dock__btn--help { padding: 0 10px; gap: 5px; }
 
-  .topbar__audio .icon-btn { border-radius: 9px; }
+  .icon-btn__icon { width: 18px; height: 18px; }
 
-  .icon-btn__icon { width: clamp(17px, 4.7vw, 20px); height: clamp(17px, 4.7vw, 20px); }
+  /* La ficha de 22 px no cabe: el rotulo de las fichas manda. */
+  .dock__btn--wallet .btn__coin { display: none; }
 
-  /* El boton de prueba se queda en texto: 22 px de ficha no caben sin empujar
-     el titulo a una tercera linea. */
-  .topbar .btn--demo .btn__coin { display: none; }
-
-  .topbar .btn--demo {
-    flex-direction: row;
-    align-items: center;
-    gap: 4px;
-    min-height: 0;
-    padding: 3px 8px;
-    border-radius: 10px;
-  }
-
-  .topbar .btn--demo .btn__title {
-    font-size: clamp(8px, 2.4vw, 10px);
-    letter-spacing: 0.02em;
+  .dock__btn--wallet .btn__title {
+    font-size: clamp(9px, 2.6vw, 11px);
+    letter-spacing: 0.03em;
     line-height: 1.1;
   }
 
-  .topbar .btn--demo .btn__sub { display: none; }
+  .dock__btn--wallet .btn__sub { display: none; }
 
-  .topbar .icon-btn {
-    width: clamp(28px, 8vw, 34px);
-    height: clamp(28px, 8vw, 34px);
-    border-radius: 10px;
-    font-size: clamp(12px, 3.4vw, 15px);
-  }
+  .dock__label { font-size: clamp(9px, 2.6vw, 11px); letter-spacing: 0.08em; }
 }
 
 /* --------------------------------------------------------------------------
@@ -6237,15 +6212,11 @@ body.is-demo .machine__side .controls .balance::after {
   .machine__side .controls .bet-readout__label { letter-spacing: 0.04em; }
 }
 
-/* Horizontal bajo (navegador con barra, movil girado): la cabecera pasa a una
-   sola linea para devolverle alto al dibujo. La maquina sigue en columna. */
+/* Horizontal bajo (navegador con barra, movil girado): el dock se pega mas a
+   la esquina para devolverle alto al dibujo. La maquina sigue en columna. */
 @media (max-width: 899px) and (orientation: landscape) and (max-height: 520px) {
   .app { gap: 4px; }
-  .topbar { padding: 2px 6px; }
-  .topbar .brand { flex: 0 1 auto; gap: 5px; }
-  .topbar .brand__mark { font-size: 16px; }
-  .topbar .brand__title { font-size: 11px; letter-spacing: 0.03em; }
-  .topbar__right { width: auto; }
+  .dock { top: max(4px, env(safe-area-inset-top)); right: max(4px, env(safe-area-inset-right)); }
 }
 
 /* Con movimiento reducido, el botón sigue vivo pero sin latido ni halo: el
@@ -6301,8 +6272,9 @@ body.is-demo .machine__side .controls .balance::after {
     --d-gap-y: clamp(6px, 1.2vh, 18px);
     /* Separacion entre la columna lateral y el marco del tablero. */
     --d-gap-x: clamp(10px, 1.3vw, 26px);
-    /* Alto que no es maquina: paddings de `.app`, barra superior y su gap. */
-    --d-chrome: calc(96px + 1.2dvh);
+    /* Alto que no es maquina: paddings de `.app` y un pelo de aire. La marca y
+       los controles flotan, asi que ya no gastan franja. */
+    --d-chrome: calc(34px + 1.2dvh);
     /* Ancho que se lleva `.app` (padding lateral simetrico + un pelo de aire). */
     --d-avail-pad: clamp(16px, 3vw, 44px);
 

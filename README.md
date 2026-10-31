@@ -71,10 +71,11 @@ El tema BlokiCrush **ya esta activo**: `public/index.html` abre con
    logotipo ya es el de BlokiCrush, animado y cuadrado
    (`design/BROKI_crush_animacion-logo-LENTO.gif` → `npm run build:logo`).
 
-La capa de marca repinta lo que dibuja el CSS (barra superior, boton de fichas,
-modal, marco interior del tablero y casillas). Las carcasas de la maquina, el
-fondo y los simbolos son arte bitmap: para cambiarlos hay que reexportar los
-assets, y la tabla de alcance de `docs/REBRANDING.md` indica cuales son.
+La capa de marca repinta lo que dibuja el CSS (firma de marca, dock flotante de
+fichas/sonido/ayuda, modal, marco interior del tablero y casillas). Las carcasas
+de la maquina, el fondo y los simbolos son arte bitmap: para cambiarlos hay que
+reexportar los assets, y la tabla de alcance de `docs/REBRANDING.md` indica
+cuales son.
 
 ## Documentacion
 

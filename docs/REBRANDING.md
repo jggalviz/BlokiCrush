@@ -20,7 +20,7 @@ que distinguir dos grupos antes de tocar nada:
 
 | Superficie | Como se pinta | Editable desde `theme.css` |
 | --- | --- | --- |
-| Barra superior, boton "Fichas de Prueba", modal, anillo de foco | CSS | **Si** |
+| Firma de marca, dock flotante (Fichas de Prueba · Sonido · Ayuda), modal, anillo de foco | CSS | **Si** |
 | Marco interior del tablero (`.board`, `.tile`) | Gradientes CSS | **Si** |
 | Carcasa de controles y botones (escritorio) | Recortes de `d3.webp` | No: reexportar arte |
 | Nube del logo (`.machine__hero`, escritorio) | `d5.webp` | No: reexportar arte |
@@ -30,13 +30,14 @@ que distinguir dos grupos antes de tocar nada:
 | Logotipo | `BLOKICRUSH-LOGO.webp` (GIF animado `BROKI_crush_animacion-logo-LENTO.gif`) | No: reexportar arte |
 | Simbolos del tablero | `public/src/assets/symbols/*.png` | No: reexportar arte |
 
-La barra superior y las 30 casillas se pintan con el **azul de la consola**:
-`theme.css` define `--brand-blue` / `--brand-blue-deep` (los mismos tonos que
-`--gbtn-blue-*` en `style.css`) y `--brand-blue-ink` para contornos y sombras. La
-barra es vidrio translucido (degradado con alfa + `backdrop-filter`) y las
-casillas son vidrio azul sobre el interior palido del tablero, asi el marco del
-arte —rojo, blanco y azul— queda integrado con la interfaz en vez de flotar
-sobre ella.
+La **barra superior azul ya no existe**: la firma de marca flota arriba a la
+izquierda, sin placa, y los tres controles viven en un dock aparte en la esquina
+superior derecha (ver «Controles flotantes» mas abajo). Lo que sigue pintandose
+con el **azul de la consola** son las 30 casillas: `theme.css` define
+`--brand-blue` / `--brand-blue-deep` (los mismos tonos que `--gbtn-blue-*` en
+`style.css`) y `--brand-blue-ink` para contornos y sombras. Las casillas son
+vidrio azul sobre el interior palido del tablero, asi el marco del arte —rojo,
+blanco y azul— queda integrado con la interfaz en vez de flotar sobre ella.
 
 Consecuencia practica: los tokens de caramelo de `style.css`
 (`--candy-solid-body`, `--candy-solid-wash`, `--candy-rim`, `--candy-depth`,
@@ -78,7 +79,7 @@ Todo se define una vez, en el bloque `:root` de `theme.css`:
 --brand-red-soft: #e04a5f;   /* hover / degradados */
 --brand-red-tint: #fdeaec;   /* fondos suaves */
 --brand-gold: #ffc21a;       /* premio y ficha del boton de prueba */
---brand-blue: #5a72f4;       /* vidrio de la barra y las casillas */
+--brand-blue: #5a72f4;       /* vidrio de las casillas y tinta del dock */
 --brand-blue-deep: #2e36bc;  /* base del vidrio */
 --brand-blue-ink: #101a4d;   /* contornos y sombras */
 --brand-white: #ffffff;      /* superficies */
@@ -164,7 +165,7 @@ la subida, descontando `--logo-peak` (4 px del salto de la animacion mas 1,1 % d
 marco, lo que crece la caja en el pico del balanceo). En paisaje de movil o en
 ventanas de poco alto la pegatina se encoge sola hasta caber -a 844 x 390 mide
 42 px y el filo se queda dentro del marco- en vez de quedar cortada. El balanceo
-baja a 2-4 px y 1,4-2 grados para no tocar ni la topbar ni las piezas.
+baja a 2-4 px y 1,4-2 grados para no tocar ni el dock ni las piezas.
 
 En escritorio (>=900 px) el logo vive sobre la nube de `d5.webp` y ahora manda el
 alto (`height: 75%` de `--hero-h`, centro en 34,5 %): a 1440 x 900 mide 250 px,
@@ -174,6 +175,40 @@ menos de 660 px de alto baja a un 62 % con el centro en 34 %.
 
 La barra del navegador movil usa la meta `theme-color`, ya en azul de marca:
 `<meta name="theme-color" content="#3a4fd8" />`.
+
+## Controles flotantes (sin barra)
+
+La barra azul alargada que agrupaba marca y controles se retiro. En su lugar hay
+dos capas `position: fixed` que **no gastan alto** ni entran en la maqueta, asi
+que el tablero se queda con la pantalla entera (`--board-chrome` y `--d-chrome`
+bajaron en consecuencia):
+
+| Capa | Archivo | Que pinta |
+| --- | --- | --- |
+| `.masthead` > `.brand` | `style.css` (caja) + `theme.css` (color) | Firma: insignia de bloques, «BlokiCrush 6×5» y el subtitulo, sobre el cielo del arte |
+| `.dock` > `.dock__btn` | `style.css` (relieve) + `theme.css` (paleta) | Tres placas independientes: `--wallet`, `--sound`, `--help` |
+
+- **Fichas de Prueba** (`#btn-demo`, `.dock__btn--wallet`): cara granate con
+  marco dorado, ficha y texto en dos lineas (titulo + saldo). El estado de modo
+  activo se sigue leyendo de `aria-pressed`, que enciende un anillo de oro.
+- **Sonido** (`#btn-sound`, `.dock__btn--sound`): placa cuadrada de cristal, sin
+  texto. Silenciado lo pinta `aria-pressed="false"`: la cruz sustituye a las
+  ondas y el cristal baja de contraste sin desaparecer.
+- **Ayuda** (`#btn-help`, `.dock__btn--help`): misma placa de cristal con el
+  interrogante **y el rotulo «Ayuda»** visible, para que no haya que adivinar
+  para que sirve.
+
+Las tres comparten el idioma de la botonera del juego: borde de 3 px con
+degradado (cara en `padding-box`, marco en `border-box`), brillo de cristal
+recortado con `mask-image`, sombras interiores y hundimiento de 3 px en
+`:active`. Las variables `--dock-rim-gold`, `--dock-rim-glass`,
+`--dock-wallet-face`, `--dock-glass-face` y `--dock-lift` viven en `.dock`.
+
+El dock va en la esquina superior derecha (`--wallet` · `--sound` · `--help`) y
+en movil (<=899 px) la firma de marca se oculta -el lockup del juego ya esta
+dibujado en la maquina- para dejarle el ancho al dock. Medido a 1280 x 800,
+1440 x 900, 900 x 700, 760 x 900, 390 x 844, 320 x 568 y 844 x 390: el dock no
+toca el tablero y ningun bloque se sale del viewport.
 
 Piel movil vigente: la dulce (`design/marco_movil.png` 1325 x 941 y
 `design/consola_movil.png` 1783 x 693 —el recorte al alfa del maestro, que mide
@@ -255,7 +290,7 @@ backend).
    test junto con `style.css`. El mismo test comprueba que `theme.css` siga
    siendo CSS plano, sin `!important`, con prefijo de tema y sin medidas.
 4. Revisar contraste de texto (WCAG AA) sobre blanco, sobre el rojo y sobre el
-   vidrio azul.
+   cristal del dock.
 5. `npm start` + `/api/health` deben seguir mostrando `operator.mode =
    LOCAL_VIRTUAL_DEMO` y una ronda completa debe pagar igual que antes: el
    rebranding es solo presentacion.
