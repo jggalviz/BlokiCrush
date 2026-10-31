@@ -971,7 +971,7 @@ export class Ui {
     this.refs.spinBtn.classList.toggle('is-busy', busy);
     this.refs.spinBtn.disabled = Boolean(busy);
     this.refs.spinBtn.setAttribute('aria-busy', busy ? 'true' : 'false');
-    this.refs.spinLabel.textContent = busy ? 'GIRANDO…' : 'SPIN';
+    this.refs.spinLabel.textContent = busy ? 'GIRANDO…' : 'GIRAR';
     this.refs.betUp.disabled = Boolean(busy);
     this.refs.betDown.disabled = Boolean(busy);
     this.refs.betMax.disabled = Boolean(busy);

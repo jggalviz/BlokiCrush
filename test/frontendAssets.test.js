@@ -19,6 +19,7 @@ const SYMBOLS_DIR = path.join(PUBLIC_DIR, 'src', 'assets', 'symbols');
 const FORMAT_PATH = path.join(PUBLIC_DIR, 'ui', 'lib', 'format.js');
 const STYLE_PATH = path.join(PUBLIC_DIR, 'src', 'css', 'style.css');
 const INDEX_PATH = path.join(PUBLIC_DIR, 'index.html');
+const GAME_VIEW_PATH = path.join(PUBLIC_DIR, 'ui', 'renderers', 'GameView.js');
 const LOGO_PATH = path.join(PUBLIC_DIR, 'src', 'assets', 'BLOKICRUSH-LOGO.webp');
 const LOGO_STILL_PATH = path.join(PUBLIC_DIR, 'src', 'assets', 'BLOKICRUSH-LOGO-quieto.webp');
 const LOGO_MASTER_PATH = path.join(ROOT_DIR, 'design', 'BROKI_crush_animacion-logo-LENTO.gif');
@@ -817,7 +818,7 @@ test('los rotulos del case no se repintan: el DOM solo guarda nombre accesible y
   const html = read(INDEX_PATH);
   assert.match(
     html,
-    /<span class="btn__spin-label" id="spin-label">SPIN<\/span>/,
+    /<span class="btn__spin-label" id="spin-label">GIRAR<\/span>/,
     'El estado del giro debe seguir en el DOM para lectores de pantalla'
   );
   assert.match(
@@ -832,6 +833,22 @@ test('los rotulos del case no se repintan: el DOM solo guarda nombre accesible y
   );
   assert.match(html, /<span class="balance__value" id="balance-value">/, 'El saldo dinamico sigue en el HUD');
   assert.match(html, /<strong class="bet-readout__value" id="bet-readout">/, 'La apuesta dinamica sigue en el HUD');
+
+  // El rotulo del case y el del DOM dicen lo mismo: `GIRAR`. Si alguno vuelve a
+  // `SPIN`, la placa impresa y el nombre accesible se contradicen.
+  assert.match(
+    css,
+    /\.machine__side \.controls #btn-spin::after \{\s*content: "GIRAR";/,
+    'La placa del case sigue imprimiendo `GIRAR`'
+  );
+
+  // Y el reset de `setBusy` devuelve el pulsador a `GIRAR`, no al rotulo viejo.
+  const gameView = read(GAME_VIEW_PATH);
+  assert.match(
+    gameView,
+    /this\.refs\.spinLabel\.textContent = busy \? 'GIRANDO…' : 'GIRAR';/,
+    '`setBusy(false)` debe restaurar `GIRAR` en `#spin-label`'
+  );
 });
 test('la consola y el tablero comparten el mismo eje X en movil', () => {
   const css = read(STYLE_PATH);

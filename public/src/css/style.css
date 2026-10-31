@@ -5170,7 +5170,7 @@ body.is-demo .machine__side .controls .balance::after {
    Las placas llegan VACIAS en el arte: el pie lo escriben el DOM y el estado
    del motor (ver secciones 5 y 6). El arte no imprime ningun rotulo en ellas,
    asi que solo se ocultan los textos que no aportan (`Bloki Fever`, `AUTO`,
-   `MAX`, `SPIN`), que siguen siendo el nombre accesible de cada pulsador.
+   `MAX`, `GIRAR`), que siguen siendo el nombre accesible de cada pulsador.
    -------------------------------------------------------------------------- */
 
 @media (max-width: 899px) {
@@ -5744,7 +5744,7 @@ body.is-demo .machine__side .controls .balance::after {
 
 
 /* --------------------------------------------------------------------------
-   7) SPIN · el corazon de la consola
+   7) GIRAR · el corazon de la consola
    El disco coronado y su placa GIRAR los dibuja la carcasa; el boton solo
    aporta la zona tactil, el aro de pulso y la pastilla con el estado.
    -------------------------------------------------------------------------- */
