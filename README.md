@@ -8,12 +8,15 @@ Supabase ni motores externos, con la identidad **BlokiCrush** ya aplicada.
 - La capa de marca esta separada del arte del juego: ver
   [`docs/REBRANDING.md`](docs/REBRANDING.md).
 - El modo autonomo se explica en [`docs/MODO_AUTONOMO.md`](docs/MODO_AUTONOMO.md).
+- **Despliegue estatico:** el mismo cliente se publica en Vercel sin backend; el
+  motor viaja al navegador y las fichas de prueba viven en `localStorage`
+  ([`docs/MODO_ESTATICO.md`](docs/MODO_ESTATICO.md)).
 
 ## Arranque rapido
 
 ```bash
 npm install
-npm start           # prestart compila config, ui y el HTML, y avisa si el arte no esta publicado
+npm start           # prestart compila config, motor, ui y el HTML, y avisa si el arte no esta publicado
 # http://localhost:3000
 ```
 
@@ -33,6 +36,26 @@ Para volver al camino estandar (Supabase + motor externo) pon
 `SUPABASE_SERVICE_ROLE_KEY`. El flag es **incompatible con produccion**: con
 `NODE_ENV=production` el arranque falla a proposito.
 
+## Despliegue en Vercel (sitio estatico)
+
+`vercel.json` publica `public/` como sitio autonomo (`framework: null`,
+`outputDirectory: public`) y ejecuta `npm run vercel-build` para regenerar
+config, motor, espejo de la UI y HTML. No declara funciones serverless ni
+variables de entorno: **no necesita Supabase**.
+
+- El juego arranca en **Fichas de Prueba** locales: el motor (`core/`
+  empaquetado) corre en el navegador y el saldo virtual se guarda en
+  `localStorage`.
+- `npm start` sirve ese mismo `public/`, asi que lo que pruebas en local es lo
+  que se publica.
+- Para volver al backend Express publica el HTML con
+  `<meta name="game-api-mode" content="http">` y despliega `server.js` con el
+  preset Express (ver `docs/DEPLOY_VERCEL.md`).
+
+```bash
+npm run vercel-build   # exactamente lo que ejecuta Vercel
+```
+
 ## Estructura
 
 | Ruta | Contenido |
@@ -41,21 +64,25 @@ Para volver al camino estandar (Supabase + motor externo) pon
 | `public/src/css/style.css` | Maqueta base, arte y animaciones |
 | `public/src/css/theme.css` | Capa de marca BlokiCrush (vidrio azul, rojo y oro) |
 | `ui/` | Cliente modular del juego (fuente) -> espejo en `public/ui/` |
+| `ui/engine/blokicrushEngine.js` | Motor de `core/` empaquetado para el navegador (GENERADO) |
 | `server/` | Express: rutas, auth, servicios, motor y configuracion |
 | `core/` | Motor matematico (RTP, reels, cascadas, paytable) |
 | `config/gameConfig.js` | Parametros compartidos backend/cliente |
-| `scripts/` | Builds (`build:config`, `build:ui`, `build:index`) y simulaciones |
+| `vercel.json` | Despliegue estatico: `outputDirectory: public`, sin funciones |
+| `scripts/` | Builds (`build:config`, `build:engine`, `build:ui`, `build:index`) y simulaciones |
 | `test/` | Suite de `node --test` |
 
 ## Scripts
 
 ```bash
-npm start        # servidor (compila antes con prestart: config, ui, HTML y check:art)
+npm start        # servidor (compila antes con prestart: config, motor, ui, HTML y check:art)
 npm run dev      # servidor con --watch
 npm test         # suite completa
 npm run simulate # simulacion del motor
+npm run build:engine # obligatorio tras editar core/ (bundle del navegador)
 npm run build:index  # obligatorio tras editar public/index.html
 npm run build:ui     # obligatorio tras editar ui/
+npm run vercel-build # config + motor + ui + HTML (lo que ejecuta Vercel)
 ```
 
 ## Rebranding
@@ -80,8 +107,9 @@ cuales son.
 ## Documentacion
 
 - [`docs/MODO_AUTONOMO.md`](docs/MODO_AUTONOMO.md) — operador virtual, verificacion, limites.
+- [`docs/MODO_ESTATICO.md`](docs/MODO_ESTATICO.md) — despliegue estatico en Vercel, motor en el navegador y cartera local.
 - [`docs/REBRANDING.md`](docs/REBRANDING.md) — paleta, logotipo, textos, checklist.
 - [`docs/DEMO_MODE.md`](docs/DEMO_MODE.md) — "Fichas de Prueba" (saldo virtual).
-- [`docs/DEPLOY_VERCEL.md`](docs/DEPLOY_VERCEL.md) — despliegue en Vercel.
+- [`docs/DEPLOY_VERCEL.md`](docs/DEPLOY_VERCEL.md) — modo servidor opcional (Express + Supabase).
 - [`docs/MATH_MODEL.md`](docs/MATH_MODEL.md) — modelo matematico y RTP.
 - [`ui/README.md`](ui/README.md) — arquitectura del cliente.

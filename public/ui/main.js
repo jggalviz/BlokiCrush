@@ -2,17 +2,20 @@
  * Punto de entrada del cliente visual.
  *
  * Composicion de la capa UI:
- *   - `ApiClient` (services): transporte HTTP, mismo origen o motor externo.
+ *   - `ApiClient` / `LocalApiClient` (services): transporte. El backend HTTP es
+ *     opcional; por defecto el juego corre con el motor local en el navegador
+ *     ("Fichas de Prueba"), que es lo que necesita el sitio estatico.
  *   - `SessionManager` (services): token, storage y sesion demo.
  *   - `GameController` (controllers): estado de apuesta y decisiones de flujo.
  *   - `GameView` + `RoundAnimator` (renderers): dibujado del payload.
  *   - `GameControls` (components): eventos de usuario -> acciones.
  *
- * El cliente no conoce el motor ni las probabilidades: todo lo que muestra
- * viene de /api/game (informacion publica) y de las respuestas de /api/spin.
+ * El cliente no conoce las probabilidades: todo lo que muestra viene de
+ * `gameInfo()` y de las respuestas de `spin()`, ya resueltas por el motor.
  */
 
 import { ApiClient, ApiError } from './services/ApiClient.js';
+import { LocalApiClient, HTTP_MODE, resolveApiMode } from './services/LocalApiClient.js';
 import { SessionManager } from './services/SessionManager.js';
 import { createSfx } from './audio/sfx.js';
 import { GameView } from './renderers/GameView.js';
@@ -30,7 +33,16 @@ function bootstrap() {
   ui.mount();
 
   let session = null;
-  const api = new ApiClient({ getToken: () => (session ? session.current() : null) });
+  const getToken = () => (session ? session.current() : null);
+
+  /* Modo por defecto: `local` (motor en el navegador, sin backend). Un
+     despliegue con servidor propio activa `http` con
+     `<meta name="game-api-mode" content="http">` o
+     `window.__BLOKI_CRUSH__ = { mode: 'http' }`. */
+  const api = resolveApiMode() === HTTP_MODE
+    ? new ApiClient({ getToken })
+    : new LocalApiClient({ getToken });
+
   session = new SessionManager(api);
 
   const sfx = createSfx();

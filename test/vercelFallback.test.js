@@ -2,12 +2,14 @@
 
 /**
  * ============================================================================
- *  Entrypoint de Vercel (`server.js`) con configuracion invalida
+ *  Entrypoint Express opcional (`server.js`) con configuracion invalida
  * ============================================================================
- *  Cuando `server/config.js` aborta, el entrypoint NO debe devolver un 500
- *  opaco: publica un 503 `CONFIG_INVALID` con `error.problems` (mensajes) y
- *  `error.missing` (NOMBRES de variables). Estos tests arrancan `server.js` en
- *  un proceso hijo (igual que la funcion serverless) para verificar:
+ *  El despliegue por defecto es estatico y no usa este archivo. Si se despliega
+ *  el backend (servidor propio o preset Express), cuando `server/config.js`
+ *  aborta el entrypoint NO debe devolver un 500 opaco: publica un 503
+ *  `CONFIG_INVALID` con `error.problems` (mensajes) y `error.missing` (NOMBRES
+ *  de variables). Estos tests arrancan `server.js` en un proceso hijo para
+ *  verificar:
  *
  *    1. Que el detalle concreto llega al cliente, no solo a Runtime Logs.
  *    2. Que el 503 ya no afirma que faltan secretos cuando el problema real es

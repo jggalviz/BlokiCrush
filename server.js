@@ -2,10 +2,13 @@
 
 /**
  * ============================================================================
- *  ENTRY POINT PARA VERCEL (preset "Express")
+ *  ENTRY POINT DEL MODO SERVIDOR (servidor propio / preset Express opcional)
  * ============================================================================
- *  Vercel detecta `server.js` en la raiz del repositorio y despliega la app
- *  Express como UNA sola Vercel Function:
+ *  El despliegue por defecto es ESTATICO (`vercel.json` +
+ *  `docs/MODO_ESTATICO.md`): `public/` se publica tal cual, el motor viaja
+ *  empaquetado al navegador y no hay funciones. Este archivo solo aplica si
+ *  decides desplegar el backend Express con el preset "Express", que monta la
+ *  app como UNA sola Vercel Function:
  *
  *    - public/src/** -> CDN (CSS/JS)
  *    - `/`           -> esta funcion (HTML generado desde public/index.html)

@@ -1,8 +1,10 @@
 # `ui/` — Capa gráfica y de interfaz
 
-Fuente canónica de la SPA. Todo el código de presentación vive aquí; `core/`
-permanece como motor autoritativo en el servidor y **no se importa desde el
-navegador**.
+Fuente canónica de la SPA. Todo el código de presentación vive aquí. El motor
+autoritativo es `core/`: el servidor lo usa directamente y el navegador recibe
+una **copia empaquetada y generada** (`engine/`, ver
+[`../docs/MODO_ESTATICO.md`](../docs/MODO_ESTATICO.md)), nunca el árbol `core/`
+importado a mano.
 
 ## Estructura
 
@@ -10,6 +12,8 @@ navegador**.
 | --- | --- |
 | `main.js` | Composición: crea servicios, controlador, vista y controles. |
 | `services/ApiClient.js` | **Único** cliente HTTP del backend. Sin DOM ni apuestas. |
+| `services/LocalApiClient.js` | Transporte sin backend: mismo contrato, motor local y cartera en `localStorage`. |
+| `services/LocalWallet.js` | Cartera virtual de "Fichas de Prueba" (centimos, idempotencia, TTL). |
 | `services/SessionManager.js` | Token, storage, sesión demo y renovación. |
 | `controllers/GameController.js` | Estado de apuesta, auto-spin y flujo de ronda. |
 | `components/GameControls.js` | Eventos de usuario → acciones del controlador. |
@@ -19,6 +23,7 @@ navegador**.
 | `lib/*` | Formato, matemática de rodillos, tiempos y niveles de premio. |
 | `audio/sfx.js` | Efectos locales (WebAudio + MP3 de victoria). |
 | `config/gameConfig.js` | Espejo ESM **generado** desde `config/gameConfig.js`. |
+| `engine/blokicrushEngine.js` | `core/**` empaquetado para el navegador (**generado**). |
 
 ## Límites de responsabilidad
 
@@ -31,10 +36,19 @@ navegador**.
 - `GameControls` no hace red ni aritmética de apuestas; traduce clics/teclas a
   métodos del controlador.
 
-## Endpoint del motor
+## Endpoint del motor y modo de juego
 
-El cliente usa **mismo origen** (`''`) por defecto. Para apuntar a un motor
-externo no hay que recompilar; se resuelve por prioridad:
+`resolveApiMode()` decide quién resuelve la ronda:
+
+1. `window.__BLOKI_CRUSH__ = { mode: 'local' | 'http' }` (inyectado por el
+   operador antes de cargar `/ui/main.js`).
+2. `?mode=local` / `?mode=http` en la URL (diagnóstico).
+3. `<meta name="game-api-mode" content="...">` en `public/index.html`.
+4. Por defecto **`local`**: motor empaquetado + cartera en `localStorage`
+   (sitio estático, sin backend).
+
+En modo `http`, el cliente usa **mismo origen** (`''`) por defecto. Para apuntar
+a un motor externo no hay que recompilar; se resuelve por prioridad:
 
 1. `window.__BLOKI_CRUSH__ = { apiBaseUrl: 'https://engine.latingames.net' }`
    (inyectado por el operador antes de cargar `/ui/main.js`).
@@ -44,7 +58,7 @@ externo no hay que recompilar; se resuelve por prioridad:
 
 Con el modo autónomo local (`BC_DEMO_OPERATOR_VIRTUAL=1`) la CSP solo permite
 `'self'`, así que el cliente siempre habla con el motor de este mismo proceso.
-Ver `docs/MODO_AUTONOMO.md`.
+Ver `docs/MODO_AUTONOMO.md` y `docs/MODO_ESTATICO.md`.
 
 ## Tema visual (rebranding)
 
@@ -66,10 +80,12 @@ Con un endpoint externo hay que:
 
 ```bash
 npm run build:config   # genera ui/config/gameConfig.js y refresca public/ui
+npm run build:engine   # core/** -> ui/engine/blokicrushEngine.js (motor del navegador)
 npm run build:ui       # copia ui/**/*.js -> public/ui/**/*.js
 npm run build:index    # public/index.html -> server/generated/indexHtml.js
 ```
 
-`npm start`, `npm run dev` y `vercel-build` ejecutan los tres pasos. El test
+`npm start`, `npm run dev` y `vercel-build` ejecutan los cuatro pasos. El test
 `test/uiArchitecture.test.js` falla si el espejo queda desincronizado o si un
-renderer/componente vuelve a mezclar red, apuestas y dibujado.
+renderer/componente vuelve a mezclar red, apuestas y dibujado, y
+`test/localEngine.test.js` falla si el bundle del motor no coincide con `core/`.

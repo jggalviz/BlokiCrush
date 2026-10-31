@@ -4,6 +4,18 @@ Sesión de invitado con saldo **virtual** para probar el slot sin IdP, sin token
 y sin tocar Supabase. El motor es exactamente el mismo (`core.playRound`), por
 lo que la matriz 6x5, las cascadas y el RTP son los certificados.
 
+## Dos implementaciones del mismo modo
+
+| Dónde corre | Transporte | Cartera | Cuándo |
+| --- | --- | --- | --- |
+| Navegador (por defecto) | `ui/services/LocalApiClient.js` + motor empaquetado | `ui/services/LocalWallet.js` en `localStorage` | Sitio estático en Vercel, sin backend ni Supabase |
+| Servidor | `POST /api/demo/session` + `POST /api/spin` | `server/services/demoWallet.js` en RAM | `npm start` o despliegue con `server/` |
+
+Ambas devuelven el mismo payload y los mismos códigos de error; el modo se
+selecciona con `<meta name="game-api-mode">` (ver
+[`MODO_ESTATICO.md`](MODO_ESTATICO.md)). El resto de este documento describe la
+implementación **de servidor**.
+
 El cliente lo activa **solo**: si al cargar la página no hay token en la URL
 (`?token=…`) ni en `localStorage`, `SessionManager.resolve()` abre la sesión demo y
 la máquina queda lista para girar con 1.000,00 VES virtuales, sin modal de "Sesión
@@ -81,16 +93,24 @@ Ver `.env.example` → bloque *Fichas de Prueba*: `DEMO_MODE_ENABLED`,
 | --- | --- |
 | Botón y estilos | `public/index.html` (`#btn-demo`), `public/src/css/style.css` (`.btn--demo`, `body.is-demo`) |
 | Cliente | `ui/main.js`, `ui/controllers/GameController.js` (`startDemoMode`, `startDemoFallback_`), `ui/services/SessionManager.js` (`resolve`, `resolveDefaultSession`), `ui/services/ApiClient.js`, `ui/renderers/GameView.js` (`setDemoMode`, `showAuthGate`) |
+| Cliente local (estático) | `ui/services/LocalApiClient.js`, `ui/services/LocalWallet.js`, `ui/engine/blokicrushEngine.js` |
 | Sesión demo | `server/routes/session.js`, `server/auth/sessionToken.js`, `server/middleware/auth.js` (`resolveCaller`) |
 | Cartera virtual | `server/services/demoWallet.js`, `server/services/gameService.js` (`playDemoRound`) |
 | Ruta de juego | `server/routes/game.js`, `server/config.js`, `server/middleware/rateLimit.js` |
-| Tests | `test/demoMode.test.js`, `test/frontendSession.test.js` |
+| Tests | `test/demoMode.test.js`, `test/frontendSession.test.js`, `test/localDemoMode.test.js`, `test/localEngine.test.js` |
 
 ## En Vercel
 
-El despliegue (preset Express, `public/**` en el CDN y `server.js` como entry)
-está descrito en [`DEPLOY_VERCEL.md`](./DEPLOY_VERCEL.md). Ten en cuenta que la
-cartera demo vive en RAM por instancia: si Vercel atiende la petición con otra
-instancia, se recrea con el saldo inicial (1.000,00) en lugar de fallar. Para
-una demo pública es aceptable; para continuidad estricta entre instancias hace
-falta un almacén compartido con TTL.
+El despliegue por defecto es **estático**
+([`MODO_ESTATICO.md`](./MODO_ESTATICO.md)): `public/` se publica tal cual, sin
+funciones, y las fichas viven en `localStorage` del navegador — sin backend ni
+Supabase, y sin el problema de instancias.
+
+Si prefieres la cartera autoritativa en servidor (preset Express, `public/**` en
+el CDN y `server.js` como entry), publica el HTML con
+`<meta name="game-api-mode" content="http">` y revisa
+[`DEPLOY_VERCEL.md`](./DEPLOY_VERCEL.md). En ese modelo la cartera demo vive en
+RAM por instancia: si Vercel atiende la petición con otra instancia, se recrea
+con el saldo inicial (1.000,00) en lugar de fallar. Para una demo pública es
+aceptable; para continuidad estricta entre instancias hace falta un almacén
+compartido con TTL.

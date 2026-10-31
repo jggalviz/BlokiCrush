@@ -19,6 +19,8 @@ const ROOT_DIR = path.join(__dirname, '..');
 const UI_DIR = path.join(ROOT_DIR, 'ui');
 const MIRROR_DIR = path.join(ROOT_DIR, 'public', 'ui');
 const BUILD_UI = require('../scripts/build-ui');
+const BUILD_ENGINE = require('../scripts/build-engine');
+const { loadUiModule } = require('./helpers/uiModules');
 
 const read = (file) => fs.readFileSync(file, 'utf8');
 const stripComments = (source) =>
@@ -30,32 +32,14 @@ const allModules = (dir = UI_DIR) => fs.readdirSync(dir, { withFileTypes: true }
   return entry.isFile() && entry.name.endsWith('.js') ? [absolute] : [];
 });
 
-/* Cargador ESM para data URLs con imports relativos del arbol ui/. */
-const urlCache = new Map();
-const moduleCache = new Map();
-
-function buildModuleUrl(modulePath) {
-  const file = path.resolve(UI_DIR, modulePath);
-  if (urlCache.has(file)) return urlCache.get(file);
-
-  const source = read(file).replace(
-    /(\bfrom\s+['"])(\.[^'"]+)(['"])/g,
-    (_match, head, specifier, tail) => {
-      const resolved = path.resolve(path.dirname(file), specifier);
-      return `${head}${buildModuleUrl(resolved)}${tail}`;
-    }
-  );
-
-  const url = `data:text/javascript;base64,${Buffer.from(source, 'utf8').toString('base64')}`;
-  urlCache.set(file, url);
-  return url;
-}
-
-function loadUiModule(modulePath) {
-  const file = path.resolve(UI_DIR, modulePath);
-  if (!moduleCache.has(file)) moduleCache.set(file, import(buildModuleUrl(modulePath)));
-  return moduleCache.get(file);
-}
+/** Modulos GENERADOS (no se escriben a mano; su fuente es otra). */
+const GENERATED_MODULES = new Set([
+  'config/gameConfig.js',
+  path.relative(UI_DIR, BUILD_ENGINE.TARGET_PATH).replace(/\\/g, '/')
+]);
+const isGenerated = (file) => GENERATED_MODULES.has(
+  path.relative(UI_DIR, file).replace(/\\/g, '/')
+);
 
 test('public/ui es un espejo byte a byte de ui/ (fuente canonica)', () => {
   const modules = BUILD_UI.listModules();
@@ -231,9 +215,26 @@ test('renderizadores y componentes solo reciben payloads o acciones', () => {
 
 test('la UI no importa core/ ni server/ (el motor es autoritativo)', () => {
   for (const file of allModules()) {
+    /* `engine/blokicrushEngine.js` es un bundle GENERADO desde core/ (verbatim):
+       conserva los `require` internos del motor a proposito. */
+    if (isGenerated(file)) continue;
     const code = stripComments(read(file));
     assert.doesNotMatch(code, /from\s+['"][^'"]*(?:\/|\.\.\/)(?:core|server)\//, `${relative(file)} importa backend`);
     assert.doesNotMatch(code, /\brequire\s*\(/, `${relative(file)} es ESM puro`);
+  }
+});
+
+test('el motor del navegador solo se importa desde services/', () => {
+  for (const file of allModules()) {
+    if (isGenerated(file)) continue;
+    const code = stripComments(read(file));
+    const importsEngine = /from\s+['"][^'"]*blokicrushEngine\.js['"]/.test(code);
+    if (!importsEngine) continue;
+    assert.equal(
+      relative(file),
+      'ui/services/LocalApiClient.js',
+      'solo el cliente local puede cargar el bundle del motor'
+    );
   }
 });
 

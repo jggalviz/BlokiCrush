@@ -6,9 +6,20 @@
   <meta name="description" content="BlokiCrush 6x5: slot de pagos por dispersion con motor autoritativo en servidor. RTP 95%, ganancia maxima 10.000x." />
   <meta name="color-scheme" content="light" />
   <meta name="theme-color" content="#3a4fd8" />
+  <!-- Icono de la pestana: SVG en linea (la CSP permite `img-src data:`) para
+       que el sitio estatico no pida un /favicon.ico inexistente. -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233a4fd8'/%3E%3Crect x='7' y='7' width='8' height='8' rx='2' fill='%23ffffff'/%3E%3Crect x='17' y='7' width='8' height='8' rx='2' fill='%23ffffff'/%3E%3Crect x='7' y='17' width='8' height='8' rx='2' fill='%23ffffff'/%3E%3Crect x='17' y='17' width='8' height='8' rx='2' fill='%23ffd166'/%3E%3C/svg%3E" />
   <!-- Endpoint del motor. Vacio = mismo origen. Para el motor externo:
        <meta name="game-api-base" content="https://engine.latingames.net" /> -->
   <meta name="game-api-base" content="" />
+  <!-- Modo de juego del cliente:
+         local = motor en el navegador + cartera virtual en localStorage
+                 ("Fichas de Prueba" sin backend ni Supabase). Es el modo del
+                 sitio estatico publicado en Vercel.
+         http  = backend Express (/api/*), para dinero real o demo servida.
+       Tambien se puede forzar en runtime con
+       `window.__BLOKI_CRUSH__ = { mode: 'http' }` o con `?mode=http`. -->
+  <meta name="game-api-mode" content="local" />
   <title>BlokiCrush · 6×5 · RTP 95%</title>
   <link rel="stylesheet" href="/src/css/style.css" />
   <!-- Capa de marca (BlokiCrush). Solo tokens, superficies y acentos; no

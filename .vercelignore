@@ -1,5 +1,6 @@
-# Archivos que nunca deben subirse al build de Vercel.
-# (El bundle de la funcion ademas los excluye via vercel.json > functions.excludeFiles)
+# Archivos que nunca se suben al build de Vercel.
+# El despliegue por defecto es estatico: Vercel publica `public/` tal cual
+# (ver vercel.json y docs/MODO_ESTATICO.md).
 .env
 .env.*
 .vercel

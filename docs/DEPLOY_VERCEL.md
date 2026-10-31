@@ -1,5 +1,15 @@
 # Despliegue en Vercel
 
+> **El despliegue por defecto de este repositorio ya es estático.** `vercel.json`
+> publica `public/` como sitio autónomo (`framework: null`,
+> `outputDirectory: public`) y el motor corre en el navegador: ver
+> [`MODO_ESTATICO.md`](MODO_ESTATICO.md).
+>
+> Este documento describe el **modo servidor opcional** (`server.js` + `/api/*`,
+> tokens firmados, Supabase y motor externo), que sigue disponible con
+> `npm start` o importando el repositorio con el preset Express.
+
+
 Guía para desplegar **BlokiCrush** (frontend estático + backend Express
 autoritativo) en Vercel. El backend sigue siendo el mismo: el cliente nunca
 calcula resultados ni saldos.
