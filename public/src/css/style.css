@@ -6189,6 +6189,21 @@ body.is-demo .machine__side .controls .balance::after {
      marco y la consola crecen en pantallas de 1920 sin tocar el resto. */
   .app { max-width: 1760px; }
 
+  /* El dock flota sobre el fondo del escenario, no sobre el arte: se separa del
+     borde del viewport (respiro en la esquina) y reserva una franja superior que
+     el marco del tablero respeta. `--dock-clear` = alto de la placa (46 px) mas
+     el aire de arriba y el que queda entre la placa y el toldo. */
+  :root {
+    --dock-inset-top: max(14px, env(safe-area-inset-top));
+    --dock-inset-right: max(22px, env(safe-area-inset-right));
+    --dock-clear: 72px;
+  }
+
+  .dock {
+    top: var(--dock-inset-top);
+    right: var(--dock-inset-right);
+  }
+
   .machine {
     /* Aire superior: es el hueco por el que asoma la pegatina del logo. */
     --d-bleed: clamp(8px, 2.2vh, 30px);
@@ -6202,11 +6217,17 @@ body.is-demo .machine__side .controls .balance::after {
     /* Ancho que se lleva `.app` (padding lateral simetrico + un pelo de aire). */
     --d-avail-pad: clamp(16px, 3vw, 44px);
 
-    /* Alto del marco: el menor entre el que deja el viewport y el que deja el
-       ancho. 1,91305 = 1,24176 (relacion de d1) + 0,67129 (ancho de la columna
-       lateral por unidad de alto, ver mas abajo). */
+    /* Alto del marco: el menor entre el que deja el viewport, el que deja el
+       ancho y el que deja la franja del dock. 1,91305 = 1,24176 (relacion de d1)
+       + 0,67129 (ancho de la columna lateral por unidad de alto, ver abajo).
+       El segundo termino reserva el dock: el marco se centra en el alto
+       disponible, asi que arriba solo quedan `(100dvh - frame-h + bleed) / 2`
+       px; igualar esa mitad a `--dock-clear` deja el toldo siempre por debajo de
+       las placas, tambien en laptops de 768 px donde el ancho permitiria un
+       tablero mas alto. En pantallas altas no muerde y no cuesta nada. */
     --frame-h: min(
       calc(100dvh - var(--d-chrome) - var(--d-bleed)),
+      calc(100dvh - (2 * var(--dock-clear)) + var(--d-bleed)),
       calc((min(100vw, 1760px) - var(--d-avail-pad) - var(--d-gap-x)) / 1.91305)
     );
     --frame-w: calc(var(--frame-h) * 1.24176);

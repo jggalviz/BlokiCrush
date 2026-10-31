@@ -211,9 +211,16 @@ viven en `.dock`.
 
 El dock va en la esquina superior derecha (`--wallet` · `--sound` · `--help`) en
 todos los anchos: al no quedar una segunda capa no hay nada que ocultar en
-movil. Medido a 1280 x 800, 1440 x 900, 900 x 700, 760 x 900, 390 x 844,
-320 x 568 y 844 x 390: el dock no toca el tablero y ningun bloque se sale del
-viewport.
+movil. En escritorio (`min-width: 900px`) se separa del borde del viewport
+(`--dock-inset-top: 14px` y `--dock-inset-right: 22px`, ambos con
+`env(safe-area-inset-*)`) y reserva una franja superior (`--dock-clear: 72px`)
+que el marco del tablero descuenta dentro de `--frame-h`: como el marco se centra
+en el alto disponible, el toldo arranca por debajo de las placas aunque el ancho
+permitiese un tablero mas alto. Medido con `--dump-dom` a 2560 x 1440,
+1920 x 1080, 1440 x 900, 1366 x 768, 1280 x 720, 1600 x 700, 1180 x 820,
+1024 x 768 y 900 x 700: el aire entre la placa y el toldo nunca baja de 12 px
+(el peor caso es 1366 x 768, que antes se solapaba 14 px). Por debajo de 900 px
+el dock conserva sus 6 px de siempre y nada de esto interviene.
 
 Piel movil vigente: la **guirnalda** (`design/marco_movil.png` 1392 x 1123 —el
 recorte al alfa del maestro, que mide 1392 x 1130— y `design/consola_movil.png`

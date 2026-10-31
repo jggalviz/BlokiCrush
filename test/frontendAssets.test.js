@@ -245,6 +245,41 @@ test('el encabezado solo lleva el dock flotante y conserva los ganchos del juego
   assert.match(css, /\.dock__btn:active:not\(:disabled\) \{ transform: translateY\(3px\); filter: brightness\(0\.94\); \}/);
   assert.match(css, /\.dock__btn--wallet \{[\s\S]{0,200}?var\(--dock-rim-gold\) border-box;/);
   assert.match(css, /\.dock__btn--glass \{[\s\S]{0,260}?var\(--dock-rim-glass\) border-box;/);
+  // En escritorio el dock respira: se separa del borde del viewport y reserva
+  // una franja superior que el marco del tablero descuenta en `--frame-h`, asi
+  // el toldo rosado nunca queda debajo de las placas. Las dos piezas viven en el
+  // tramo `min-width: 900px`, el unico donde la maquina monta el arte d1.
+  const desktopStart = css.indexOf('@media (min-width: 900px) {');
+  assert.ok(desktopStart > -1, 'Falta el tramo de escritorio en style.css');
+  const desktop = css.slice(desktopStart, desktopStart + 2400);
+  assert.match(
+    desktop,
+    /--dock-inset-top: max\(14px, env\(safe-area-inset-top\)\);/,
+    'El dock deja aire sobre el borde superior'
+  );
+  assert.match(
+    desktop,
+    /--dock-inset-right: max\(22px, env\(safe-area-inset-right\)\);/,
+    'El dock deja aire contra el borde derecho'
+  );
+  assert.match(desktop, /--dock-clear: 72px;/, 'La franja del dock se declara en escritorio');
+  assert.match(
+    desktop,
+    /\.dock \{\s*top: var\(--dock-inset-top\);\s*right: var\(--dock-inset-right\);/,
+    'El dock usa los margenes de escritorio'
+  );
+  assert.match(
+    desktop,
+    /calc\(100dvh - \(2 \* var\(--dock-clear\)\) \+ var\(--d-bleed\)\)/,
+    'El marco descuenta la franja del dock y arranca por debajo del toldo'
+  );
+
+  // El ajuste es solo de escritorio: en movil el dock conserva su rincon de 6 px.
+  assert.match(
+    css,
+    /@media \(max-width: 899px\)[\s\S]{0,1200}?\.dock \{[\s\S]{0,140}?top: max\(6px, env\(safe-area-inset-top\)\);/,
+    'En movil el dock sigue pegado a la esquina'
+  );
 
   // Paleta de las placas: cara azul de gominola (celeste -> azul -> azul
   // profundo, la misma gama que `--gbtn-blue-face`) con marco dorado, el oro
@@ -1142,7 +1177,7 @@ test('el arte de las dos maquinas se sirve con su lienzo exacto y los maestros q
   );
   assert.match(
     css,
-    /--frame-h: min\([\s\S]{0,180}?\/ 1\.91305\)/,
+    /--frame-h: min\([\s\S]{0,400}?\/ 1\.91305\)/,
     'El marco descuenta la columna lateral con 1,24176 (d1) + 0,67129 (d5 + d3)'
   );
 
