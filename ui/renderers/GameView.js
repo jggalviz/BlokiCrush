@@ -1198,7 +1198,7 @@ export class Ui {
           ? `${tier}+`
           : `${tier}–${payTiers[index + 1] - 1}`
       ))
-      .map((label) => `<th>${label}</th>`)
+      .map((label) => `<th scope="col">${label}</th>`)
       .join('');
 
     const clusterRows = SYMBOL_KEYS.map((symbol) => {
@@ -1207,7 +1207,9 @@ export class Ui {
       const cells = payTiers
         .map((tier) => `<td>${formatPlain(pays[tier] || 0)}×</td>`)
         .join('');
-      return `<tr><td><span class="paytable__symbol"><img class="paytable__icon" src="${escapeHtml(meta.image)}" alt="" />${escapeHtml(meta.name)}</span></td>${cells}</tr>`;
+      /* La primera celda es cabecera de fila: el lector de pantalla anuncia el
+         simbolo antes de cada cifra y la tabla se lee como una matriz. */
+      return `<tr><th scope="row"><span class="paytable__symbol"><img class="paytable__icon" src="${escapeHtml(meta.image)}" alt="" />${escapeHtml(meta.name)}</span></th>${cells}</tr>`;
     }).join('');
 
     const scatter = info.scatterPays || {};
@@ -1216,11 +1218,18 @@ export class Ui {
       .map((key, index) => (
         index === scatterKeys.length - 1 ? `${key}+` : String(key)
       ))
-      .map((label) => `<th>${label}</th>`)
+      .map((label) => `<th scope="col">${label}</th>`)
       .join('');
     const scatterCells = scatterKeys
       .map((key) => `<td>${formatPlain(scatter[key] || 0)}×</td>`)
       .join('');
+
+    /* Cada tabla va envuelta: en movil se desplaza en horizontal en vez de
+       ensanchar el modal o arrastrar la cabecera al hacer scroll. */
+    const payTable = (head, body) => `<div class="paytable__scroll"><table class="paytable">
+        <thead><tr>${head}</tr></thead>
+        <tbody>${body}</tbody>
+      </table></div>`;
 
     const distribution = (info.multiplier && info.multiplier.distribution) || {};
     const multiplierItems = Object.keys(distribution)
@@ -1244,18 +1253,12 @@ export class Ui {
       iguales en cualquier posición (no hace falta que estén conectados).</p>
 
       <h3>Pagos por dispersión (× apuesta)</h3>
-      <table class="paytable">
-        <thead><tr><th>Símbolo</th>${tierHeader}</tr></thead>
-        <tbody>${clusterRows}</tbody>
-      </table>
+      ${payTable(`<th scope="col">Símbolo</th>${tierHeader}`, clusterRows)}
 
-      <h3>Scatter 🍭 (solo tirada inicial)</h3>
-      <table class="paytable">
-        <thead><tr><th>Cantidad</th>${scatterHeader}</tr></thead>
-        <tbody><tr><td>Pago × apuesta</td>${scatterCells}</tr></tbody>
-      </table>
+      <h3>Scatter (solo tirada inicial)</h3>
+      ${payTable(`<th scope="col">Cantidad</th>${scatterHeader}`, `<tr><th scope="row">Pago × apuesta</th>${scatterCells}</tr>`)}
 
-      <h3>Bombas multiplicadoras 💣</h3>
+      <h3>Bombas multiplicadoras</h3>
       <p>${escapeHtml((info.multiplier && info.multiplier.rule) || '')}</p>
       <p>Reparto de valores por bomba:</p>
       <ul>${multiplierItems}</ul>

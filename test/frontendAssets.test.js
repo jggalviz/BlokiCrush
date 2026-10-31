@@ -1441,3 +1441,145 @@ test('la capa de marca define la paleta BlokiCrush (rojo, azul, oro y blanco)', 
 });
 
 
+/* -------------------------------------------------------------------------- */
+/*  Modal de reglas y tabla de pagos                                          */
+/* -------------------------------------------------------------------------- */
+
+/** Canal sRGB normalizado a luminancia relativa (WCAG 2.1). */
+const srgbChannel = (value) => {
+  const channel = value / 255;
+  return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+};
+
+const relativeLuminance = ([r, g, b]) =>
+  0.2126 * srgbChannel(r) + 0.7152 * srgbChannel(g) + 0.0722 * srgbChannel(b);
+
+/** Ratio de contraste WCAG entre dos colores opacos (de 1:1 a 21:1). */
+const contrastRatio = (foreground, background) => {
+  const first = relativeLuminance(foreground);
+  const second = relativeLuminance(background);
+  return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+};
+
+const hexToRgb = (hex) => [1, 3, 5].map((index) => parseInt(hex.slice(index, index + 2), 16));
+
+/** Compone un color con alfa sobre un fondo opaco, como hace el navegador. */
+const overBackground = (rgb, alpha, background) =>
+  rgb.map((value, index) => value * alpha + background[index] * (1 - alpha));
+
+const themeToken = (theme, name) => {
+  const found = theme.match(new RegExp(`--${name}:\\s*(#[0-9a-f]{6});`, 'i'));
+  assert.ok(found, `Falta el token --${name} en theme.css`);
+  return hexToRgb(found[1]);
+};
+
+test('el modal de reglas es una placa con marco dorado, cierre de cristal y texto de marca', () => {
+  const html = read(INDEX_PATH);
+  const css = read(STYLE_PATH);
+  const theme = read(path.join(PUBLIC_DIR, 'src', 'css', 'theme.css'));
+
+  // El cierre deja de ser un `.icon-btn` suelto y pasa a ser una placa hermana
+  // de las del dock: bisel de 3 px, marco dorado y hundimiento al pulsar.
+  assert.match(
+    html,
+    /<button class="modal__close" id="btn-modal-close" type="button" aria-label="Cerrar">/,
+    'El cierre usa la placa propia y conserva su nombre accesible'
+  );
+  assert.doesNotMatch(html, /class="icon-btn" id="btn-modal-close"/, 'El cierre ya no es un icon-btn generico');
+  assert.match(
+    html,
+    /<svg class="icon-btn__icon" viewBox="0 0 24 24"[^>]*>\s*<path d="M6\.6 6\.6l10\.8 10\.8M17\.4 6\.6L6\.6 17\.4" \/>/,
+    'El aspa es un SVG y no depende de la fuente del sistema'
+  );
+  assert.match(css, /\.modal__close \{[\s\S]{0,700}?border: 3px solid transparent;/, 'El cierre comparte el bisel de 3 px del dock');
+  assert.match(css, /\.modal__close \{[\s\S]{0,900}?border-box;/, 'El cierre pinta el marco en `border-box`');
+  assert.match(css, /\.modal__close:active \{ transform: translateY\(2px\);/, 'El cierre se hunde como las placas del dock');
+  assert.match(theme, /html\[data-theme="blokicrush"\] \.modal__close \{/, 'La marca repinta el cierre');
+
+  // La placa del modal: cara en `padding-box` y marco en `border-box`, la misma
+  // receta de dos capas del dock. La geometria sigue viviendo en `style.css`.
+  assert.match(
+    css,
+    /\.modal__card \{[\s\S]{0,700}?\) padding-box,[\s\S]{0,220}?\) border-box;/,
+    'La placa base separa cara y marco en dos degradados'
+  );
+  assert.match(
+    theme,
+    /html\[data-theme="blokicrush"\] \.modal__card \{[\s\S]{0,900}?linear-gradient\(168deg[^)]*\) padding-box,[\s\S]{0,220}?\) border-box;/,
+    'La marca pinta cara y marco del modal'
+  );
+  assert.match(theme, /html\[data-theme="blokicrush"\] \.modal__card \{[\s\S]{0,900}?inset 0 0 70px/, 'La placa lleva brillo interior');
+  assert.match(theme, /html\[data-theme="blokicrush"\] \.modal__head h2 \{[\s\S]{0,160}?--brand-white/, 'El titulo va en blanco nitido');
+  assert.match(theme, /html\[data-theme="blokicrush"\] \.modal__body h3 \{[\s\S]{0,140}?--brand-gold/, 'Los subtitulos van en oro');
+  assert.match(theme, /html\[data-theme="blokicrush"\] \.paytable thead th \{\s*color: var\(--brand-gold\);/, 'La cabecera de la tabla va en oro');
+});
+
+test('el texto del modal supera el contraste AA sobre el caramelo oscuro', () => {
+  const theme = read(path.join(PUBLIC_DIR, 'src', 'css', 'theme.css'));
+  const cardRule = theme.match(/html\[data-theme="blokicrush"\] \.modal__card \{[\s\S]*?\n\}/);
+  assert.ok(cardRule, 'Falta la placa del modal en theme.css');
+
+  // Cara del modal: tres paradas calidas. La mas clara es el peor caso para el
+  // texto, asi que todas las medidas se hacen contra ella.
+  const face = cardRule[0].match(
+    /linear-gradient\(168deg, (#[0-9a-f]{6}) 0%, (#[0-9a-f]{6}) 44%, (#[0-9a-f]{6}) 100%\)/i
+  );
+  assert.ok(face, 'La cara del modal debe ser un degradado de tres paradas');
+  const stops = face.slice(1).map(hexToRgb);
+  for (const stop of stops) {
+    assert.ok(
+      relativeLuminance(stop) < 0.1,
+      'La cara del modal debe ser oscura: el texto claro necesita fondo profundo'
+    );
+  }
+  const background = stops[0];
+
+  const title = themeToken(theme, 'brand-white');
+  const titleRatio = contrastRatio(title, background);
+  assert.ok(titleRatio >= 7, `El titulo debe superar AAA (${titleRatio.toFixed(1)}:1)`);
+
+  const gold = themeToken(theme, 'brand-gold');
+  const goldRatio = contrastRatio(gold, background);
+  assert.ok(goldRatio >= 4.5, `Los acentos dorados deben superar AA (${goldRatio.toFixed(1)}:1)`);
+
+  // Parrafos y listas: blanco calido al 90 % compuesto sobre la cara.
+  const paper = theme.match(
+    /html\[data-theme="blokicrush"\] \.modal__body p,\s*html\[data-theme="blokicrush"\] \.modal__body ul \{ color: rgba\((\d+), (\d+), (\d+), ([\d.]+)\); \}/
+  );
+  assert.ok(paper, 'Falta el color de los parrafos del modal');
+  const ink = overBackground(
+    [Number(paper[1]), Number(paper[2]), Number(paper[3])],
+    Number(paper[4]),
+    background
+  );
+  const inkRatio = contrastRatio(ink, background);
+  assert.ok(inkRatio >= 7, `Los parrafos deben superar AAA (${inkRatio.toFixed(1)}:1)`);
+
+  // Multiplicadores de la tabla: oro claro propio, no el oro del marco.
+  const multiplier = theme.match(
+    /html\[data-theme="blokicrush"\] \.paytable td:last-child \{ color: (#[0-9a-f]{6}); \}/i
+  );
+  assert.ok(multiplier, 'La columna del tramo alto debe tener color propio');
+  const multiplierRatio = contrastRatio(hexToRgb(multiplier[1]), background);
+  assert.ok(multiplierRatio >= 4.5, `Los multiplicadores deben superar AA (${multiplierRatio.toFixed(1)}:1)`);
+});
+
+test('la tabla de pagos se lee como matriz: cabeceras de fila y scroll propio', () => {
+  const css = read(STYLE_PATH);
+  const ui = read(path.join(PUBLIC_DIR, 'ui', 'renderers', 'GameView.js'));
+
+  assert.match(ui, /<div class="paytable__scroll"><table class="paytable">/, 'Cada tabla va en su contenedor con scroll');
+  assert.match(ui, /<th scope="row"><span class="paytable__symbol">/, 'El simbolo es cabecera de fila');
+  assert.match(ui, /<th scope="col">Cantidad<\/th>/, 'La cabecera de columnas se anuncia como tal');
+  assert.match(ui, /<th scope="row">Pago × apuesta<\/th>/, 'La fila del scatter tambien lleva cabecera');
+  assert.match(css, /\.paytable__scroll \{[\s\S]{0,260}?overflow-x: auto;/, 'En movil la tabla se desplaza sola');
+  assert.match(
+    css,
+    /\.paytable tbody tr:nth-child\(odd\) \{ background: rgba\(255, 255, 255, 0\.035\); \}/,
+    'Las filas alternas separan los simbolos'
+  );
+  assert.match(css, /\.paytable th,\s*\.paytable td \{\s*padding: 9px 10px;/, 'Las celdas tienen aire suficiente');
+  assert.doesNotMatch(ui, /<h3>[^<]*[\u{1F300}-\u{1FAFF}]/u, 'Los titulos del modal no llevan emojis');
+});
+
+

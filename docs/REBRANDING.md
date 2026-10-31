@@ -240,6 +240,34 @@ Los simbolos del tablero (20 PNG en `public/src/assets/symbols/`) se mapean en
 marca, hay que conservar los nombres `candy_*.png` o actualizar ese mapeo;
 `test/frontendAssets.test.js` valida que las 11 imagenes existan.
 
+## Modal de reglas y tabla de pagos
+
+El modal dejo de ser una tarjeta clara con texto casi blanco encima (ilegible) y
+paso a ser una placa de caramelo oscuro con marco dorado:
+
+| Pieza | `style.css` (maqueta y material) | `theme.css` (marca) |
+| --- | --- | --- |
+| `.modal__card` | Bisel de 3 px: cara en `padding-box` y marco en `border-box` | Cara granate `#57170e → #3a0a10 → #23060e`, marco de oro y brillo interior de 70 px |
+| `.modal__head` | Alto, padding y filo inferior; titulo en `--font-display` | Velo y filo de oro; titulo en blanco nitido con sombra calida |
+| `.modal__close` | Placa de 36 px (34 en movil) con el bisel y el hundimiento del dock | Cristal sobre granate con el mismo marco de oro del dock |
+| `.modal__body` | 13 px / 1.6, subtitulos con filo, scroll fino | Texto `rgba(255, 250, 245, .9)`, subtitulos y `strong` en oro/blanco |
+| `.paytable` | Cabecera en mayusculas, celdas de 9 x 10 px, filas alternas, scroll propio | Cabecera en oro y multiplicadores en `#ffdc6e` |
+
+- El cierre es `<button class="modal__close" id="btn-modal-close">` con el aspa en
+  **SVG**: conserva el `id` y el `aria-label="Cerrar"` que usa `GameView`, asi que
+  el contrato del controlador no cambia.
+- Cada tabla va envuelta en `.paytable__scroll` (lo genera
+  `ui/renderers/GameView.js`): a 320 px se desplaza sola en vez de ensanchar el
+  modal. El simbolo es `<th scope="row">` y las columnas `<th scope="col">`, de
+  modo que la tabla se anuncia como una matriz.
+- `test/frontendAssets.test.js` calcula el ratio WCAG real de titulo, subtitulos,
+  parrafos y multiplicadores contra la parada mas clara de la cara (todas las
+  paradas deben tener luminancia < 0,1): el minimo exigido es 4,5:1 y el medido
+  en vivo a 1280 x 800, 1440 x 900, 760 x 900, 390 x 844, 320 x 568 y 844 x 390
+  queda entre 8,0:1 y 15,2:1, con `scrollX = 0`.
+
+## Textos y componentes
+
 ## Textos y componentes
 
 | Zona | Archivo |

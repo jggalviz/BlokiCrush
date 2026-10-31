@@ -1058,7 +1058,10 @@ body.is-demo .balance__label::after { content: " · demo"; color: var(--mango); 
 }
 
 /* --------------------------------------------------------------------------
-   Modal
+   Modal · reglas y tabla de pagos
+   La placa usa la misma receta que el dock: cara en `padding-box` y marco en
+   `border-box`, asi el oro del bisel se ve igual en todas las placas del juego.
+   Aqui vive la maqueta y el material; `theme.css` repinta los colores.
    -------------------------------------------------------------------------- */
 
 .modal {
@@ -1085,63 +1088,178 @@ body.is-demo .balance__label::after { content: " · demo"; color: var(--mango); 
   max-height: 86dvh;
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius);
-  border: 1px solid var(--line-strong);
-  background: linear-gradient(165deg, #4e0b67, #240432);
-  box-shadow: 0 30px 80px rgba(31, 1, 39, 0.62);
   overflow: hidden;
+  border: 3px solid transparent;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(255, 117, 204, 0.26), transparent 42%) padding-box,
+    linear-gradient(165deg, #4e0b67, #240432) padding-box,
+    linear-gradient(180deg, #fff6c8, #ffc21a 52%, #a86a06) border-box;
+  box-shadow:
+    0 0 0 1px rgba(255, 246, 200, 0.24),
+    0 34px 80px rgba(31, 1, 39, 0.68),
+    inset 0 1px 0 rgba(255, 246, 200, 0.3);
 }
 
 .modal__head {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--line);
+  gap: 14px;
+  padding: 14px 14px 14px 22px;
+  border-bottom: 1px solid rgba(255, 194, 26, 0.34);
+  background: linear-gradient(180deg, rgba(255, 246, 200, 0.12), rgba(255, 246, 200, 0));
 }
 
-.modal__head h2 { font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; }
+.modal__head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  font-weight: 400;
+  letter-spacing: 0.09em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* Cierre: placa de cristal con marco dorado, hermana de las del dock. Cuadrada
+   para que el aspa quede centrada y el area tactil no baje de 34 px. */
+.modal__close {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02)) padding-box,
+    linear-gradient(180deg, #4e0b67, #240432) padding-box,
+    linear-gradient(180deg, #fff6c8, #ffc21a 52%, #a86a06) border-box;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -3px 0 rgba(24, 1, 32, 0.4),
+    0 8px 18px rgba(20, 1, 28, 0.4);
+  transition: transform 0.12s ease, filter 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.modal__close:hover { filter: brightness(1.14); }
+.modal__close:active { transform: translateY(2px); filter: brightness(0.94); }
+.modal__close:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.modal__close .icon-btn__icon { width: 18px; height: 18px; stroke-width: 2.4; }
 
 .modal__body {
-  padding: 16px 18px 22px;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 18px 22px 24px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: rgba(234, 255, 247, 0.9);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 194, 26, 0.5) transparent;
 }
 
+/* Subtitulos de seccion: oro de marca con filo propio para separar bloques. */
 .modal__body h3 {
-  margin: 18px 0 6px;
+  margin: 22px 0 10px;
+  padding-bottom: 7px;
   font-size: 11px;
+  font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--mint);
+  color: var(--gold);
+  border-bottom: 1px solid rgba(255, 246, 200, 0.16);
 }
 
 .modal__body h3:first-child { margin-top: 0; }
-.modal__body p { margin: 0 0 8px; color: rgba(234, 255, 247, 0.82); }
-.modal__body ul { margin: 0 0 8px; padding-left: 18px; color: rgba(234, 255, 247, 0.82); }
-.modal__body li { margin-bottom: 4px; }
+
+.modal__body p,
+.modal__body ul { margin: 0 0 10px; color: rgba(234, 255, 247, 0.86); }
+.modal__body ul { padding-left: 20px; }
+.modal__body li { margin-bottom: 5px; }
+.modal__body li:last-child { margin-bottom: 0; }
+.modal__body strong { color: var(--ink); font-weight: 700; }
+
+/* Tabla de pagos: cinco columnas no caben en un movil, asi que el contenedor
+   se desplaza en horizontal en vez de ensanchar el modal. */
+.paytable__scroll {
+  margin: 0 0 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 194, 26, 0.5) transparent;
+}
 
 .paytable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 12.5px;
   font-variant-numeric: tabular-nums;
 }
 
 .paytable th,
 .paytable td {
-  padding: 6px 8px;
-  border-bottom: 1px solid rgba(120, 255, 214, 0.1);
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   text-align: right;
+  white-space: nowrap;
 }
 
-.paytable th { color: var(--ink-dim); font-weight: 600; }
+.paytable thead th {
+  padding-top: 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* La primera celda de cada fila es el simbolo: cabecera de fila (izquierda). */
+.paytable tbody th { font-weight: 600; }
 .paytable th:first-child,
 .paytable td:first-child { text-align: left; }
-.paytable td:last-child { color: var(--gold); }
+
+/* Separadores limpios: filas alternas tenues y sin linea en la ultima fila. */
+.paytable tbody tr:nth-child(odd) { background: rgba(255, 255, 255, 0.035); }
+.paytable tbody tr:last-child th,
+.paytable tbody tr:last-child td { border-bottom: 0; }
+.paytable td:last-child { color: var(--gold); font-weight: 700; }
+
+.paytable__symbol {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.paytable__icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 3px rgba(20, 1, 28, 0.4));
+}
+
+@media (max-width: 520px) {
+  .modal { padding: 10px; }
+  .modal__card { max-height: 90dvh; border-radius: 22px; }
+  .modal__head { gap: 10px; padding: 12px 12px 12px 16px; }
+  .modal__head h2 { font-size: 13.5px; letter-spacing: 0.05em; }
+  .modal__close { width: 34px; height: 34px; border-radius: 11px; }
+  .modal__body { padding: 14px 16px 18px; font-size: 12.5px; }
+  .modal__body h3 { margin-top: 18px; }
+  .paytable { font-size: 11.5px; }
+  .paytable th,
+  .paytable td { padding: 8px; }
+  .paytable__icon { width: 24px; height: 24px; }
+}
 
 /* --------------------------------------------------------------------------
    Toasts
@@ -1261,6 +1379,8 @@ body.is-demo .balance__label::after { content: " · demo"; color: var(--mango); 
   padding: 1px 5px;
   border-radius: 5px;
   background: rgba(255, 226, 111, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 226, 111, 0.28);
+  color: #ffeaa0;
   font-family: "Cascadia Mono", Consolas, monospace;
   font-size: 11.5px;
 }
@@ -1953,69 +2073,9 @@ body.is-demo .balance__label::after { color: #fff3a8; }
 
 .disclaimer { color: rgba(255, 220, 247, 0.62); }
 
-.modal__backdrop {
-  background: rgba(32, 2, 44, 0.74);
-  backdrop-filter: blur(7px);
-}
-
-.modal__card {
-  border: 2px solid rgba(255, 255, 255, 0.36);
-  border-radius: 26px;
-  background:
-    radial-gradient(circle at 88% 0%, rgba(255, 117, 204, 0.26), transparent 38%),
-    linear-gradient(165deg, #4e0b67, #240432);
-  box-shadow: 0 36px 90px rgba(31, 1, 39, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.22);
-}
-
-.modal__head {
-  border-bottom-color: rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.modal__head h2 { color: #fff5c1; }
-.modal__body { color: rgba(255, 245, 255, 0.9); }
-.modal__body h3 { color: #ffe593; }
-.modal__body p,
-.modal__body ul { color: rgba(255, 239, 255, 0.8); }
-
-.modal__body code {
-  background: rgba(255, 233, 126, 0.14);
-  color: #fff1a0;
-}
-
-.paytable th,
-.paytable td {
-  border-bottom-color: rgba(255, 255, 255, 0.12);
-}
-
-.paytable th { color: rgba(255, 220, 246, 0.72); }
-.paytable td:last-child { color: #fff0a0; }
-
-.paytable__symbol {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.paytable__icon {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
-  filter: drop-shadow(0 3px 3px rgba(20, 1, 28, 0.4));
-}
-
-.auth-form__label { color: rgba(255, 222, 248, 0.74); }
-
-.auth-form__input {
-  border-color: rgba(255, 255, 255, 0.28);
-  background: rgba(28, 2, 43, 0.72);
-  color: #fff;
-}
-
-.auth-form__input:focus {
-  outline-color: #ffe98f;
-}
+/* El modal (placa, cierre, texto y tabla) se define ya en clave candy en su
+   propio bloque, con el marco dorado del dock, asi que esta capa no necesita
+   repintarlo: solo `theme.css` cambia la cara a caramelo oscuro. */
 
 .toast {
   border: 1px solid rgba(255, 255, 255, 0.3);
