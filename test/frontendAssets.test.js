@@ -855,11 +855,13 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
     'La franja cae sobre sus placas y no sobre la ventana'
   );
 
-  // La marca se pega sobre el hueco de la guirnalda (x 6,47-37,28 % y
-  // 7,48-29,12 % del recorte, 429 x 243 px del dibujo): el lockup es 1:1, asi
-  // que la caja se ata al ALTO del marco —0,2814 da 89 px a 390, un 30 % mas que
-  // el alto del hueco— y se centra en su centro medido. Al vivir el hueco dentro
-  // del dibujo ya no hay tope que descontar del cielo del escenario (`--slack`).
+  // La marca se pega sobre el hueco de la guirnalda (x 6,39-37,36 % y
+  // 7,39-29,21 % del recorte, 431 x 245 px del dibujo): el lockup es 1:1, asi
+  // que la caja se ata al ALTO del marco —0,394 da 124 px a 390, o sea 31,79 %
+  // del ancho, practicamente el 30,97 % del hueco— y se coloca en el pasillo que
+  // va del filo del marco a la ventana del tablero (centro en 18,95 % del alto,
+  // 22,25 % del ancho). Al vivir el hueco dentro del dibujo ya no hay tope que
+  // descontar del cielo del escenario (`--slack`).
   const logoAt = css.indexOf('--logo-w: calc(');
   assert.notEqual(logoAt, -1, 'La marca debe declarar su caja dentro del hueco del marco');
   // El bloque se compara sin saltos de linea: las formulas van partidas en
@@ -868,10 +870,10 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
     .slice(Math.max(0, logoAt - 1200), logoAt + 900)
     .replace(/\s+/g, ' ');
   for (const declaration of [
-    '--logo-w: calc(var(--frame-h) * 0.2814);',
+    '--logo-w: calc(var(--frame-h) * 0.394);',
     '--logo-h: var(--logo-w);',
-    'left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.2188 - var(--logo-w) / 2);',
-    'top: calc(var(--frame-h) * 0.183 - var(--logo-h) / 2);'
+    'left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.2225 - var(--logo-w) / 2);',
+    'top: calc(var(--frame-h) * 0.1895 - var(--logo-h) / 2);'
   ]) {
     assert.ok(
       heroBlock.includes(declaration),
@@ -888,11 +890,72 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
   assert.ok(!css.includes('--slack:'), 'El aire derivado del escenario ya no se declara');
 });
 
+test('la chapa del logo cabe en el pasillo del marco: ni pisa el HUD ni la primera fila', () => {
+  const css = read(STYLE_PATH);
+
+  // Los cuatro numeros salen del propio CSS, no del test: si alguien vuelve a
+  // mover o agrandar la chapa, la comprobacion se recalcula sola y avisa del
+  // desbordamiento real en vez de exigir un valor concreto.
+  const size = /--logo-w:\s*calc\(var\(--frame-h\)\s*\*\s*([\d.]+)\);/.exec(css);
+  const centerX =
+    /left:\s*calc\(\(100% - var\(--m-w\)\)\s*\/\s*2\s*\+\s*var\(--m-w\)\s*\*\s*([\d.]+)\s*-\s*var\(--logo-w\)\s*\/\s*2\);/.exec(
+      css
+    );
+  const centerY =
+    /top:\s*calc\(var\(--frame-h\)\s*\*\s*([\d.]+)\s*-\s*var\(--logo-h\)\s*\/\s*2\);/.exec(css);
+  const frameRatio = /--frame-h:\s*calc\(var\(--m-w\)\s*\*\s*([\d.]+)\);/.exec(css);
+  assert.ok(
+    size && centerX && centerY && frameRatio,
+    'La chapa debe seguir siendo un cuadrado centrado sobre el marco con calc()'
+  );
+
+  // Caja de la chapa en fracciones del marco: `side` es del ALTO; para pasarla al
+  // ancho se multiplica por la relacion alto/ancho del recorte (0,8068).
+  const side = Number(size[1]);
+  const halfW = (side * Number(frameRatio[1])) / 2;
+  const halfH = side / 2;
+  const left = Number(centerX[1]) - halfW;
+  const right = Number(centerX[1]) + halfW;
+  const top = Number(centerY[1]) - halfH;
+  const bottom = Number(centerY[1]) + halfH;
+
+  // Lo pintado no es la caja: el alfa del WebP 320 x 320 empieza en 0,94 % y
+  // acaba en 98,75 % del alto de la caja (medido sobre los cinco fotogramas).
+  const paintedTop = top + side * 0.0094;
+  const paintedBottom = bottom - side * 0.0125;
+
+  // 1) Nunca llega a la primera placa del HUD (41,16 %): ahi empiezan los rotulos
+  //    de SALDO · GANANCIA · MULTIPLICADOR.
+  assert.ok(
+    right <= 0.4116,
+    `La chapa acaba en ${(right * 100).toFixed(2)} % del ancho y el HUD empieza en 41,16 %`
+  );
+  // 2) Por la izquierda se queda dentro del dibujo: como mucho roza el borde del
+  //    hueco (6,39 %), nunca se sale del marco.
+  assert.ok(
+    left >= 0.0639 - 0.005,
+    `La chapa arranca en ${(left * 100).toFixed(2)} % del ancho y el hueco en 6,39 %`
+  );
+  // 3) Hacia arriba puede sobresalir sobre el filo del marco (es una pegatina),
+  //    pero no mas de un 1 % del alto.
+  assert.ok(
+    paintedTop >= -0.01,
+    `Lo pintado sobresale ${(-paintedTop * 100).toFixed(2)} % del alto sobre el filo del marco`
+  );
+  // 4) Hacia abajo se queda en la banda de cristal del tablero: la ventana
+  //    empieza en 37,90 % y sus fichas 0,55 % mas abajo (el `padding` minimo que
+  //    deja el clamp de 4 px del tablero en el movil mas ancho).
+  assert.ok(
+    paintedBottom <= 0.379 + 0.0055,
+    `Lo pintado baja hasta ${(paintedBottom * 100).toFixed(2)} % del alto y las fichas empiezan en 38,45 %`
+  );
+});
+
 test('la chapa del logo escala con el arte en todo el rango movil y sin aire reservado', () => {
   const css = read(STYLE_PATH);
 
   // Con el marco de caramelo el logo vive DENTRO del hueco de la guirnalda: su
-  // caja sale del alto del marco (`--logo-w: var(--frame-h) * 0.2814`), asi que
+  // caja sale del alto del marco (`--logo-w: var(--frame-h) * 0.394`), asi que
   // escala con el arte en todos los tramos y no necesita altura reservada.
   assert.ok(!css.includes('--logo-air:'), 'El aire reservado para la marca ya no existe');
   assert.ok(!css.includes('--logo-sky:'), 'La chapa se mide con el alto del marco, no con un cielo');

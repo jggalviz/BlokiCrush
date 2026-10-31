@@ -4974,28 +4974,43 @@ body.is-demo .machine__side .controls .balance::after {
     position: absolute;
     /* Pegatina: por encima del dibujo del marco y de sus caramelos. */
     z-index: 6;
-    /* Hueco del logo en la guirnalda: 6,47-37,28 % del ancho y 7,48-29,12 % del
-       alto del recorte (medido sobre `marco_movil.webp`), o sea 429 x 243 px del
-       dibujo y un centro en (21,88 % · 18,30 %). El lockup ya es cuadrado
-       (mascota + "BLOKI CRUSH"), asi que la caja es un cuadrado atado al ALTO
-       del marco —el lado corto del hueco— y algo mayor que él: 0,2814 del alto
-       son 89 px con el marco en 390, un 30 % mas que los 243 px de alto del
-       hueco, de modo que la pegatina desborda el hueco por arriba y por abajo y
-       se apoya sobre los caramelos de la guirnalda, pero se queda dentro del
-       ancho libre (0,2814 x 0,8068 = 0,227 del ancho del marco contra 0,308 del
-       hueco).
-       Al vivir el hueco DENTRO del dibujo ya no hace falta el tope de altura que
-       antes gastaba el aire del escenario: sobre el hueco quedan 0,0748 del alto
-       del marco (~24 px a 390) de guirnalda, y el balanceo de la pegatina solo se
-       lleva ~10 px de ese aire. */
-    --logo-w: calc(var(--frame-h) * 0.2814);
+    /* Hueco del logo en la guirnalda: 6,39-37,36 % del ancho y 7,39-29,21 % del
+       alto del recorte (431 x 245 px de 1392 x 1123, medido sobre el alfa de
+       `marco_movil.webp`). El lockup ya es cuadrado (mascota + "BLOKI CRUSH"),
+       asi que la caja es un cuadrado atado al ALTO del marco: 0,394 del alto son
+       442 px del dibujo (124 px con el marco en 390), o sea 31,79 % del ancho
+       contra los 30,97 % del hueco. Es decir: la pegatina IGUALA el ancho del
+       hueco —lo llena de lado a lado y solo se apoya en los caramelos de la
+       guirnalda por la derecha— y lo desborda por arriba y por abajo, porque el
+       hueco es apaisado (431 x 245) y el logo es cuadrado.
+       El unico limite real hacia abajo es la ventana del tablero (37,90 % del
+       alto = 426 px del dibujo): entre el filo del marco y esa ventana solo caben
+       0,379 del alto, y la caja mide 0,394, asi que sobran 0,015 que se reparten
+       a partes iguales —0,0075 por arriba, sobre el filo del marco, y 0,0075 por
+       abajo—. El alfa del WebP empieza en 0,94 % y acaba en 98,75 % de la caja,
+       de modo que lo pintado sobresale 1,2 px sobre el filo del marco (a 390) y
+       baja 0,8 px dentro de la banda de cristal del tablero, 1,5 px por encima de
+       las fichas: la ventana tiene su propio `padding` (0,6 % del ancho), que es
+       el colchon que se lleva ese pelo. Medido en Chrome a 320, 360, 375, 390,
+       414, 760, 844 y 899 px de ancho: el borde pintado se queda siempre 1,0-1,5
+       px por encima de la primera fila.
+       Al vivir el hueco DENTRO del dibujo no hace falta tope de altura: el
+       balanceo de la pegatina (ver `bloki-logo-sticker`) solo la sube —hasta ~7
+       px a 390 y ~11 px con la maquina a 736 px— y nunca la baja de su sitio, asi
+       que tampoco gana desbordamiento hacia el tablero. */
+    --logo-w: calc(var(--frame-h) * 0.394);
     --logo-h: var(--logo-w);
     width: var(--logo-w);
     height: var(--logo-h);
-    /* Centrada en el hueco: su centro cae en 21,88 % del ancho del marco. */
-    left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.2188 - var(--logo-w) / 2);
-    /* Y en 18,30 % del alto, por eso la caja se ancla por arriba. */
-    top: calc(var(--frame-h) * 0.183 - var(--logo-h) / 2);
+    /* 22,25 % del ancho del marco: el centro que deja el filo pintado justo en el
+       borde izquierdo del hueco (6,36 % contra 6,39 % del hueco) y el derecho en
+       38,14 %, o sea 3 % del ancho —~12 px a 390— antes de la primera placa del
+       HUD (41,16 %), que es donde empiezan los rotulos. */
+    left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.2225 - var(--logo-w) / 2);
+    /* 18,95 % del alto: el centro del pasillo que va del filo del marco a la
+       ventana del tablero (0,379 / 2), que es lo que reparte el sobrante arriba y
+       abajo a partes iguales. */
+    top: calc(var(--frame-h) * 0.1895 - var(--logo-h) / 2);
     bottom: auto;
     margin: 0;
     padding: 0;

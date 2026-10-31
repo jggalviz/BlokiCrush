@@ -146,21 +146,27 @@ en bucle infinito en los que la mascota lame el chupachus.
    dentro de la caja.
 
 En movil (320-899 px) la caja se ata al **alto del marco** (`--logo-w:
-calc(var(--frame-h) * 0.2814)`, con `--logo-h: var(--logo-w)` para el 1:1) y se
-centra en el **hueco de la guirnalda** que dibuja el propio marco nuevo: el
-hueco mide 6,47-37,28 % del ancho y 7,48-29,12 % del alto del recorte, o sea
-429 x 243 px del dibujo con el centro en (21,88 % · 18,30 %). El lado de la
-pegatina es un 30 % mayor que el alto del hueco (89 px a 390 x 844), asi que
-desborda el hueco por arriba y por abajo y se apoya sobre los caramelos de la
-guirnalda, mientras que por los lados se queda dentro (0,227 del ancho del marco
-contra 0,308 del hueco): nunca llega a la primera placa del HUD (41,16 %).
+calc(var(--frame-h) * 0.394)`, con `--logo-h: var(--logo-w)` para el 1:1) y se
+coloca en el **hueco de la guirnalda** que dibuja el propio marco nuevo: el
+hueco mide 6,39-37,36 % del ancho y 7,39-29,21 % del alto del recorte, o sea
+431 x 245 px del dibujo. El lado de la pegatina mide 0,394 del alto del marco
+—442 px del dibujo, 124 px a 390 x 844—, que es 31,79 % del ancho contra los
+30,97 % del hueco: **llena el hueco de lado a lado** y solo se apoya en los
+caramelos de la guirnalda por la derecha, sin llegar nunca a la primera placa
+del HUD (41,16 %, ~12 px de aire a 390).
+
+Hacia arriba y hacia abajo el hueco es más corto que un lockup cuadrado, así que
+la caja se centra en el pasillo que va del filo del marco a la **ventana del
+tablero** (37,90 % del alto = 426 px del dibujo): sobran 0,015 del alto, 0,0075
+por arriba y 0,0075 por abajo. Como el alfa del WebP empieza en 0,94 % y acaba
+en 98,75 % de la caja, lo pintado sobresale ~1 px sobre el filo del marco y baja
+~0,8 px dentro de la banda de cristal del tablero, todavía 1,3-1,5 px por encima
+de la primera fila (el `padding` de la ventana absorbe ese pelo). Medido en
+Chrome a 320, 360, 375, 390, 414, 760, 844 y 899 px de ancho; el balanceo solo
+sube la chapa (nunca la baja de su sitio), así que no gana desbordamiento.
 
 Como el hueco vive DENTRO del dibujo, el CSS ya no mide el aire que el escenario
-deja arriba (`--slack` y `--logo-peak` desaparecieron con la piel anterior): sobre
-el hueco quedan 0,0748 del alto del marco (~24 px a 390) de guirnalda y el
-balanceo de la pegatina solo gasta ~10 px de ese aire, tambien a 844 x 390, donde
-la maquina se achica a 314 px de ancho. El balanceo baja a 2-4 px y 1,4-2 grados
-para no tocar ni el dock ni las piezas.
+deja arriba (`--slack` y `--logo-peak` desaparecieron con la piel anterior).
 
 En escritorio (>=900 px) el logo vive sobre la nube de `d5.webp` y ahora manda el
 alto (`height: 75%` de `--hero-h`, centro en 34,5 %): a 1440 x 900 mide 250 px,
