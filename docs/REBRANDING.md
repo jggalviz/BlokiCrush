@@ -146,26 +146,21 @@ en bucle infinito en los que la mascota lame el chupachus.
    dentro de la caja.
 
 En movil (320-899 px) la caja se ata al **alto del marco** (`--logo-w:
-min(calc(var(--frame-h) * 0.32), calc(var(--frame-h) * 0.244 + var(--slack) -
-var(--logo-peak)))`, con `--logo-h: var(--logo-w)` para el 1:1) y se pega al
-hueco rosa que dibuja el propio marco, corrida a la izquierda (`left` al 0,05 del
-ancho) para dejar aire hasta la placa de SALDO. Por dentro del aro dorado quedan
-87 x 41 px a 390 x 844. A 390 x 844 el logo mide 86 px -el doble de la chapa
-original (0,149)-, desborda el aro por los cuatro lados, se apoya sobre la nube y
-el toldo, y sube por encima del aro y del toldo (`bottom` 0,756 + `--logo-lift`,
-hasta 0,81 del alto del marco) para quedar como una pegatina que sobresale del
-dibujo; deja ~20 px de aire sobre la ventana del tablero y ~19 px hasta la primera
-placa del HUD.
+calc(var(--frame-h) * 0.2814)`, con `--logo-h: var(--logo-w)` para el 1:1) y se
+centra en el **hueco de la guirnalda** que dibuja el propio marco nuevo: el
+hueco mide 6,47-37,28 % del ancho y 7,48-29,12 % del alto del recorte, o sea
+429 x 243 px del dibujo con el centro en (21,88 % · 18,30 %). El lado de la
+pegatina es un 30 % mayor que el alto del hueco (89 px a 390 x 844), asi que
+desborda el hueco por arriba y por abajo y se apoya sobre los caramelos de la
+guirnalda, mientras que por los lados se queda dentro (0,227 del ancho del marco
+contra 0,308 del hueco): nunca llega a la primera placa del HUD (41,16 %).
 
-Ese sobrante no se da por hecho: el filo superior del marco es el filo del
-escenario y `.stage` recorta (`overflow: hidden`), asi que el CSS mide el cielo
-libre que la rejilla deja arriba (`--slack`, con el alto del escenario, el del
-marco, la separacion de filas y el de la consola) y recorta a la vez el tamano y
-la subida, descontando `--logo-peak` (4 px del salto de la animacion mas 1,1 % del
-marco, lo que crece la caja en el pico del balanceo). En paisaje de movil o en
-ventanas de poco alto la pegatina se encoge sola hasta caber -a 844 x 390 mide
-42 px y el filo se queda dentro del marco- en vez de quedar cortada. El balanceo
-baja a 2-4 px y 1,4-2 grados para no tocar ni el dock ni las piezas.
+Como el hueco vive DENTRO del dibujo, el CSS ya no mide el aire que el escenario
+deja arriba (`--slack` y `--logo-peak` desaparecieron con la piel anterior): sobre
+el hueco quedan 0,0748 del alto del marco (~24 px a 390) de guirnalda y el
+balanceo de la pegatina solo gasta ~10 px de ese aire, tambien a 844 x 390, donde
+la maquina se achica a 314 px de ancho. El balanceo baja a 2-4 px y 1,4-2 grados
+para no tocar ni el dock ni las piezas.
 
 En escritorio (>=900 px) el logo vive sobre la nube de `d5.webp` y ahora manda el
 alto (`height: 75%` de `--hero-h`, centro en 34,5 %): a 1440 x 900 mide 250 px,
@@ -210,16 +205,26 @@ dibujado en la maquina- para dejarle el ancho al dock. Medido a 1280 x 800,
 1440 x 900, 900 x 700, 760 x 900, 390 x 844, 320 x 568 y 844 x 390: el dock no
 toca el tablero y ningun bloque se sale del viewport.
 
-Piel movil vigente: la dulce (`design/marco_movil.png` 1325 x 941 y
-`design/consola_movil.png` 1783 x 693 —el recorte al alfa del maestro, que mide
-1914 x 822—), publicados por `npm run build:art` como `marco_movil.webp` (109 KB)
-y `consola_movil.webp` (274 KB), con la avenida de caramelo como fondo. El panel
-de control es el «caramelo brillante»: una sola barra dorada con los cinco discos
-(FEVER · AUTO · GIRAR · − · +), la corona y los caramelos de palo sobre el GIRAR
-y cuatro placas de pie. Al no traer las dos pantallas de la fila superior que
-tenia la piel rosa, la lectura de APUESTA baja a la mitad izquierda de la cuarta
-placa y el MAX se queda en su extremo derecho (geometria medida en la seccion 4
-de `style.css`). Los maestros de las pieles que se publicaron antes siguen en
+Piel movil vigente: la **guirnalda** (`design/marco_movil.png` 1392 x 1123 —el
+recorte al alfa del maestro, que mide 1392 x 1130— y `design/consola_movil.png`
+1783 x 693), publicados por `npm run build:art` como `marco_movil.webp` (247 KB,
+q=90) y `consola_movil.webp` (274 KB), con la avenida de caramelo como fondo. El
+marco nuevo cambia la placa rosa de la nube por una **guirnalda de piruletas y
+caramelos con un hueco transparente** donde se apoya el logo, y es mas alto que
+el anterior (1,240:1 contra 1,408:1), asi que la maqueta movil entera se movio
+con el: `--frame-h` pasa a 0,8068 del ancho, el divisor de `--m-w` a 1,1955, la
+ventana del tablero a 6,05-94,15 % x · 37,90-95,75 % y la franja del HUD a
+41,16-92,96 % x · 23,60-29,48 % y (el relleno morado de las tres placas, que es
+lo unico que queda dentro del aro dorado y de su bisel: por eso la tipografia del
+HUD baja a 0,0148 / 0,0262 del ancho del marco). El precio de la franja superior
+mas alta es un tablero ~8 % mas bajo a igual ancho de maquina.
+El panel de control es el «caramelo brillante»: una sola barra dorada con los
+cinco discos (FEVER · AUTO · GIRAR · − · +), la corona y los caramelos de palo
+sobre el GIRAR y cuatro placas de pie. Al no traer las dos pantallas de la fila
+superior que tenia la piel rosa, la lectura de APUESTA baja a la mitad izquierda
+de la cuarta placa y el MAX se queda en su extremo derecho (geometria medida en
+la seccion 4 de `style.css`). Los maestros de las pieles que se publicaron antes
+siguen en `design/marco_movil_nube.png` (la placa rosa de la nube),
 `design/marco_movil_estadio.png`, `design/consola_movil_estadio.png`,
 `design/avenida_estadio.png` y `design/consola_movil_rosa.png` (candy con dos
 pantallas): no se publican, pero dejan rastro de los recortes que midio el CSS

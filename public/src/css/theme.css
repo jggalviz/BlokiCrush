@@ -32,7 +32,8 @@
    ----------------------------------------------------------------
    - Escenario de fondo (`fondo_desktop` / `fondo_movil`).
    - Marco del tablero y carcasa de controles: `d1.webp` (marco escritorio),
-     `marco_movil.webp`, `consola_movil.webp`, y en escritorio `d5.webp`
+     `marco_movil.webp` (guirnalda de caramelos, hueco del logo y placas del
+     HUD movil), `consola_movil.webp`, y en escritorio `d5.webp`
      (nube del logo) y `d3.webp` (los siete pulsadores). Los botones de
      escritorio son RECORTES de `d3.webp` colocados por porcentajes medidos
      sobre el dibujo: no hay gradiente que repintar ahi.

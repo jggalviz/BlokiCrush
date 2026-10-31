@@ -14,16 +14,32 @@
  * descentraria el dibujo y desalinearia las areas tactiles.
  *
  * Piezas:
- *   design/marco_movil.png   -> public/src/assets/marco_movil.webp   (1325 x 941)
+ *   design/marco_movil.png   -> public/src/assets/marco_movil.webp   (1392 x 1123)
  *   design/consola_movil.png -> public/src/assets/consola_movil.webp (1783 x 693)
  *
  * Los dos maestros vigentes son la piel de caramelo del rebranding: el marco
- * (toldo rosa, nube del logo a la izquierda, tres placas moradas del HUD y
- * ventana del tablero) y el panel de control de caramelo brillante —una sola
- * barra dorada con cinco discos, la corona y los caramelos de palo encima del
- * GIRAR y cuatro placas de pie—. Los nombres de destino NO cambian: el CSS y el
- * HTML siguen apuntando a `marco_movil.webp` y `consola_movil.webp`, asi que el
- * cambio de arte no toca el mapeo de los componentes.
+ * —guirnalda de piruletas y caramelos con el hueco del logo arriba a la
+ * izquierda, toldo rosa, tres placas moradas del HUD y ventana del tablero— y el
+ * panel de control de caramelo brillante (una sola barra dorada con cinco
+ * discos, la corona y los caramelos de palo encima del GIRAR y cuatro placas de
+ * pie). Los nombres de destino NO cambian: el CSS y el HTML siguen apuntando a
+ * `marco_movil.webp` y `consola_movil.webp`, asi que el cambio de arte no toca
+ * el mapeo de los componentes.
+ *
+ * El marco de la guirnalda es el maestro NUEVO (1392 x 1123, 1,240:1). Trae la
+ * misma familia de dibujo que la piel anterior pero con dos cambios que mueve
+ * la maqueta entera:
+ *   - el lienzo es mas alto (antes 1325 x 941, 1,408:1): la guirnalda ocupa la
+ *     franja superior, asi que el alto del marco es ahora 0,8068 de su ancho
+ *     (antes 0,7102) y `--m-w` reparte el alto del escenario con 1,1955 en vez
+ *     de 1,0989;
+ *   - la placa rosa de la nube desaparece: el logo se apoya en un hueco
+ *     transparente (6,47-37,28 % x · 7,48-29,12 % y del recorte) encerrado por
+ *     la guirnalda, de modo que la pegatina ya no puede salirse del marco ni
+ *     depende del aire que deje el escenario.
+ * Los % que consume `style.css` salen de este recorte y estan anotados en la
+ * seccion de marco movil del CSS (ventana 6,25-93,97 % x · 38,02-95,65 % y,
+ * placas del HUD 41,16-92,96 % x · 23,60-29,47 % y).
  *
  * El panel brillante es mas bajo que el rosa anterior (2,573:1 contra 2,159:1)
  * y ya no trae las dos pantallas de la fila superior: la lectura de APUESTA se
@@ -31,11 +47,12 @@
  * derecho (ver la seccion 4 de `style.css`).
  *
  * Los maestros de las pieles que se publicaron antes se conservan como
- * referencia: `marco_movil_estadio.png` y `consola_movil_estadio.png` (deporte,
- * MeridianoBet) y `consola_movil_rosa.png` (candy rosa con dos pantallas). El
- * dueño de cada pieza es siempre el archivo sin sufijo (`design/marco_movil.png`,
- * `design/consola_movil.png`), de modo que el CSS y esta tabla hablan siempre de
- * la misma pieza.
+ * referencia: `marco_movil_nube.png` (la placa rosa de la nube que sustituye
+ * esta guirnalda), `marco_movil_estadio.png` y `consola_movil_estadio.png`
+ * (deporte, MeridianoBet) y `consola_movil_rosa.png` (candy rosa con dos
+ * pantallas). El dueño de cada pieza es siempre el archivo sin sufijo
+ * (`design/marco_movil.png`, `design/consola_movil.png`), de modo que el CSS y
+ * esta tabla hablan siempre de la misma pieza.
  *
  * El script, para cada pieza:
  *   1. mide el bbox de los pixeles con alfa visible;
@@ -61,8 +78,10 @@ const DEPLOY_DIR = path.join(ROOT, '.vercel', 'output', 'static', 'src', 'assets
  * visible muy por debajo de 92.
  *
  * Presupuesto:
- *   - el marco de caramelo pesa 325 kB a q=90 y 304 kB a q=88; a q=86 se queda
- *     en 290 kB y el tope de 300 kB del test sigue intacto;
+ *   - el marco de la guirnalda mide 1392 x 1123 (1,56 Mpx) y a q=90 pesa 247 kB;
+ *     a q=88 baja a 231 kB. Se queda en q=90 porque el marco trae el borde de
+ *     cada caramelo y el aro dorado de las placas —donde el WebP hace banding—
+ *     y aun asi ocupa el 82 % del tope de 300 kB del test, que no se toca;
  *   - el panel brillante mide 1783 x 693 (1,24 Mpx, un 30 % menos que el rosa
  *     anterior) y a q=92 pesa 274 kB: el tope de 512 kB se mantiene aunque ya
  *     sobre -el dorado es la zona donde antes aparecia el banding, asi que no se
@@ -71,8 +90,8 @@ const DEPLOY_DIR = path.join(ROOT, '.vercel', 'output', 'static', 'src', 'assets
 const PIECES = [
   {
     name: 'marco_movil',
-    canvas: { width: 1325, height: 941 },
-    quality: 86,
+    canvas: { width: 1392, height: 1123 },
+    quality: 90,
     maxBytes: 300 * 1024
   },
   {

@@ -121,7 +121,7 @@ test('el logotipo animado de BlokiCrush se sirve ligero, cuadrado y en bucle', (
   assert.match(html, /src="\/src\/assets\/BLOKICRUSH-LOGO\.webp"/);
   assert.match(html, /alt="BlokiCrush"/);
   // La caja reserva la proporcion del archivo: si el HTML declarase 2:1 el
-  // navegador apartaria el doble de ancho en el hueco de la nube y el HUD
+  // navegador apartaria el doble de ancho en el hueco de la guirnalda y el HUD
   // saltaria al decodificar el primer fotograma.
   assert.match(html, /width="320" height="320"/, 'El logo debe reservar 320x320 px (1:1)');
 
@@ -788,21 +788,21 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
     'Sin padding propio: el aire lateral lo pone `.app` y es simetrico'
   );
   // El ancho sale del alto libre menos la separacion, repartido entre la
-  // relacion del marco (941 / 1325 = 0,7102, la del recorte sin estirar) y la
-  // de la consola (693 / 1783 = 0,3887): 1,0989 en total.
+  // relacion del marco (1123 / 1392 = 0,8068, la del recorte sin estirar) y la
+  // de la consola (693 / 1783 = 0,3887): 1,1955 en total.
   // `cqw`/`cqh` en lugar de `%`: dentro de una custom property un `%` se
   // resuelve contra la propiedad que la usa, y el mismo token medía el ancho en
   // `width` y el alto en `height` (el HUD caía 12 px bajo sus placas).
   assert.match(
     machineGrid[0],
-    /--m-w:\s*min\(100cqw,\s*calc\(\(100cqh - clamp\(4px, 1\.2dvh, 10px\)\) \/ 1\.0989\)\);/,
+    /--m-w:\s*min\(100cqw,\s*calc\(\(100cqh - clamp\(4px, 1\.2dvh, 10px\)\) \/ 1\.1955\)\);/,
     'El ancho de la maquina descuenta marco + separacion + consola del alto libre'
   );
 
   // 2) Las dos piezas se miden con esa unidad y con la relacion exacta de su
   //    lienzo (`contain` sobre una caja con esa relacion llena el 100%).
-  const frameRule = css.match(/\.machine__table\s*\{[^}]*aspect-ratio:\s*1325 \/ 941;[^}]*\}/);
-  assert.ok(frameRule, 'El marco debe declarar la relacion exacta de su recorte, 1325/941');
+  const frameRule = css.match(/\.machine__table\s*\{[^}]*aspect-ratio:\s*1392 \/ 1123;[^}]*\}/);
+  assert.ok(frameRule, 'El marco debe declarar la relacion exacta de su recorte, 1392/1123');
   assert.match(frameRule[0], /width:\s*var\(--m-w\);/, 'El marco se mide con `--m-w`');
 
   const caseRule = css.match(
@@ -823,87 +823,77 @@ test('la consola y el tablero comparten el mismo eje X en movil', () => {
   );
 
   // 3) El tablero tapa la ventana transparente del marco con % del recorte
-  //    (medido: x 7,69-92,53 %, y 39,80-92,04 %), con un pelo de aire por fuera
+  //    (medido: x 6,25-93,97 %, y 38,02-95,65 %), con un pelo de aire por fuera
   //    para que su filo se meta bajo el aro dorado y no asome el fondo.
   assert.match(
     css,
-    /\.machine__table \.board\s*\{[^}]*position:\s*absolute;[^}]*left:\s*8\.40%;[^}]*top:\s*26\.30%;[^}]*width:\s*85\.90%;[^}]*height:\s*71\.50%;[^}]*\}/,
+    /\.machine__table \.board\s*\{[^}]*position:\s*absolute;[^}]*left:\s*6\.05%;[^}]*top:\s*37\.90%;[^}]*width:\s*88\.10%;[^}]*height:\s*57\.85%;[^}]*\}/,
     'El tablero se coloca en la ventana del marco, no en el flujo de la fila'
   );
 
-  // 4) La marca y el HUD caen sobre sus huecos del arte nuevo: el cielo del
-  //    estadio sostiene el logo a la izquierda y la franja de las tres placas
-  //    doradas va de 30,03 a 91,95 % del ancho y de 22,96 a 31,90 % del alto del
+  // 4) La marca y el HUD caen sobre sus huecos del arte: el hueco de la
+  //    guirnalda sostiene el logo a la izquierda y la franja de las tres placas
+  //    moradas va de 41,16 a 92,96 % del ancho y de 23,60 a 29,48 % del alto del
   //    recorte.
   const hudRule = css.match(
-    /\.machine__side \.hud\s*\{[^}]*width:\s*calc\(var\(--m-w\) \* 0\.6038\);[^}]*\}/
+    /\.machine__side \.hud\s*\{[^}]*width:\s*calc\(var\(--m-w\) \* 0\.518\);[^}]*\}/
   );
   assert.ok(hudRule, 'El HUD debe medir la franja exacta de las tres placas');
   assert.match(
     hudRule[0],
-    /height:\s*calc\(var\(--frame-h\) \* 0\.0935\);/,
+    /height:\s*calc\(var\(--frame-h\) \* 0\.0588\);/,
     'La franja mide el alto interior de las placas del HUD'
   );
   assert.match(
     hudRule[0],
-    /margin-left:\s*calc\(\(100% - var\(--m-w\)\) \/ 2 \+ var\(--m-w\) \* 0\.3275\);/,
-    'La franja arranca en la primera placa del HUD, donde acaba el logo'
+    /margin-left:\s*calc\(\(100% - var\(--m-w\)\) \/ 2 \+ var\(--m-w\) \* 0\.4116\);/,
+    'La franja arranca en la primera placa del HUD, donde acaba la guirnalda'
   );
   assert.match(
     hudRule[0],
-    /margin-top:\s*calc\(var\(--frame-h\) \* 0\.0978\);/,
+    /margin-top:\s*calc\(var\(--frame-h\) \* 0\.236\);/,
     'La franja cae sobre sus placas y no sobre la ventana'
   );
 
-  // La marca se pega sobre la nube de caramelo del marco (x 2,64-32,30 % y
-  // 0,00-17,85 % del recorte), y por dentro el aro dorado deja un ovalo de 87 x
-  // 41 px a 390. El lockup es 1:1, asi que la caja se ata al ALTO del marco:
-  // 0,32 da 86 px, desborda el ovalo por los cuatro lados y sube hasta
-  // sobresalir por encima del toldo y del aro, pero nunca mas alla del cielo que
-  // el escenario deja libre (`.stage` recorta) ni sobre la ventana del tablero.
-  const logoAt = css.indexOf('--logo-w: min(');
-  assert.notEqual(logoAt, -1, 'La marca debe declarar su caja dentro de la nube del marco');
-  // El bloque se compara sin saltos de linea: las tres formulas van partidas en
+  // La marca se pega sobre el hueco de la guirnalda (x 6,47-37,28 % y
+  // 7,48-29,12 % del recorte, 429 x 243 px del dibujo): el lockup es 1:1, asi
+  // que la caja se ata al ALTO del marco —0,2814 da 89 px a 390, un 30 % mas que
+  // el alto del hueco— y se centra en su centro medido. Al vivir el hueco dentro
+  // del dibujo ya no hay tope que descontar del cielo del escenario (`--slack`).
+  const logoAt = css.indexOf('--logo-w: calc(');
+  assert.notEqual(logoAt, -1, 'La marca debe declarar su caja dentro del hueco del marco');
+  // El bloque se compara sin saltos de linea: las formulas van partidas en
   // varias lineas para que se lean.
   const heroBlock = css
-    .slice(Math.max(0, logoAt - 400), logoAt + 1600)
+    .slice(Math.max(0, logoAt - 1200), logoAt + 900)
     .replace(/\s+/g, ' ');
   for (const declaration of [
-    '--logo-peak: calc(4px + var(--frame-h) * 0.011);',
-    '--logo-w: min( calc(var(--frame-h) * 0.32), ' +
-      'calc(var(--frame-h) * 0.244 + var(--slack) - var(--logo-peak)) );',
+    '--logo-w: calc(var(--frame-h) * 0.2814);',
     '--logo-h: var(--logo-w);',
-    'left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.05);',
-    '--logo-lift: min( calc(var(--frame-h) * 0.054), ' +
-      'calc(var(--slack) - var(--logo-peak) - var(--logo-w) + var(--frame-h) * 0.244) );',
-    'bottom: calc(var(--frame-h) * 0.756 + var(--logo-lift));'
+    'left: calc((100% - var(--m-w)) / 2 + var(--m-w) * 0.2188 - var(--logo-w) / 2);',
+    'top: calc(var(--frame-h) * 0.183 - var(--logo-h) / 2);'
   ]) {
     assert.ok(
       heroBlock.includes(declaration),
-      'La chapa se pega a la nube con ' + declaration
+      'La chapa se pega al hueco de la guirnalda con ' + declaration
     );
   }
   assert.ok(
-    !heroBlock.includes('--logo-sky'),
-    'La chapa ya no depende de un cielo derivado'
+    !heroBlock.includes('--slack') && !heroBlock.includes('--logo-peak'),
+    'La chapa ya no depende del aire que deja el escenario'
   );
 
-  // El sobrante de arriba no se da por hecho: se mide con el alto del escenario,
-  // el del marco, la separacion de la rejilla y el de la consola (693 / 1783).
-  assert.match(
-    css,
-    /--slack: calc\(\s*\(100cqh - var\(--frame-h\) - var\(--row-gap\) - \(var\(--m-w\) \* 0\.3887\)\) \/ 2\s*\);/,
-    'El aire sobre el marco se deriva del escenario y del alto real de las dos piezas'
-  );
+  // El token `--slack` era el unico consumidor del sobrante de arriba; con el
+  // hueco dentro del dibujo desaparece y no debe volver a colarse.
+  assert.ok(!css.includes('--slack:'), 'El aire derivado del escenario ya no se declara');
 });
 
 test('la chapa del logo escala con el arte en todo el rango movil y sin aire reservado', () => {
   const css = read(STYLE_PATH);
 
-  // Con el marco de caramelo el logo vive sobre la nube del dibujo: su caja
-  // sale del alto del marco (`--logo-w: var(--frame-h) * 0.32`, recortado al
-  // cielo que deja el escenario), asi que escala con el arte en todos los tramos
-  // y no necesita altura reservada.
+  // Con el marco de caramelo el logo vive DENTRO del hueco de la guirnalda: su
+  // caja sale del alto del marco (`--logo-w: var(--frame-h) * 0.2814`), asi que
+  // escala con el arte en todos los tramos y no necesita altura reservada.
   assert.ok(!css.includes('--logo-air:'), 'El aire reservado para la marca ya no existe');
   assert.ok(!css.includes('--logo-sky:'), 'La chapa se mide con el alto del marco, no con un cielo');
   assert.equal(
@@ -936,7 +926,7 @@ test('el arte de las dos maquinas se sirve con su lienzo exacto y los maestros q
   // Escritorio (`build-desktop-art.js`): d1 (marco del tablero), d5 (modulo
   // hero + placas) y d3 (consola), a q=90 y con el mismo contrato de lienzo.
   const pieces = [
-    { name: 'marco_movil', size: '1325x941', max: 300 * 1024, build: 'build-mobile-art.js' },
+    { name: 'marco_movil', size: '1392x1123', max: 300 * 1024, build: 'build-mobile-art.js' },
     { name: 'consola_movil', size: '1783x693', max: 512 * 1024, build: 'build-mobile-art.js' },
     { name: 'd1', size: '1017x819', max: 300 * 1024, build: 'build-desktop-art.js' },
     { name: 'd5', size: '1471x1042', max: 560 * 1024, build: 'build-desktop-art.js' },
@@ -977,6 +967,10 @@ test('el arte de las dos maquinas se sirve con su lienzo exacto y los maestros q
         `${stray} no debe servirse desde public/src`
       );
     }
+    assert.ok(
+      !fs.existsSync(path.join(PUBLIC_DIR, 'src', 'assets', `${name}.png`)),
+      `design/${name}.png es el maestro: no puede duplicarse en public/src/assets`
+    );
 
     // El script de la pieza declara el mismo lienzo que el CSS.
     const script = fs.readFileSync(path.join(ROOT_DIR, 'scripts', build), 'utf8');
@@ -987,6 +981,14 @@ test('el arte de las dos maquinas se sirve con su lienzo exacto y los maestros q
       `${build} debe recortar ${name} a ${size}`
     );
   }
+
+  // Ninguna pieza publicada se sirve en PNG (solo WebP con alfa): un maestro
+  // suelto en `public/src/assets` viajaria al movil en cada carga.
+  const strayPngs = fs
+    .readdirSync(path.join(PUBLIC_DIR, 'src', 'assets'), { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.png'))
+    .map((entry) => entry.name);
+  assert.deepEqual(strayPngs, [], 'public/src/assets solo publica WebP: los PNG son maestros');
 
   // El arte de escritorio se compila a q=90 y el comando queda registrado.
   const desktop = fs.readFileSync(path.join(ROOT_DIR, 'scripts', 'build-desktop-art.js'), 'utf8');
