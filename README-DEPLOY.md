@@ -75,12 +75,12 @@ Medición real de `public/` en este repositorio:
 
 | Tipo | Archivos | Tamaño | Notas |
 | --- | ---: | ---: | --- |
-| WebP (arte principal) | 9 | 2,40 MB | Fondos, marco, consola, logo y pantalla de victoria |
+| WebP (arte principal) | 10 | 2,05 MB | Fondos, marco, consola, logo, logo quieto y pantalla de victoria |
 | PNG (símbolos) | 20 | 7,18 MB | Solo **11** están referenciados por `ui/lib/format.js` (3,83 MB); los otros 9 no se descargan |
 | WOFF2 (tipografías) | 4 | 0,04 MB | Fredoka y Lilita One, precargadas desde `index.html` |
-| JS + CSS | 17 | 0,41 MB | `style.css` concentra la mayor parte; 15 módulos son el espejo de `ui/` |
-| HTML + MP3 | 2 | 0,04 MB | Documento servido y efecto de victoria |
-| **Total publicado** | **52** | **10,06 MB** | La app solo referencia 11 de los 20 PNG; los 9 restantes no se descargan |
+| JS + CSS | 17 | 0,40 MB | `style.css` concentra la mayor parte; 15 módulos son el espejo de `ui/` |
+| HTML + MP3 | 4 | 0,06 MB | Documento servido, las dos vistas previas de QA (`public/.preview-*.html`) y el efecto de victoria |
+| **Total publicado** | **55** | **9,74 MB** | La app solo referencia 11 de los 20 PNG; los 9 restantes no se descargan |
 
 Características que condicionan el despliegue:
 

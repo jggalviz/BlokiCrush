@@ -231,13 +231,22 @@ test('el cartel de victoria se sirve en WebP con alfa y el maestro queda fuera d
   const css = read(STYLE_PATH);
   const ui = read(path.join(PUBLIC_DIR, 'ui', 'renderers', 'GameView.js'));
 
-  // El maestro (2,7 MB) se archiva en `design/`: no viaja al CDN ni se puede
-  // colar como respaldo en `public/src/assets`.
+  // El maestro (3,0 MB) se archiva en `design/`: no viaja al CDN ni se puede
+  // colar como respaldo en `public/src/assets`. La ultima version llego ahi con
+  // nombre propio (`BLOKI_CRUSH-WIN.png`), asi que se vigilan los dos nombres.
   assert.ok(fs.existsSync(WIN_MASTER_PATH), 'Falta el maestro design/victoria_dulce.png');
   assert.ok(fs.statSync(WIN_MASTER_PATH).size > 0, 'El maestro del cartel esta vacio');
+  for (const stray of ['¡Victoria dulce!.png', 'BLOKI_CRUSH-WIN.png']) {
+    assert.ok(
+      !fs.existsSync(path.join(PUBLIC_DIR, 'src', 'assets', stray)),
+      `${stray} es un maestro: debe vivir en design/, no en public/src/assets`
+    );
+  }
+  // El cartel de la piel anterior no se publica, pero se conserva para comparar
+  // recortes (misma regla que los maestros de las consolas jubiladas).
   assert.ok(
-    !fs.existsSync(path.join(PUBLIC_DIR, 'src', 'assets', '¡Victoria dulce!.png')),
-    'El PNG maestro no debe quedarse en public/src/assets'
+    fs.existsSync(path.join(ROOT_DIR, 'design', 'victoria_dulce_clasica.png')),
+    'El cartel anterior debe quedar archivado en design/victoria_dulce_clasica.png'
   );
 
   assert.ok(fs.existsSync(WIN_ART_PATH), 'Falta public/src/assets/victoria_dulce.webp');
@@ -271,8 +280,17 @@ test('el cartel de victoria se sirve en WebP con alfa y el maestro queda fuera d
     `El cartel deforma el maestro: ${width}x${height} contra ${masterWidth}x${masterHeight}`
   );
 
-  // Peso: el lienzo completo a q=90 pesa 573 KB y se pinta a 640 px CSS como
-  // maximo. 1152 px conservan el detalle retina y dejan el archivo en ~423 KB.
+  // La relacion publicada tambien vive en el CSS: `.win__art` acota el ancho por
+  // alto con `calc(58vh * 1.5)`. Si el cartel cambia de formato hay que mover
+  // las dos cosas a la vez; si no, el arte se sale del alto disponible.
+  assert.match(
+    css,
+    /\.win__art\s*\{[^}]*width:\s*min\(640px, 86vw, calc\(58vh \* 1\.5\)\);/,
+    'El ancho maximo de .win__art debe declarar la relacion 3:2 del cartel'
+  );
+
+  // Peso: el lienzo completo a q=90 pesa 580 KB y se pinta a 640 px CSS como
+  // maximo. 1152 px conservan el detalle retina y dejan el archivo en ~409 KB.
   assert.ok(
     binary.length < 450 * 1024,
     `El cartel pesa ${(binary.length / 1024).toFixed(1)} KB (objetivo < 450 KB)`

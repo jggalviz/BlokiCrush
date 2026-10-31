@@ -191,6 +191,15 @@ pantallas): no se publican, pero dejan rastro de los recortes que midio el CSS
 movil antes del cambio.
 En escritorio el arte de marca (`d1`, `d3`, `d5`) ya es el candy del rebranding.
 
+El cartel de victoria tambien es el «caramelo brillante»: `design/victoria_dulce.png`
+(1536 x 1024 con alfa, 3,0 MB) se publica con `npm run build:win` como
+`victoria_dulce.webp` (1152 x 768, 409 KB, q=90 con `alphaQuality: 100`). El arte
+va a sangre —12 px de aire en el lado mas ancho—, asi que el script conserva el
+lienzo 3:2 que declaran `#win-art` y `.win__art` en vez de recortar un 1 %: un
+maestro con aire de verdad si se recorta, y entonces el script avisa de que hay
+que actualizar el HTML y el CSS. El cartel anterior (el mono de la piel dulce)
+queda archivado en `design/victoria_dulce_clasica.png`.
+
 Los simbolos del tablero (20 PNG en `public/src/assets/symbols/`) se mapean en
 `ui/lib/format.js` (`SYMBOL_IMAGE_PATH`). Si se sustituyen por iconografia de
 marca, hay que conservar los nombres `candy_*.png` o actualizar ese mapeo;
