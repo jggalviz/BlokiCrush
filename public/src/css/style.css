@@ -150,31 +150,28 @@ button:disabled { cursor: not-allowed; }
   gap: 16px;
 }
 
-/* Firma de marca y dock de controles.
-   La barra azul que agrupaba marca y controles ya no existe: la firma flota
-   arriba a la izquierda y los tres controles (fichas, sonido, ayuda) viven en
-   un dock aparte, cada uno con su propia placa. Ninguno de los dos ocupa
-   espacio en la maqueta (`position: fixed`), asi el tablero se queda con la
-   pantalla entera. `pointer-events: none` en los contenedores deja pasar el
-   gesto al juego por el hueco entre boton y boton. */
+/* Encabezado flotante.
+   El bloque de marca (insignia de la cuadricula, chapa «6×5» y leyenda
+   comercial) ya no forma parte de la interfaz: el encabezado solo aloja el dock
+   con los tres controles (fichas, sonido, ayuda), cada uno con su propia placa.
+   `.masthead` se disuelve en el layout (`display: contents`) porque es el dock
+   el que flota: `position: fixed` lo saca del flujo y el tablero se queda con
+   la pantalla entera. `pointer-events: none` deja pasar el gesto al juego por
+   el hueco entre boton y boton. */
 .masthead {
-  position: fixed;
-  top: max(10px, env(safe-area-inset-top));
-  left: max(10px, env(safe-area-inset-left));
-  z-index: 40;
-  display: flex;
-  pointer-events: none;
+  display: contents;
 }
 
 .dock {
-  /* Bisel de caramelo: cara y borde en dos degradados, el mismo idioma que la
-     botonera del juego (`.gbtn`). Variables locales para que las tres placas
-     compartan material sin repetir los degradados. */
-  --dock-rim-gold: linear-gradient(180deg, #fff6c8, #ffc21a 52%, #a86a06);
-  --dock-rim-glass: linear-gradient(180deg, #fff8dc, #ffd05e 56%, #b07f10);
-  --dock-wallet-face: linear-gradient(180deg, #ff6a7d, #d0112f 56%, #8f0a1f);
-  --dock-glass-face: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(226, 234, 255, 0.92));
-  --dock-lift: inset 0 2px 0 rgba(255, 255, 255, 0.72), inset 0 -3px 0 rgba(58, 8, 44, 0.28);
+  /* Bisel de gominola azul: cara celeste -> azul -> azul profundo con marco
+     dorado, el mismo material que los pulsadores del tablero
+     (`--gbtn-blue-*`) y el oro del logotipo. Variables locales para que las
+     tres placas compartan material sin repetir los degradados. */
+  --dock-rim-gold: linear-gradient(180deg, #fff8c8 0%, #ffd166 46%, #f59b0a 66%, #a8700a 100%);
+  --dock-rim-glass: linear-gradient(180deg, #fffbe0 0%, #ffe08a 52%, #e8a610 70%, #a8700a 100%);
+  --dock-wallet-face: linear-gradient(180deg, #a8c4ff 0%, #3a63e6 46%, #2e36bc 100%);
+  --dock-glass-face: linear-gradient(180deg, #f0fbff 0%, #c3e5ff 52%, #8ab9f4 100%);
+  --dock-lift: inset 0 2px 0 rgba(255, 255, 255, 0.78), inset 0 -3px 0 rgba(10, 18, 88, 0.42);
 
   position: fixed;
   top: max(10px, env(safe-area-inset-top));
@@ -241,19 +238,23 @@ button:disabled { cursor: not-allowed; }
 .dock__btn:disabled { cursor: not-allowed; filter: grayscale(0.5) brightness(0.88); }
 .dock__btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 
-/* --- Fichas de prueba: granate, marco dorado y brillo --------------------- */
+/* --- Fichas de prueba: gominola azul con marco dorado --------------------- */
 
 .dock__btn--wallet {
   background: var(--dock-wallet-face) padding-box, var(--dock-rim-gold) border-box;
-  box-shadow: var(--dock-lift), 0 10px 22px rgba(46, 8, 30, 0.42);
+  box-shadow:
+    var(--dock-lift),
+    0 5px 0 #1c2080,
+    0 12px 24px rgba(8, 14, 70, 0.44);
 }
 
 /* Modo activo: el marco se enciende en oro, sin cambiar el tamano. */
 .dock__btn--wallet[aria-pressed="true"] {
   box-shadow:
     var(--dock-lift),
-    0 0 0 2px rgba(255, 194, 26, 0.55),
-    0 10px 22px rgba(46, 8, 30, 0.42);
+    0 0 0 2px rgba(255, 209, 102, 0.75),
+    0 5px 0 #1c2080,
+    0 12px 24px rgba(8, 14, 70, 0.44);
 }
 
 .dock__text {
@@ -271,7 +272,7 @@ button:disabled { cursor: not-allowed; }
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #fff;
-  text-shadow: 0 2px 0 rgba(58, 2, 14, 0.55), 0 0 8px rgba(255, 255, 255, 0.25);
+  text-shadow: 0 2px 0 rgba(9, 17, 80, 0.55), 0 0 10px rgba(255, 255, 255, 0.35);
 }
 
 .dock__btn--wallet .btn__sub {
@@ -279,27 +280,28 @@ button:disabled { cursor: not-allowed; }
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
-  color: #ffe9a6;
-  text-shadow: 0 1px 0 rgba(58, 2, 14, 0.5);
+  color: #fff1c8;
+  text-shadow: 0 1px 0 rgba(9, 17, 80, 0.62);
 }
 
-/* --- Sonido y ayuda: cristal con el mismo bisel dorado -------------------- */
+/* --- Sonido y ayuda: cristal celeste con el mismo marco dorado ------------ */
 
 .dock__btn--glass {
   color: var(--brand-blue-ink, #26305c);
   background: var(--dock-glass-face) padding-box, var(--dock-rim-glass) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -3px 0 rgba(122, 138, 200, 0.4),
-    0 10px 20px rgba(23, 20, 60, 0.32);
+    inset 0 -3px 0 rgba(24, 52, 140, 0.28),
+    0 4px 0 #1f4bb8,
+    0 10px 20px rgba(8, 14, 70, 0.34);
 }
 
 /* Silenciado: el cristal baja de contraste pero sigue leyendose como un
    control. El estado real lo lleva `aria-pressed`, no una clase aparte. */
 .dock__btn--glass[aria-pressed="false"] {
-  color: rgba(38, 48, 92, 0.52);
+  color: rgba(13, 27, 82, 0.45);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(214, 222, 246, 0.8)) padding-box,
+    linear-gradient(180deg, rgba(246, 250, 255, 0.95), rgba(206, 219, 240, 0.92)) padding-box,
     var(--dock-rim-glass) border-box;
 }
 
@@ -321,59 +323,7 @@ button:disabled { cursor: not-allowed; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: currentColor;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-
-.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-
-/* Insignia de marca: caja cuadrada con el balon del logotipo dentro. La caja es
-   maqueta (aqui) y la pinta `theme.css`; el SVG se mide en % para que acompanie
-   a la caja en todos los breakpoints sin reglas extra. */
-.brand__mark {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border: 2px solid transparent;
-  border-radius: 13px;
-}
-
-.brand__block {
-  display: block;
-  width: 68%;
-  height: 68%;
-}
-
-.brand__title {
-  font-size: clamp(17px, 2vw, 22px);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-}
-
-/* "Bloki" en tinta y "Crush 6x5" en un unico grupo que nunca parte: en
-   pantallas estrechas el titulo cae en dos lineas limpias (nombre / marca) en
-   vez de recortarse con puntos suspensivos. */
-.brand__crush { white-space: nowrap; }
-
-.brand__grid {
-  display: inline-block;
-  margin-left: 0.2em;
-  padding: 0.06em 0.34em 0.1em;
-  border-radius: 0.36em;
-  font-size: 0.58em;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-  vertical-align: 0.22em;
-}
-
-.brand__sub {
-  margin: 2px 0 0;
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
 /* Iconos de linea: un solo trazo de 1,9 px y `currentColor`, asi el estado de
@@ -1307,7 +1257,6 @@ body.is-demo .balance__label::after { content: " · demo"; color: var(--mango); 
 
 @media (max-width: 720px) {
   .app { padding: 10px 8px 26px; }
-  .brand__sub { display: none; }
   .btn--demo { padding: 6px 10px; }
   .btn--demo .btn__title { font-size: 11px; }
   .btn--demo .btn__sub { display: none; }
@@ -1473,43 +1422,6 @@ body::after {
   max-width: 1560px;
   padding: 16px clamp(10px, 2vw, 26px) 40px;
   gap: 16px;
-}
-
-.brand {
-  position: relative;
-  z-index: 1;
-  /* Sin placa detras, la firma se apoya en su propia sombra para leerse sobre
-     el cielo del arte. */
-  filter: drop-shadow(0 3px 6px rgba(46, 12, 70, 0.45));
-}
-
-.brand__mark {
-  width: 46px;
-  height: 46px;
-  display: grid;
-  place-items: center;
-  border-radius: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  background: linear-gradient(145deg, #fff39b, #ff9fd7 48%, #8d72ff);
-  box-shadow: 0 8px 18px rgba(95, 8, 96, 0.28), inset 0 2px 0 rgba(255, 255, 255, 0.6);
-  font-size: 24px;
-  filter: none;
-}
-
-.brand__title {
-  color: #fff;
-  font-size: clamp(18px, 2vw, 24px);
-  font-weight: 900;
-  letter-spacing: 0.07em;
-  text-shadow: 0 2px 0 rgba(107, 7, 95, 0.34), 0 0 18px rgba(255, 255, 255, 0.28);
-}
-
-.brand__title span { color: var(--lime); }
-
-.brand__sub {
-  color: rgba(255, 246, 255, 0.82);
-  font-weight: 700;
-  text-shadow: 0 1px 3px rgba(46, 12, 70, 0.55);
 }
 
 .stage {
@@ -2204,15 +2116,6 @@ body.is-demo .balance__label::after { color: #fff3a8; }
 }
 
 @media (max-width: 520px) {
-  .brand__mark {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    font-size: 19px;
-  }
-
-  .brand__title { font-size: 15px; }
-
   .machine { padding: 8px; border-radius: 24px; }
   .machine__hero { min-height: 0; }
   .machine__logo { width: min(138px, 38vw); max-height: 106px; }
@@ -2283,16 +2186,6 @@ body {
   align-items: center;
   overflow: hidden;
 }
-
-.brand__mark {
-  width: 40px;
-  height: 40px;
-  border-radius: 13px;
-  font-size: 21px;
-}
-
-.brand__title { font-size: clamp(16px, 1.5vw, 21px); }
-.brand__sub { font-size: 10.5px; }
 
 .stage {
   flex: 1 1 auto;
@@ -2492,19 +2385,9 @@ body {
     gap: 6px;
   }
 
-  .brand__mark {
-    width: 34px;
-    height: 34px;
-    font-size: 18px;
-    border-radius: 11px;
-  }
-
-  .brand__title { font-size: 15px; }
-  .brand__sub { display: none; }
-
   .machine {
-    /* Presupuesto del chrome movil (HUD + controles + estado). La cabecera ya
-       no gasta alto: marca y controles flotan sobre el arte. */
+    /* Presupuesto del chrome movil (HUD + controles + estado). El encabezado ya
+       no gasta alto: los tres controles flotan sobre el arte. */
     --board-chrome: 292px;
     padding: 6px;
     gap: 5px;
@@ -2607,7 +2490,6 @@ body {
 }
 
 @media (max-width: 520px) {
-  .brand__title { font-size: 14px; }
   .machine__logo { height: clamp(60px, 9vh, 72px); }
   .machine__spark { font-size: 18px; }
   .hud { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -4044,9 +3926,9 @@ body,
   font-weight: 900;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.3);
+  -webkit-text-stroke: 1px rgba(9, 17, 80, 0.4);
   paint-order: stroke fill;
-  text-shadow: 0 2px 0 rgba(91, 14, 65, 0.45), 0 0 6px rgba(255, 255, 255, 0.4);
+  text-shadow: 0 2px 0 rgba(9, 17, 80, 0.55), 0 0 8px rgba(255, 255, 255, 0.45);
 }
 
 .dock__btn--wallet .btn__sub {
@@ -4145,26 +4027,7 @@ body,
 }
 
 /* --------------------------------------------------------------------------
-   4) Marca: Lilita One para el logotipo textual
-   -------------------------------------------------------------------------- */
-
-.brand__title {
-  font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.35);
-  paint-order: stroke fill;
-  text-shadow: 0 3px 0 var(--candy-plum), 0 0 14px rgba(255, 255, 255, 0.35);
-}
-
-.brand__sub {
-  font-family: var(--font);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-/* --------------------------------------------------------------------------
-   5) Pie tecnico, avisos y caramelos con valor
+   4) Pie tecnico, avisos y caramelos con valor
    -------------------------------------------------------------------------- */
 
 .machine__side .statusbar {
@@ -4191,7 +4054,7 @@ body,
 }
 
 /* --------------------------------------------------------------------------
-   6) Tracking reducido en pantallas estrechas (evita que la etiqueta mas
+   5) Tracking reducido en pantallas estrechas (evita que la etiqueta mas
    larga, MULTIPLICADOR, toque el borde de su celda)
    -------------------------------------------------------------------------- */
 
@@ -6204,7 +6067,7 @@ body.is-demo .machine__side .controls .balance::after {
 }
 
 /* --------------------------------------------------------------------------
-   8) Cabecera delgada · todo el alto sobrante es del tablero
+   8) Dock compacto · todo el alto sobrante es del tablero
    -------------------------------------------------------------------------- */
 
 @media (max-width: 899px) {
@@ -6218,11 +6081,8 @@ body.is-demo .machine__side .controls .balance::after {
     overflow: hidden;
   }
 
-  /* En movil la firma de marca sobra: el lockup del juego ya esta dibujado en
-     la maquina y el alto es oro. El dock se queda solo, compacto, sobre el
-     cielo del arte. */
-  .masthead .brand { display: none; }
-
+  /* El dock se queda solo, compacto, sobre el cielo del arte: el encabezado no
+     tiene ningun otro hijo. */
   .dock {
     top: max(6px, env(safe-area-inset-top));
     right: max(6px, env(safe-area-inset-right));

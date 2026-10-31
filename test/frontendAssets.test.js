@@ -178,7 +178,7 @@ test('el maestro del logo vive fuera de public/ y no viaja al CDN', () => {
   );
 });
 
-test('la firma de marca flota sin barra y el dock conserva los ganchos del juego', () => {
+test('el encabezado solo lleva el dock flotante y conserva los ganchos del juego', () => {
   const html = read(INDEX_PATH);
   const css = read(STYLE_PATH);
   const theme = read(path.join(PUBLIC_DIR, 'src', 'css', 'theme.css'));
@@ -193,21 +193,29 @@ test('la firma de marca flota sin barra y el dock conserva los ganchos del juego
   );
   assert.doesNotMatch(html, /Meridiano|MERIDIANO|TROPICAL|Tropical|PANA|Pana/, 'No deben quedar restos de la marca anterior');
 
-  // Firma: nombre + insignia de bloques + etiqueta de rejilla, sin emojis.
-  assert.match(html, /<h1 class="brand__title">Bloki<span class="brand__crush">Crush/);
-  assert.match(html, /<span class="brand__crush">Crush<span class="brand__grid">6×5<\/span><\/span>/);
-  assert.match(html, /<span class="brand__grid">6×5<\/span>/);
-  assert.match(html, /<svg class="brand__block" viewBox="0 0 32 32"/);
-  assert.match(html, /<rect class="brand__block-tile brand__block-tile--hot"/);
-  assert.match(html, /<p class="brand__sub">Blocks Grid Pays/);
+  // El bloque superior de informacion (insignia de la cuadricula, chapa «6x5»
+  // y leyenda comercial) se retiro de la interfaz: ni el marcado ni las hojas
+  // conservan sus selectores, asi que no puede reaparecer por CSS.
+  assert.doesNotMatch(html, /brand__/, 'El encabezado ya no lleva el bloque de marca');
+  assert.doesNotMatch(html, /Blocks Grid Pays/, 'La leyenda comercial ya no se muestra');
+  assert.doesNotMatch(css, /\.brand\b|\.brand__/, 'style.css no debe conservar el bloque de marca');
+  assert.doesNotMatch(theme, /\.brand\b|\.brand__/, 'theme.css no debe conservar el bloque de marca');
 
-  // La barra azul alargada ya no existe: ni el contenedor `.topbar` ni la
-  // capsula de audio. La firma y los tres controles son capas flotantes
-  // independientes, cada una con su propia placa.
+  // La barra azul alargada tampoco existe: el encabezado envuelve unicamente el
+  // dock y se disuelve en el layout (`display: contents`) para no aportar caja.
   assert.doesNotMatch(html, /class="[^"]*\btopbar\b/, 'La barra superior azul ya no se usa');
   assert.doesNotMatch(css, /\.topbar\b/, 'style.css no debe conservar reglas de la barra');
   assert.doesNotMatch(theme, /\.topbar\b/, 'theme.css no debe conservar reglas de la barra');
-  assert.match(html, /<header class="masthead">/);
+  assert.match(
+    html,
+    /<header class="masthead">\s*\n\s*<div class="dock"/,
+    'El encabezado solo aloja el dock'
+  );
+  assert.match(
+    css,
+    /\.masthead \{[\s\S]{0,400}?display: contents;/,
+    'El encabezado se disuelve en el layout: flota el dock, no el header'
+  );
   assert.match(
     html,
     /<div class="dock" role="group" aria-label="Controles del juego">/,
@@ -230,27 +238,48 @@ test('la firma de marca flota sin barra y el dock conserva los ganchos del juego
     'El icono de silencio se pinta por CSS desde `aria-pressed`'
   );
 
-  // Los tres botones comparten el relieve de caramelo (marco + brillo) y se
+  // Los tres botones comparten el relieve de gominola (marco + brillo) y se
   // hunden al pulsarlos; el dock flota, asi que no le roba alto al tablero.
-  assert.match(css, /\.dock \{[\s\S]{0,700}?position: fixed;/, 'El dock flota sobre el arte');
+  assert.match(css, /\.dock \{[\s\S]{0,1200}?position: fixed;/, 'El dock flota sobre el arte');
   assert.match(css, /\.dock__btn \{[\s\S]{0,600}?border: 3px solid transparent;/);
   assert.match(css, /\.dock__btn:active:not\(:disabled\) \{ transform: translateY\(3px\); filter: brightness\(0\.94\); \}/);
   assert.match(css, /\.dock__btn--wallet \{[\s\S]{0,200}?var\(--dock-rim-gold\) border-box;/);
   assert.match(css, /\.dock__btn--glass \{[\s\S]{0,260}?var\(--dock-rim-glass\) border-box;/);
 
-  // La capa de marca pinta la firma y el material de las placas; la maqueta
-  // (geometria) vive en style.css.
-  for (const selector of ['.brand__mark', '.brand__title .brand__crush', '.dock__btn--wallet', '.dock__btn--glass']) {
+  // Paleta de las placas: cara azul de gominola (celeste -> azul -> azul
+  // profundo, la misma gama que `--gbtn-blue-face`) con marco dorado, el oro
+  // del logotipo. Vale para las tres: fichas, sonido y ayuda.
+  assert.match(
+    css,
+    /--dock-wallet-face: linear-gradient\(180deg, #a8c4ff 0%, #3a63e6 46%, #2e36bc 100%\);/,
+    'La ficha lleva la cara azul de gominola del juego'
+  );
+  assert.match(
+    css,
+    /--dock-glass-face: linear-gradient\(180deg, #f0fbff 0%, #c3e5ff 52%, #8ab9f4 100%\);/,
+    'Sonido y ayuda llevan la variante celeste de la misma gama'
+  );
+  assert.match(css, /--dock-rim-gold: linear-gradient\(180deg, #fff8c8 0%, #ffd166/, 'El marco de las placas es dorado');
+  assert.match(css, /--dock-rim-glass: linear-gradient\(180deg, #fffbe0 0%, #ffe08a/, 'El marco celeste tambien va en oro');
+
+  // La capa de marca pinta el material de las placas; la maqueta (geometria)
+  // vive en style.css.
+  for (const selector of ['.dock__btn--wallet', '.dock__btn--glass']) {
     assert.ok(
       theme.includes(`html[data-theme="blokicrush"] ${selector}`),
       `theme.css debe pintar \`${selector}\``
     );
   }
+  assert.match(
+    theme,
+    /html\[data-theme="blokicrush"\] \.dock__btn--wallet \{[\s\S]{0,320}?#3a63e6 46%, var\(--brand-blue-deep\) 100%\) padding-box,/,
+    'La ficha se pinta con el azul de la consola'
+  );
   assert.doesNotMatch(html, /[\u{1F507}-\u{1F50A}]/u, 'El dock usa SVG, no emojis de altavoz');
 
-  // En movil manda el dock: la firma se oculta porque el lockup del juego ya
-  // esta dibujado en la maquina y el alto es oro.
-  assert.match(css, /\.masthead \.brand \{ display: none; \}/, 'En movil la firma deja el ancho al dock');
+  // El dock es el unico hijo del encabezado en todos los anchos: no queda una
+  // segunda capa (la firma) que ocultar en movil.
+  assert.match(css, /\.dock__btn--wallet \.btn__coin \{ display: none; \}/, 'En movil el rotulo manda sobre la ficha');
 });
 
 test('el cartel de victoria se sirve en WebP con alfa y el maestro queda fuera de public/', () => {

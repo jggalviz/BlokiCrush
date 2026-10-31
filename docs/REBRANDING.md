@@ -20,7 +20,7 @@ que distinguir dos grupos antes de tocar nada:
 
 | Superficie | Como se pinta | Editable desde `theme.css` |
 | --- | --- | --- |
-| Firma de marca, dock flotante (Fichas de Prueba · Sonido · Ayuda), modal, anillo de foco | CSS | **Si** |
+| Dock flotante (Fichas de Prueba · Sonido · Ayuda), modal, anillo de foco | CSS | **Si** |
 | Marco interior del tablero (`.board`, `.tile`) | Gradientes CSS | **Si** |
 | Carcasa de controles y botones (escritorio) | Recortes de `d3.webp` | No: reexportar arte |
 | Nube del logo (`.machine__hero`, escritorio) | `d5.webp` | No: reexportar arte |
@@ -30,14 +30,15 @@ que distinguir dos grupos antes de tocar nada:
 | Logotipo | `BLOKICRUSH-LOGO.webp` (GIF animado `BROKI_crush_animacion-logo-LENTO.gif`) | No: reexportar arte |
 | Simbolos del tablero | `public/src/assets/symbols/*.png` | No: reexportar arte |
 
-La **barra superior azul ya no existe**: la firma de marca flota arriba a la
-izquierda, sin placa, y los tres controles viven en un dock aparte en la esquina
-superior derecha (ver «Controles flotantes» mas abajo). Lo que sigue pintandose
-con el **azul de la consola** son las 30 casillas: `theme.css` define
-`--brand-blue` / `--brand-blue-deep` (los mismos tonos que `--gbtn-blue-*` en
-`style.css`) y `--brand-blue-ink` para contornos y sombras. Las casillas son
-vidrio azul sobre el interior palido del tablero, asi el marco del arte —rojo,
-blanco y azul— queda integrado con la interfaz en vez de flotar sobre ella.
+La **barra superior azul ya no existe** y el **bloque de marca tampoco**: el
+encabezado solo aloja el dock con los tres controles en la esquina superior
+derecha (ver «Controles flotantes» mas abajo). Lo que sigue pintandose
+con el **azul de la consola** son las 30 casillas y las tres placas del dock:
+`theme.css` define `--brand-blue` / `--brand-blue-deep` (los mismos tonos que
+`--gbtn-blue-*` en `style.css`) y `--brand-blue-ink` para contornos y sombras.
+Las casillas son vidrio azul sobre el interior palido del tablero, asi el marco
+del arte —rojo, blanco y azul— queda integrado con la interfaz en vez de flotar
+sobre ella.
 
 Consecuencia practica: los tokens de caramelo de `style.css`
 (`--candy-solid-body`, `--candy-solid-wash`, `--candy-rim`, `--candy-depth`,
@@ -179,37 +180,40 @@ La barra del navegador movil usa la meta `theme-color`, ya en azul de marca:
 
 ## Controles flotantes (sin barra)
 
-La barra azul alargada que agrupaba marca y controles se retiro. En su lugar hay
-dos capas `position: fixed` que **no gastan alto** ni entran en la maqueta, asi
-que el tablero se queda con la pantalla entera (`--board-chrome` y `--d-chrome`
-bajaron en consecuencia):
+La barra azul alargada que agrupaba marca y controles se retiro, y con ella el
+bloque superior de informacion (insignia de la cuadricula, chapa «6×5» y leyenda
+comercial). Hoy el encabezado solo aloja un dock `position: fixed` que **no gasta
+alto** ni entra en la maqueta, asi que el tablero se queda con la pantalla entera
+(`--board-chrome` y `--d-chrome` bajaron en consecuencia):
 
 | Capa | Archivo | Que pinta |
 | --- | --- | --- |
-| `.masthead` > `.brand` | `style.css` (caja) + `theme.css` (color) | Firma: insignia de bloques, «BlokiCrush 6×5» y el subtitulo, sobre el cielo del arte |
+| `.masthead` | `style.css` | Envoltorio sin caja (`display: contents`): no participa del layout |
 | `.dock` > `.dock__btn` | `style.css` (relieve) + `theme.css` (paleta) | Tres placas independientes: `--wallet`, `--sound`, `--help` |
 
-- **Fichas de Prueba** (`#btn-demo`, `.dock__btn--wallet`): cara granate con
-  marco dorado, ficha y texto en dos lineas (titulo + saldo). El estado de modo
+- **Fichas de Prueba** (`#btn-demo`, `.dock__btn--wallet`): cara azul de gominola
+  (celeste → azul → azul profundo, la gama de `--gbtn-blue-*`) con marco dorado,
+  ficha y texto en dos lineas (titulo + saldo). El estado de modo
   activo se sigue leyendo de `aria-pressed`, que enciende un anillo de oro.
-- **Sonido** (`#btn-sound`, `.dock__btn--sound`): placa cuadrada de cristal, sin
-  texto. Silenciado lo pinta `aria-pressed="false"`: la cruz sustituye a las
-  ondas y el cristal baja de contraste sin desaparecer.
-- **Ayuda** (`#btn-help`, `.dock__btn--help`): misma placa de cristal con el
+- **Sonido** (`#btn-sound`, `.dock__btn--sound`): placa cuadrada celeste, sin
+  texto, con el mismo marco dorado. Silenciado lo pinta `aria-pressed="false"`:
+  la cruz sustituye a las ondas y el cristal baja de contraste sin desaparecer.
+- **Ayuda** (`#btn-help`, `.dock__btn--help`): misma placa celeste con el
   interrogante **y el rotulo «Ayuda»** visible, para que no haya que adivinar
   para que sirve.
 
 Las tres comparten el idioma de la botonera del juego: borde de 3 px con
 degradado (cara en `padding-box`, marco en `border-box`), brillo de cristal
-recortado con `mask-image`, sombras interiores y hundimiento de 3 px en
-`:active`. Las variables `--dock-rim-gold`, `--dock-rim-glass`,
-`--dock-wallet-face`, `--dock-glass-face` y `--dock-lift` viven en `.dock`.
+recortado con `mask-image`, sombras interiores, relieve inferior solido y
+hundimiento de 3 px en `:active`. Las variables `--dock-rim-gold`,
+`--dock-rim-glass`, `--dock-wallet-face`, `--dock-glass-face` y `--dock-lift`
+viven en `.dock`.
 
-El dock va en la esquina superior derecha (`--wallet` · `--sound` · `--help`) y
-en movil (<=899 px) la firma de marca se oculta -el lockup del juego ya esta
-dibujado en la maquina- para dejarle el ancho al dock. Medido a 1280 x 800,
-1440 x 900, 900 x 700, 760 x 900, 390 x 844, 320 x 568 y 844 x 390: el dock no
-toca el tablero y ningun bloque se sale del viewport.
+El dock va en la esquina superior derecha (`--wallet` · `--sound` · `--help`) en
+todos los anchos: al no quedar una segunda capa no hay nada que ocultar en
+movil. Medido a 1280 x 800, 1440 x 900, 900 x 700, 760 x 900, 390 x 844,
+320 x 568 y 844 x 390: el dock no toca el tablero y ningun bloque se sale del
+viewport.
 
 Piel movil vigente: la **guirnalda** (`design/marco_movil.png` 1392 x 1123 —el
 recorte al alfa del maestro, que mide 1392 x 1130— y `design/consola_movil.png`

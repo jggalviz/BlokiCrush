@@ -23,8 +23,8 @@
    - Acentos magenta del juego -> rojo. El oro NO se toca: es el color del
      premio (saldo, S9, "MAX") y mantiene su lectura. El azul tampoco compite con
      el premio: es la tinta del dock flotante y el vidrio de las casillas.
-   - Firma de marca flotante, dock de controles (fichas de prueba, sonido y
-     ayuda), modal y anillo de foco.
+   - Dock de controles (fichas de prueba, sonido y ayuda), modal y anillo de
+     foco. Las tres placas del dock son gominola azul con marco de oro.
    - Ventana de juego: marco interior del tablero y las 30 casillas, que si
      se pintan con gradientes (`.board`, `.tile`) y no con imagen.
 
@@ -215,116 +215,57 @@ html[data-theme="blokicrush"] .tile__bomb-value {
 
 
 /* --------------------------------------------------------------------------
-   4. Firma de marca flotante
-   La barra ya no existe: la firma se apoya directamente sobre el arte del
-   juego, sin placa. El color de los bloques y de la ficha sale de estos
-   tokens; el dibujo vive en el HTML (`.brand__block`) y su geometria en
-   `style.css`.
-   -------------------------------------------------------------------------- */
-
-/* Insignia: cuadro blanco con anillo rojo y los bloques del logotipo. */
-html[data-theme="blokicrush"] .brand__mark {
-  color: var(--brand-red);
-  border-color: var(--brand-red);
-  background: radial-gradient(circle at 34% 26%, var(--brand-white) 0%, #fff8f6 46%, var(--brand-red-tint) 100%);
-  box-shadow:
-    0 6px 14px rgba(16, 26, 77, 0.34),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.9);
-}
-
-/* El marco es dibujo de linea: sin `fill` el SVG lo rellenaria de negro. */
-html[data-theme="blokicrush"] .brand__block-shell {
-  fill: none;
-  stroke: var(--brand-red);
-  stroke-width: 2.1;
-}
-
-html[data-theme="blokicrush"] .brand__block-tile {
-  fill: var(--brand-red);
-}
-
-/* El bloque inferior derecho se enciende en oro, como el "Crush" del lockup. */
-html[data-theme="blokicrush"] .brand__block-tile--hot {
-  fill: var(--brand-gold);
-}
-
-/* Titulo: "Bloki" en blanco y "Crush" en el oro del logotipo. Sobre el
-   vidrio azul el contorno pasa del rojo del arte al azul tinta: el rojo a 1 px
-   sobre azul vibra, y el tinta mantiene el oro legible sin competir con el. */
-html[data-theme="blokicrush"] .brand__title {
-  color: var(--brand-white);
-  -webkit-text-stroke: 0;
-  text-shadow: 0 1px 2px rgba(16, 26, 77, 0.45);
-}
-
-html[data-theme="blokicrush"] .brand__title .brand__crush {
-  color: var(--brand-gold);
-  -webkit-text-stroke: 1.1px var(--brand-blue-ink);
-  paint-order: stroke fill;
-  text-shadow: 0 2px 0 rgba(16, 26, 77, 0.45);
-}
-
-/* La etiqueta 6x5 es el unico bloque solido: rojo con cifras blancas. El filo
-   azul tinta la separa del vidrio de la barra. */
-html[data-theme="blokicrush"] .brand__title .brand__grid {
-  color: var(--brand-white);
-  -webkit-text-stroke: 0;
-  background: var(--brand-red);
-  box-shadow: 0 1px 0 var(--brand-blue-ink);
-}
-
-html[data-theme="blokicrush"] .brand__sub {
-  color: rgba(255, 255, 255, 0.86);
-}
-
-/* --------------------------------------------------------------------------
-   5. Controles flotantes: fichas de prueba, sonido y ayuda
+   4. Controles flotantes: fichas de prueba, sonido y ayuda
    El material (cara + marco + relieve) lo define `style.css`; aqui solo se
-   cambian los colores a la paleta de marca: granate con marco de oro para la
-   ficha, cristal para sonido y ayuda.
+   cambian los colores a la paleta de marca: gominola azul (celeste -> azul ->
+   azul profundo) con marco de oro para las tres placas, el mismo idioma que el
+   logotipo y los pulsadores del tablero.
    -------------------------------------------------------------------------- */
 
 html[data-theme="blokicrush"] .dock__btn--wallet {
   background:
-    linear-gradient(180deg, var(--brand-red-soft), var(--brand-red) 60%, var(--brand-red-dark)) padding-box,
-    linear-gradient(180deg, #fff3b8, var(--brand-gold) 52%, #a86a06) border-box;
+    linear-gradient(180deg, #a8c4ff 0%, #3a63e6 46%, var(--brand-blue-deep) 100%) padding-box,
+    linear-gradient(180deg, #fff8c8, var(--brand-gold) 50%, #a86a06) border-box;
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.42),
-    inset 0 -3px 0 rgba(58, 8, 44, 0.34),
-    0 10px 24px rgba(16, 26, 77, 0.42);
+    inset 0 2px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -3px 0 rgba(10, 18, 88, 0.42),
+    0 5px 0 #1c2080,
+    0 12px 26px rgba(16, 26, 77, 0.46);
 }
 
 html[data-theme="blokicrush"] .dock__btn--wallet .btn__title {
   color: var(--brand-white);
-  /* El trazo negro del caramelo ensucia el texto a 11 px: aqui no hace falta. */
+  /* El trazo oscuro del caramelo ensucia el texto a 11 px: aqui no hace falta. */
   -webkit-text-stroke: 0;
-  text-shadow: 0 1px 0 rgba(143, 10, 31, 0.5);
+  text-shadow: 0 2px 0 rgba(16, 26, 77, 0.55), 0 0 10px rgba(255, 255, 255, 0.4);
 }
 
 html[data-theme="blokicrush"] .dock__btn--wallet .btn__sub {
-  color: var(--brand-gold);
-  text-shadow: 0 1px 0 rgba(58, 8, 44, 0.5);
+  color: #fff1c8;
+  text-shadow: 0 1px 0 rgba(16, 26, 77, 0.6);
 }
 
 html[data-theme="blokicrush"] .dock__btn--wallet[aria-pressed="true"] {
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.42),
-    inset 0 -3px 0 rgba(58, 8, 44, 0.34),
-    0 0 0 2px rgba(255, 194, 26, 0.4),
-    0 10px 24px rgba(16, 26, 77, 0.42);
+    inset 0 2px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -3px 0 rgba(10, 18, 88, 0.42),
+    0 0 0 2px rgba(255, 209, 102, 0.65),
+    0 5px 0 #1c2080,
+    0 12px 26px rgba(16, 26, 77, 0.46);
 }
 
-/* Sonido y ayuda: cristal claro con el mismo marco dorado. El icono va a tinta
-   azul marino, el tono oscuro de la consola. */
+/* Sonido y ayuda: celeste de cristal con el mismo marco dorado. El icono va a
+   tinta azul marino, el tono oscuro de la consola. */
 html[data-theme="blokicrush"] .dock__btn--glass {
   color: var(--brand-blue-ink);
   background:
-    linear-gradient(180deg, var(--brand-white), #eef2ff) padding-box,
-    linear-gradient(180deg, #fff3b8, var(--brand-gold) 52%, #a86a06) border-box;
+    linear-gradient(180deg, #f2fbff 0%, #c6e6ff 52%, #8dbcf5 100%) padding-box,
+    linear-gradient(180deg, #fff8c8, var(--brand-gold) 50%, #a86a06) border-box;
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -3px 0 rgba(16, 26, 77, 0.18),
-    0 10px 20px rgba(16, 26, 77, 0.34);
+    inset 0 -3px 0 rgba(16, 26, 77, 0.2),
+    0 4px 0 #1f4bb8,
+    0 10px 22px rgba(16, 26, 77, 0.36);
 }
 
 html[data-theme="blokicrush"] .dock__btn--glass:hover:not(:disabled) {
@@ -336,12 +277,12 @@ html[data-theme="blokicrush"] .dock__btn--glass:hover:not(:disabled) {
 html[data-theme="blokicrush"] .dock__btn--glass[aria-pressed="false"] {
   color: rgba(16, 26, 77, 0.42);
   background:
-    linear-gradient(180deg, #f4f6fb, var(--brand-grey-100)) padding-box,
+    linear-gradient(180deg, #f4f8ff, var(--brand-grey-100)) padding-box,
     linear-gradient(180deg, #ffe9a8, #e8b310 52%, #a86a06) border-box;
 }
 
 /* --------------------------------------------------------------------------
-   6. Modal · reglas y tabla de pagos
+   5. Modal · reglas y tabla de pagos
    La placa pasa a caramelo oscuro con marco de oro: la misma receta de dos
    capas que el dock (cara en `padding-box`, marco en `border-box`). El fondo es
    lo bastante profundo para que el blanco nitido y el oro de los acentos
