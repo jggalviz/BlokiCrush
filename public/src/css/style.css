@@ -1484,6 +1484,11 @@ body::after {
   height: clamp(76px, 9.5vh, 110px);
   max-height: 110px;
   margin: 4px auto;
+  /* El lockup animado es 1:1 (`BLOKICRUSH-LOGO.webp` se publica 320 x 320): con
+     el alto fijado, el ancho sale del propio arte y ningun fotograma deforma la
+     pegatina. `object-fit: contain` es la red de seguridad si el navegador
+     todavia no decodifico el primer fotograma. */
+  aspect-ratio: 1 / 1;
   object-fit: contain;
   filter:
     drop-shadow(0 10px 16px rgba(62, 3, 68, 0.28))
@@ -7428,6 +7433,10 @@ body.is-demo .machine__side .controls .balance::after {
 .win__art {
   display: block;
   width: min(640px, 86vw, calc(58vh * 1.5));
+  /* `victoria_dulce.webp` se publica 1152 x 768 (3:2, ver `npm run build:win`).
+     El ancho ya acota la relacion por alto; `aspect-ratio` reserva la caja
+     correcta mientras el WebP decodifica, asi el importe no salta de sitio. */
+  aspect-ratio: 3 / 2;
   height: auto;
   transform-origin: 50% 60%;
   animation: win-pop 0.66s cubic-bezier(0.2, 1.45, 0.36, 1) both;

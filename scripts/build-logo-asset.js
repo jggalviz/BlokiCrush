@@ -8,25 +8,31 @@
  *   npm run build:logo -- --estatico    # ruta antigua: SVG/PNG -> WebP estatico
  *
  * El maestro es `design/BROKI_crush_animacion-logo-LENTO.gif`: 493 x 509 px,
- * cinco fotogramas de 500 ms en bucle infinito y alfa real. Es el lockup
- * completo (mascota con gorra + "BLOKI CRUSH" en letras de caramelo) dentro de
- * una silueta redondeada, o sea un cuadrado, no el wordmark 2:1 de antes. El
- * maestro vive fuera de `public/` porque todo lo que hay en `public/src/**` se
- * publica en el CDN y el GIF pesa 568 kB: solo hace falta para reexportar.
+ * seis fotogramas en bucle infinito y alfa real. Es el lockup completo (mascota
+ * con gorra + "BLOKI CRUSH" en letras de caramelo) dentro de una silueta
+ * redondeada, o sea un cuadrado, no el wordmark 2:1 de antes. El maestro vive
+ * fuera de `public/` porque todo lo que hay en `public/src/**` se publica en el
+ * CDN y el GIF pesa 606 kB: solo hace falta para reexportar.
+ *
+ * Los seis fotogramas no duran lo mismo: el primero es el arranque corto
+ * (500 ms) y el resto sostiene la animacion (1,7 s + 4 x 2,5 s) hasta completar
+ * 12,2 s por vuelta. Es la version «lento corregido» del ciclo; el lockup
+ * anterior —cinco fotogramas de 500 ms— queda archivado en
+ * `design/BROKI_crush_animacion-logo-rapido.gif` y no se publica.
  *
  * El script escribe `public/src/assets/BLOKICRUSH-LOGO.webp` respetando el
  * contrato de `test/frontendAssets.test.js`:
- *   - WebP animado: VP8X con el bit de animacion, bloque ANIM y cinco ANMF;
+ *   - WebP animado: VP8X con el bit de animacion, bloque ANIM y seis ANMF;
  *   - 320 x 320 px, cuadrado. La caja del CSS tambien es 1:1 (41 px en un
  *     movil de 390 px, 166 px en escritorio), asi que 320 cubre casi 2x en
  *     pantalla retina de escritorio y sobra en el movil;
  *   - recortado a la tinta (489 x 480 desde 1,3) y centrado en un lienzo
  *     cuadrado transparente: el 1,9 % que separa ancho y alto se reparte a los
  *     lados en vez de desplazar la mascota o forzar un `object-fit` raro;
- *   - los cinco fotogramas y sus 500 ms intactos, en bucle infinito (loop 0);
+ *   - los seis fotogramas y sus tiempos intactos, en bucle infinito (loop 0);
  *   - alfa sin perdida (`alphaQuality: 100`), que es lo que deja el fondo del
  *     marco a la vista alrededor de la silueta;
- *   - menos de 200 KB: a 320 px y q=80 queda en ~140 KB (el GIF pesa 568 kB).
+ *   - menos de 200 KB: a 320 px y q=80 queda en ~140 KB (el GIF pesa 606 kB).
  *
  * Tambien escribe `BLOKICRUSH-LOGO-quieto.webp`: el primer fotograma como WebP
  * estatico (~40 KB) para el `<picture>` que sirve el HTML cuando el usuario pide
@@ -62,10 +68,14 @@ const DEPLOY = path.join(
   'BLOKICRUSH-LOGO.webp'
 );
 
-// Contrato del logo animado.
+// Contrato del logo animado. El maestro no reparte el tiempo por igual entre
+// sus fotogramas, asi que las duraciones se declaran una a una (en ms) en vez
+// de con una sola constante: `sharp` conserva el `delay` de cada frame y tanto
+// el script como el test comparan la lista completa.
 const SIZE = Number(process.env.LOGO_SIZE || 320);
-const FRAMES = 5;
-const FRAME_MS = 500;
+const FRAME_DELAYS = Object.freeze([500, 1700, 2500, 2500, 2500, 2500]);
+const FRAMES = FRAME_DELAYS.length;
+const LOOP_MS = FRAME_DELAYS.reduce((total, ms) => total + ms, 0);
 const MAX_BYTES = 200 * 1024;
 
 // El fotograma quieto (para `prefers-reduced-motion`) es una sola imagen, asi
@@ -143,10 +153,10 @@ async function buildAnimated() {
         'build-logo-asset.js antes de publicarlo'
     );
   }
-  if (delays.length !== FRAMES || delays.some((ms) => ms !== FRAME_MS)) {
+  if (delays.length !== FRAMES || delays.some((ms, index) => ms !== FRAME_DELAYS[index])) {
     throw new Error(
-      `Los tiempos del maestro son [${delays.join(', ')}] ms y el contrato pide ${FRAME_MS} ms: ` +
-        'actualiza el test y build-logo-asset.js antes de publicarlo'
+      `Los tiempos del maestro son [${delays.join(', ')}] ms y el contrato pide ` +
+        `[${FRAME_DELAYS.join(', ')}] ms: actualiza el test y build-logo-asset.js antes de publicarlo`
     );
   }
 
@@ -199,8 +209,11 @@ async function buildAnimated() {
     throw new Error(`El WebP declara loop ${output.loop} y el contrato pide 0 (infinito)`);
   }
   const outDelays = output.delay || [];
-  if (outDelays.length !== FRAMES || outDelays.some((ms) => ms !== FRAME_MS)) {
-    throw new Error(`Los tiempos del WebP son [${outDelays.join(', ')}] ms y el contrato pide ${FRAME_MS} ms`);
+  if (outDelays.length !== FRAMES || outDelays.some((ms, index) => ms !== FRAME_DELAYS[index])) {
+    throw new Error(
+      `Los tiempos del WebP son [${outDelays.join(', ')}] ms y el contrato pide ` +
+        `[${FRAME_DELAYS.join(', ')}] ms: se perdio el ritmo del maestro`
+    );
   }
 
   const chunks = riffChunks(webp);
@@ -278,7 +291,7 @@ async function buildAnimated() {
 
   console.log(
     `origen  ${rel(ANIM_SOURCE)}  ${meta.width}x${meta.pageHeight}  ${kb(fs.statSync(ANIM_SOURCE).size)}  ` +
-      `(${pages} fotogramas de ${FRAME_MS} ms, bucle infinito)`
+      `(${pages} fotogramas de ${FRAME_DELAYS.join('/')} ms = ${LOOP_MS} ms por vuelta, bucle infinito)`
   );
   console.log(
     `recorte ${box.width}x${box.height} desde ${box.left},${box.top} -> lienzo ${SIZE}x${SIZE} con alfa`

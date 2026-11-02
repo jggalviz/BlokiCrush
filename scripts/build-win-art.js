@@ -10,10 +10,13 @@
  * brillante (la ardilla con gorra, las piruletas de arcoiris y el WIN dorado),
  * 1536 x 1024 px y alfa real (las esquinas son transparentes). Igual que el
  * resto del arte, se archiva fuera de `public/` porque todo lo que hay en
- * `public/src/**` se publica en el CDN y el PNG pesa 3,0 MB. El cartel anterior
- * (el mono de la piel dulce) queda archivado en
- * `design/victoria_dulce_clasica.png`: no se publica, pero deja rastro del
- * lienzo 3:2 que midio el CSS.
+ * `public/src/**` se publica en el CDN y el PNG pesa 2,8 MB.
+ *
+ * El cartel anterior — la misma ardilla de caramelo con la gorra serigrafiada
+ * «1xBet» — queda archivado en `design/victoria_dulce_1xbet.png`: no se publica,
+ * pero deja rastro del lienzo 3:2 y del recorte que midio el CSS. El de la piel
+ * dulce (el mono) sigue en `design/victoria_dulce_clasica.png`. Los tres
+ * comparten medidas, asi que cambiar de uno a otro es solo `build:win`.
  *
  * El script escribe `public/src/assets/victoria_dulce.webp` con este contrato:
  *   - WebP con alfa (VP8X + ALPH + VP8) a calidad 90. `alphaQuality: 100`
@@ -21,16 +24,16 @@
  *     blancos ni escalones en el borde de las letras.
  *   - 1152 x 768 px (75 % del maestro, misma relacion 3:2). El CSS no pinta el
  *     arte por encima de 640 px CSS, asi que 1152 cubre pantallas retina (1,8x)
- *     sin pagar el lienzo completo a q=90 (580 KB contra los 409 KB de aqui).
+ *     sin pagar el lienzo completo a q=90 (580 KB contra los 406 KB de aqui).
  *   - Antes de reescalar se mide la caja del alfa visible, pero solo se recorta
  *     si el aire supera el 2 % de un eje (`MIN_TRIM_PCT`). El cartel va a
- *     sangre (12 px de aire en el lado mas ancho), y el 3:2 del lienzo es parte
- *     del contrato: el HTML lo declara con `width="1152" height="768"` y
- *     `.win__art` escala con `calc(58vh * 1.5)`. Recortar un 1 % solo cambiaria
- *     esas tres medidas a cambio de nada; un maestro con aire de verdad si se
- *     publica recortado, y entonces el script avisa de que hay que actualizar
- *     el HTML y el CSS.
- *   - Tope de peso: 450 KB (el WebP actual ronda los 409 KB).
+ *     sangre (25 px de aire a la izquierda y 3 px arriba en el maestro actual),
+ *     y el 3:2 del lienzo es parte del contrato: el HTML lo declara con
+ *     `width="1152" height="768"` y `.win__art` escala con `calc(58vh * 1.5)`.
+ *     Recortar un 1,6 % solo cambiaria esas tres medidas a cambio de nada; un
+ *     maestro con aire de verdad si se publica recortado, y entonces el script
+ *     avisa de que hay que actualizar el HTML y el CSS.
+ *   - Tope de peso: 450 KB (el WebP actual ronda los 406 KB).
  *
  * Es idempotente: misma entrada y misma calidad -> mismos bytes.
  */

@@ -29,6 +29,11 @@ const WIN_SOUND_PATH = path.join(PUBLIC_DIR, 'src', 'assets', 'AUDIO-WIN-2.MP3')
 const SFX_PATH = path.join(PUBLIC_DIR, 'ui', 'audio', 'sfx.js');
 const PUBLIC_SRC_DIR = path.join(PUBLIC_DIR, 'src');
 
+// Duraciones del maestro `design/BROKI_crush_animacion-logo-LENTO.gif` (la
+// version «lento corregido»): arranque corto y cuatro sostenes hasta completar
+// 12,2 s por vuelta. El WebP publicado debe conservarlas una a una.
+const LOGO_FRAME_DELAYS = [500, 1700, 2500, 2500, 2500, 2500];
+
 const read = (file) => fs.readFileSync(file, 'utf8');
 
 /** Recorre los bloques de nivel superior de un contenedor RIFF/WebP. */
@@ -72,10 +77,11 @@ test('el logotipo animado de BlokiCrush se sirve ligero, cuadrado y en bucle', (
 
   assert.ok(fs.existsSync(LOGO_PATH), 'Falta public/src/assets/BLOKICRUSH-LOGO.webp');
 
-  // El peso es parte del contrato: el maestro (GIF de 493 x 509, cinco
-  // fotogramas, ~568 KB) queda fuera de public/ y el WebP servido pesa menos de
-  // 200 KB. Es un WebP ANIMADO: VP8X con los bits de animacion (0x02) y alfa
-  // (0x10), bloque ANIM y un ANMF por fotograma.
+  // El peso es parte del contrato: el maestro (GIF de 493 x 509, seis
+  // fotogramas de 500/1700/2500/2500/2500/2500 ms, ~592 KB) queda fuera de
+  // public/ y el WebP servido pesa menos de 200 KB. Es un WebP ANIMADO: VP8X
+  // con los bits de animacion (0x02) y alfa (0x10), bloque ANIM y un ANMF por
+  // fotograma.
   const binary = fs.readFileSync(LOGO_PATH);
   assert.equal(binary.toString('ascii', 0, 4), 'RIFF', 'El logo debe ser un contenedor RIFF/WebP');
   assert.equal(binary.toString('ascii', 8, 12), 'WEBP', 'El logo debe ser un contenedor RIFF/WebP');
@@ -96,14 +102,18 @@ test('el logotipo animado de BlokiCrush se sirve ligero, cuadrado y en bucle', (
   // ANMF: x (3) y (3) ancho-1 (3) alto-1 (3) duracion (3) flags (1), asi que la
   // duracion arranca 20 bytes despues del fourCC.
   const frames = chunks.filter((chunk) => chunk.fourCC === 'ANMF');
-  assert.equal(frames.length, 5, 'El logo debe traer los cinco fotogramas del maestro');
-  for (const frame of frames) {
+  assert.equal(
+    frames.length,
+    LOGO_FRAME_DELAYS.length,
+    'El logo debe traer los seis fotogramas del maestro'
+  );
+  frames.forEach((frame, index) => {
     assert.equal(
       binary.readUIntLE(frame.offset + 20, 3),
-      500,
-      'Cada fotograma del logo dura los 500 ms del maestro'
+      LOGO_FRAME_DELAYS[index],
+      `El fotograma ${index + 1} debe durar los ${LOGO_FRAME_DELAYS[index]} ms del maestro`
     );
-  }
+  });
 
   // Lienzo cuadrado: el lockup (mascota + "BLOKI CRUSH") es 1:1, no el wordmark
   // 2:1 anterior. Se sirve a 320 px, casi el doble del mayor tamano en pantalla
@@ -323,12 +333,13 @@ test('el cartel de victoria se sirve en WebP con alfa y el maestro queda fuera d
   const css = read(STYLE_PATH);
   const ui = read(path.join(PUBLIC_DIR, 'ui', 'renderers', 'GameView.js'));
 
-  // El maestro (3,0 MB) se archiva en `design/`: no viaja al CDN ni se puede
+  // El maestro (2,8 MB) se archiva en `design/`: no viaja al CDN ni se puede
   // colar como respaldo en `public/src/assets`. La ultima version llego ahi con
-  // nombre propio (`BLOKI_CRUSH-WIN.png`), asi que se vigilan los dos nombres.
+  // nombre propio (`BLOKI_CRUSH-WIN.png`) y el cartel de la gorra «1xBet» con
+  // `Nuevo_BLOKI_CRUSH-WIN copy.png`, asi que se vigilan los tres nombres.
   assert.ok(fs.existsSync(WIN_MASTER_PATH), 'Falta el maestro design/victoria_dulce.png');
   assert.ok(fs.statSync(WIN_MASTER_PATH).size > 0, 'El maestro del cartel esta vacio');
-  for (const stray of ['¡Victoria dulce!.png', 'BLOKI_CRUSH-WIN.png']) {
+  for (const stray of ['¡Victoria dulce!.png', 'BLOKI_CRUSH-WIN.png', 'Nuevo_BLOKI_CRUSH-WIN copy.png']) {
     assert.ok(
       !fs.existsSync(path.join(PUBLIC_DIR, 'src', 'assets', stray)),
       `${stray} es un maestro: debe vivir en design/, no en public/src/assets`
@@ -339,6 +350,12 @@ test('el cartel de victoria se sirve en WebP con alfa y el maestro queda fuera d
   assert.ok(
     fs.existsSync(path.join(ROOT_DIR, 'design', 'victoria_dulce_clasica.png')),
     'El cartel anterior debe quedar archivado en design/victoria_dulce_clasica.png'
+  );
+  // Y el de la gorra «1xBet» —mismo arte, otra serigrafia— queda al lado para
+  // poder volver a el sin rastrear commits.
+  assert.ok(
+    fs.existsSync(path.join(ROOT_DIR, 'design', 'victoria_dulce_1xbet.png')),
+    'El cartel de la gorra «1xBet» debe quedar archivado en design/victoria_dulce_1xbet.png'
   );
 
   assert.ok(fs.existsSync(WIN_ART_PATH), 'Falta public/src/assets/victoria_dulce.webp');
@@ -382,7 +399,7 @@ test('el cartel de victoria se sirve en WebP con alfa y el maestro queda fuera d
   );
 
   // Peso: el lienzo completo a q=90 pesa 580 KB y se pinta a 640 px CSS como
-  // maximo. 1152 px conservan el detalle retina y dejan el archivo en ~409 KB.
+  // maximo. 1152 px conservan el detalle retina y dejan el archivo en ~406 KB.
   assert.ok(
     binary.length < 450 * 1024,
     `El cartel pesa ${(binary.length / 1024).toFixed(1)} KB (objetivo < 450 KB)`
@@ -1001,7 +1018,7 @@ test('la chapa del logo cabe en el pasillo del marco: ni pisa el HUD ni la prime
   const bottom = Number(centerY[1]) + halfH;
 
   // Lo pintado no es la caja: el alfa del WebP 320 x 320 empieza en 0,94 % y
-  // acaba en 98,75 % del alto de la caja (medido sobre los cinco fotogramas).
+  // acaba en 98,75 % del alto de la caja (medido sobre los seis fotogramas).
   const paintedTop = top + side * 0.0094;
   const paintedBottom = bottom - side * 0.0125;
 

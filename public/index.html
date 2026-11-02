@@ -111,9 +111,10 @@
              ================================================================== -->
         <div class="machine__side">
           <!-- Bloque 1 · Logo principal (flotacion continua via CSS). El WebP es
-               animado (5 fotogramas de 500 ms) y cuadrado, 320 x 320: reservar
-               ese mismo cuadro evita el salto al decodificar el primer fotograma.
-               Con `prefers-reduced-motion` el <source> sirve el primer fotograma
+               animado (6 fotogramas: 500 ms + 1,7 s + 4 x 2,5 s = 12,2 s por
+               vuelta) y cuadrado, 320 x 320: reservar ese mismo cuadro evita el
+               salto al decodificar el primer fotograma. Con
+               `prefers-reduced-motion` el <source> sirve el primer fotograma
                quieto, asi que el logo se ve igual pero sin movimiento. -->
           <div class="machine__hero">
             <span class="machine__spark machine__spark--left" aria-hidden="true">✦</span>
@@ -285,6 +286,9 @@
   <!-- Pantalla de victoria (GRAN PREMIO / MEGA / EPICA). Se muestra encima del
        juego con el cartel WIN, rayos giratorios y monedas cayendo por los
        laterales; `uiManager` la cierra sola a los 3-4 s o con un toque.
+       El cartel (`victoria_dulce.webp`, 1152 x 768) lo publica
+       `npm run build:win` desde `design/victoria_dulce.png`; el 3:2 de
+       `width`/`height` es el mismo que acota `.win__art` en style.css.
        Es decorativa para lectores de pantalla (`aria-hidden`): la cifra y el
        nivel los anuncia el banner del tablero, que es la region viva. -->
   <div class="win" id="win-overlay" hidden aria-hidden="true">

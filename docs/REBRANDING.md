@@ -107,19 +107,23 @@ el propio origen.
 ## Logotipo
 
 El lockup es **cuadrado** (mascota con gorra + "BLOKI CRUSH" en letras de caramelo
-dentro de una silueta redondeada) y esta **animado**: cinco fotogramas de 500 ms
-en bucle infinito en los que la mascota lame el chupachus.
+dentro de una silueta redondeada) y esta **animado**: seis fotogramas en bucle
+infinito en los que la mascota lame el chupachus. Los tiempos no son uniformes —
+500 ms el primero y 1,7 s + 4 x 2,5 s el resto, o sea 12,2 s por vuelta —, que es
+la version «lento corregido» de la animacion.
 
 1. El maestro vive en `design/` (fuera de `public/`, no viaja al CDN):
-   `BROKI_crush_animacion-logo-LENTO.gif`, 493 x 509 px, alfa real, ~568 KB.
+   `BROKI_crush_animacion-logo-LENTO.gif`, 493 x 509 px, alfa real, ~592 KB. El
+   ciclo anterior (cinco fotogramas de 500 ms) queda archivado en
+   `design/BROKI_crush_animacion-logo-rapido.gif`.
 2. `npm run build:logo` recorta el GIF a la tinta (489 x 480 desde 1,3), lo
    centra en un lienzo cuadrado transparente y publica
-   `public/src/assets/BLOKICRUSH-LOGO.webp` (320 x 320, cinco fotogramas de
-   500 ms, bucle infinito, alfa sin perdida, ~138 KB) y
+   `public/src/assets/BLOKICRUSH-LOGO.webp` (320 x 320, seis fotogramas con sus
+   tiempos intactos, bucle infinito, alfa sin perdida, ~140 KB) y
    `public/src/assets/BLOKICRUSH-LOGO-quieto.webp` (el primer fotograma como
-   estatico, ~41 KB). Antes de escribirlos valida el resultado: bits de animacion
-   y de alfa en VP8X, bloque `ANIM`, cinco `ANMF`, duraciones intactas, alfa byte
-   a byte y los topes de 200 y 80 KB.
+   estatico, ~42 KB). Antes de escribirlos valida el resultado: bits de animacion
+   y de alfa en VP8X, bloque `ANIM`, seis `ANMF`, duraciones una a una contra el
+   maestro, alfa byte a byte y los topes de 200 y 80 KB.
 3. `npm run build:logo -- --estatico` conserva la ruta anterior (vector
    `BLOKICRUSH-LOGO.svg` 1620 x 810 -> maestro `BlokiCrush Logo.png` -> WebP
    estatico de 900 x 450) para volver al wordmark sin rastrear commits.
@@ -249,13 +253,17 @@ movil antes del cambio.
 En escritorio el arte de marca (`d1`, `d3`, `d5`) ya es el candy del rebranding.
 
 El cartel de victoria tambien es el «caramelo brillante»: `design/victoria_dulce.png`
-(1536 x 1024 con alfa, 3,0 MB) se publica con `npm run build:win` como
-`victoria_dulce.webp` (1152 x 768, 409 KB, q=90 con `alphaQuality: 100`). El arte
-va a sangre —12 px de aire en el lado mas ancho—, asi que el script conserva el
-lienzo 3:2 que declaran `#win-art` y `.win__art` en vez de recortar un 1 %: un
-maestro con aire de verdad si se recorta, y entonces el script avisa de que hay
-que actualizar el HTML y el CSS. El cartel anterior (el mono de la piel dulce)
-queda archivado en `design/victoria_dulce_clasica.png`.
+(1536 x 1024 con alfa, 2,8 MB) se publica con `npm run build:win` como
+`victoria_dulce.webp` (1152 x 768, 406 KB, q=90 con `alphaQuality: 100`). El arte
+va a sangre —25 px de aire a la izquierda y 3 px arriba en el maestro actual—,
+asi que el script conserva el lienzo 3:2 que declaran `#win-art` y `.win__art`
+en vez de recortar un 1,6 %: un maestro con aire de verdad si se recorta, y
+entonces el script avisa de que hay que actualizar el HTML y el CSS. El cartel
+anterior (la piel dulce del mono) queda archivado en
+`design/victoria_dulce_clasica.png`, y el del mismo arte con la gorra «1xBet»
+—sustituido por el de la gorra «MeridianoBet»— en
+`design/victoria_dulce_1xbet.png`. Los tres comparten medidas, asi que cambiar
+de uno a otro es solo `npm run build:win`.
 
 Los simbolos del tablero (20 PNG en `public/src/assets/symbols/`) se mapean en
 `ui/lib/format.js` (`SYMBOL_IMAGE_PATH`). Si se sustituyen por iconografia de
